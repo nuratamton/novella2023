@@ -8,7 +8,7 @@ const AccountCreate = () => {
 
   return (
     <View style={styles.container}>
-      <Text style = {styles.text}> You've Successfully Created An Account! </Text>
+      <Text style={styles.text}> You've Successfully Created An Account! </Text>
       <Button
         onPress={() => navigation.replace("Feed")}
         text="Press to Continue"
@@ -28,8 +28,5 @@ const styles = StyleSheet.create({
     padding: 100,
     paddingTop: 300,
   },
-  text:{
-
-
-  }
+  text: {},
 });

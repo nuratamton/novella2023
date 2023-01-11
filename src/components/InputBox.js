@@ -1,7 +1,7 @@
 import { View, Text, TextInput, StyleSheet, Dimensions } from "react-native";
 import React from "react";
 
-const InputBox = ({value, setValue, placeholder, secure = "false"}) => {
+const InputBox = ({ value, setValue, placeholder, secure = "false" }) => {
   const windowWidth = Dimensions.get("window").width;
 
   return (
@@ -26,7 +26,6 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     padding: 15,
     margin: 10,
-    
   },
   input: {},
 });

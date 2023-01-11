@@ -5,7 +5,7 @@ import {
   Image,
   StyleSheet,
   Dimensions,
-  TouchableOpacity
+  TouchableOpacity,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import Logo from "../../assets/images/novella_logo.png";
@@ -15,9 +15,10 @@ import { auth } from "../firebase";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
-  sendPasswordResetEmail
+  sendPasswordResetEmail,
 } from "firebase/auth";
 import { useNavigation } from "@react-navigation/core";
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 const LogIn = () => {
   const windowWidth = Dimensions.get("window").width;
@@ -25,7 +26,11 @@ const LogIn = () => {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  //NOT MAIN CODE
+  const [IGNOREpassword, IGNOREsetPassword] = useState(""); //IF YOU DID NOT NOTICE, IT SAYS IGNOREE
   const [isSecureEntry, setIsSecureEntry] = useState(true);
+
 
   const navigation = useNavigation();
 
@@ -58,11 +63,12 @@ const LogIn = () => {
   };
 
   const forgotPasswordPressed = () => {
-    sendPasswordResetEmail(auth,email)
+    sendPasswordResetEmail(auth, email)
       .then(() => {
-        alert("Password reset email sent!")
-      }).catch((error) => {
-        alert(error)
+        alert("Password reset email sent!");
+      })
+      .catch((error) => {
+        alert(error);
       });
   };
 
@@ -85,36 +91,33 @@ const LogIn = () => {
           secure={false}
         />
         <InputBox
-        // value={password}
-        // setValue={setPassword}
-        // placeholder="Password"
-        // secure={true}
-
-
           value={password}
-          setValue={setPassword}  
+          setValue={setPassword}
           placeholder="Password"
-          // secure={isSecureEntry}
-        //   icon={
-        //   <TouchableOpacity onPress={() => {
-        //     setIsSecureEntry((prev) => !prev)
-        //   }}>
-        //   <Text>{isSecureEntry ? "Show" : "Hide"} </Text>
-        //   </TouchableOpacity>
-        // }
-        //   iconPosition="right"
-          // setValue={(value) => {
-          //   onChange( {name: 'password', value});
-          // }}
+          secure={true}
         />
+                
+{/* 
+        <InputBox
+          // value={IGNOREpassword}
+          placeholder="STFU"
+          secure={isSecureEntry ? true : false}>
+          <MaterialCommunityIcons
+            name="access-point" size={24} color="black" 
+            // name={isSecureEntry ? 'eye-off' : 'eye'}
+            // onPress={() => setIsSecureEntry(!isSecureEntry)} 
+            />          
+        </InputBox> */}
+        {/* <MaterialCommunityIcons name="calendar-today" size={130} color="#1473E6" /> */}
 
+        <TouchableOpacity
+          onPress={() => navigation.replace("forgotPass")}
+        >
+          <Text  style={styles.forgotPassword}> Forgot Password </Text>
+        </TouchableOpacity>
 
         <Button onPress={handleLogIn} text="Login" />
-        <Button
-          onPress={forgotPasswordPressed}
-          text="Forgot Password"
-          type="TERTIARY"
-        />
+
         <Button
           onPress={() => navigation.replace("Signup")}
           text="New Member? Sign Up"
@@ -139,4 +142,9 @@ const styles = StyleSheet.create({
     maxHeight: 300,
     marginBottom: 30,
   },
+  forgotPassword: {
+    color: "#949391",
+    left: 100
+    
+  }
 });
