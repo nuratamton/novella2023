@@ -5,52 +5,66 @@ import {
   Image,
   StyleSheet,
   Dimensions,
+  TouchableOpacity
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Logo from "../../assets/images/novella_logo.png";
 import InputBox from "../components/InputBox";
 import Button from "../components/Button";
-import {auth} from '../firebase'
-import {createUserWithEmailAndPassword, signInWithEmailAndPassword} from 'firebase/auth';
+import { auth } from "../firebase";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail
+} from "firebase/auth";
+import { useNavigation } from "@react-navigation/core";
 
 const LogIn = () => {
   const windowWidth = Dimensions.get("window").width;
   const windowHeight = Dimensions.get("window").height;
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isSecureEntry, setIsSecureEntry] = useState(true);
+
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        navigation.replace("Feed");
+      }
+    });
+
+    return unsubscribe;
+  }, []);
 
   const handleSignUp = () => {
-  createUserWithEmailAndPassword(auth, email, password)
-    .then(userCredentials => {
-      const user = userCredentials.user;
-      console.log(user.email)
-    })
-    .catch(error => alert(error.message))
-  }
-
-  const handleLogIn = () => {
-  signInWithEmailAndPassword(auth, email, password)
-    .then(userCredentials => {
-      const user = userCredentials.user;
-      console.log("Logged In: ",user.email)
-    })
-    .catch(error => alert(error.message))
-  }
-
-  const forgotPasswordPressed = () => {
-    console.warn("forgot password pressed");
+    createUserWithEmailAndPassword(auth, email, password)
+      .then((userCredentials) => {
+        const user = userCredentials.user;
+        console.log(user.email);
+      })
+      .catch((error) => alert(error.message));
   };
 
-  // const signUpPressed = () => {
-  //   AuthProvider(email, password)
-  //     .then((userCredentials) => {
-  //       const user = userCredentials.user;
-  //       console.log(user.email);
-  //     })
-  //     .catch((error) => alert(error.message));
-  //   console.warn("Sign Up is pressed hard my guy");
-  // };
+  const handleLogIn = () => {
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredentials) => {
+        const user = userCredentials.user;
+        console.log("Logged In: ", user.email);
+      })
+      .catch((error) => alert(error.message));
+  };
+
+  const forgotPasswordPressed = () => {
+    sendPasswordResetEmail(auth,email)
+      .then(() => {
+        alert("Password reset email sent!")
+      }).catch((error) => {
+        alert(error)
+      });
+  };
 
   return (
     <KeyboardAvoidingView behavior="padding">
@@ -71,11 +85,30 @@ const LogIn = () => {
           secure={false}
         />
         <InputBox
+        // value={password}
+        // setValue={setPassword}
+        // placeholder="Password"
+        // secure={true}
+
+
           value={password}
-          setValue={setPassword}
+          setValue={setPassword}  
           placeholder="Password"
-          secure={true}
+          // secure={isSecureEntry}
+        //   icon={
+        //   <TouchableOpacity onPress={() => {
+        //     setIsSecureEntry((prev) => !prev)
+        //   }}>
+        //   <Text>{isSecureEntry ? "Show" : "Hide"} </Text>
+        //   </TouchableOpacity>
+        // }
+        //   iconPosition="right"
+          // setValue={(value) => {
+          //   onChange( {name: 'password', value});
+          // }}
         />
+
+
         <Button onPress={handleLogIn} text="Login" />
         <Button
           onPress={forgotPasswordPressed}
@@ -83,9 +116,9 @@ const LogIn = () => {
           type="TERTIARY"
         />
         <Button
-          onPress={handleSignUp}
+          onPress={() => navigation.replace("Signup")}
           text="New Member? Sign Up"
-          type="TERTIARY"
+          type="SECONDARY"
         />
       </View>
     </KeyboardAvoidingView>
@@ -96,7 +129,7 @@ export default LogIn;
 
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
+    width: "100%",
     backgroundColor: "#fff",
     alignItems: "center",
     padding: 100,

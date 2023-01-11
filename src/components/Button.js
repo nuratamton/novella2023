@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, Dimensions, TouchableOpacity} from "react-nativ
 import React from "react";
 
 
-const Button = ({onPress, text, type = "PRIMARY"}) => {
+const Button = ({onPress, text, type = "PRIMARY", text_type = "PRIMARY"}) => {
   const windowWidth = Dimensions.get("window").width;
 
   return (
@@ -24,10 +24,21 @@ const styles = StyleSheet.create({
   },
 
   container_PRIMARY:{
-    backgroundColor: "#E1E0FF",
+    backgroundColor: "#9576f5",
+    borderColor: "#8367d6",
+    borderWidth: 1
+  },
+
+  container_SECONDARY:{ 
+    position: "relative",
+    bottom: 1,
+
+    borderWidth: 1,
+
   },
   
   container_TERITARY:{
+    
   },
 
   text: {
@@ -35,6 +46,7 @@ const styles = StyleSheet.create({
   },
 
   text_PRIMARY:{
+    color: "#fff",
     fontWeight: "bold",
   },
   text_TERTIARY:{

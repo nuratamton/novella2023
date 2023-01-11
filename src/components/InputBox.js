@@ -19,9 +19,9 @@ const InputBox = ({value, setValue, placeholder, secure = "false"}) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#fff",
+    backgroundColor: "#f2f2f2",
     maxWidth: 500,
-    borderColor: "#000000",
+    borderColor: "#f2f2f2",
     borderWidth: 1,
     borderRadius: 15,
     padding: 15,
