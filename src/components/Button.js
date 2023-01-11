@@ -1,13 +1,14 @@
-import { View, Text, StyleSheet, Dimensions, Pressable } from "react-native";
+import { View, Text, StyleSheet, Dimensions, TouchableOpacity} from "react-native";
 import React from "react";
+
 
 const Button = ({onPress, text, type = "PRIMARY"}) => {
   const windowWidth = Dimensions.get("window").width;
 
   return (
-    <Pressable onPress={onPress} style={[styles.container, styles[`container_${type}`] ,{ width: windowWidth * 0.9 }]}>
-      <Text style={[styles.text, ]}>{text}</Text>
-    </Pressable>
+    <TouchableOpacity onPress={onPress} style={[styles.container, styles[`container_${type}`] ,{ width: windowWidth * 0.9 }]}>
+      <Text style={[styles.text, styles[`text_${type}`]]}>{text}</Text>
+    </TouchableOpacity>
   );
 };
 
@@ -30,9 +31,15 @@ const styles = StyleSheet.create({
   },
 
   text: {
-    fontWeight: "bold",
-    fontStyle: "normal",
+    
   },
+
+  text_PRIMARY:{
+    fontWeight: "bold",
+  },
+  text_TERTIARY:{
+
+  }
 });
 
 export default Button;
