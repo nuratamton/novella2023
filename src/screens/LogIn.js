@@ -7,7 +7,7 @@ import {
   Dimensions,
   TouchableOpacity,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Logo from "../../assets/images/novella_logo.png";
 import InputBox from "../components/InputBox";
 import Button from "../components/Button";
@@ -18,7 +18,6 @@ import {
   sendPasswordResetEmail,
 } from "firebase/auth";
 import { useNavigation } from "@react-navigation/core";
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 const LogIn = () => {
   const windowWidth = Dimensions.get("window").width;
@@ -34,15 +33,15 @@ const LogIn = () => {
 
   const navigation = useNavigation();
 
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user) {
-        navigation.replace("Feed");
-      }
-    });
+  // useEffect(() => {
+  //   const unsubscribe = auth.onAuthStateChanged((user) => {
+  //     if (user) {
+  //       navigation.replace("Feed");
+  //     }
+  //   });
 
-    return unsubscribe;
-  }, []);
+  //   return unsubscribe;
+  // }, []);
 
   const handleSignUp = () => {
     createUserWithEmailAndPassword(auth, email, password)
@@ -57,7 +56,9 @@ const LogIn = () => {
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredentials) => {
         const user = userCredentials.user;
-        console.log("Logged In: ", user.email);
+        console.warn("Logged In: ", user.email);
+        // navigation.navigate("Feed");
+
       })
       .catch((error) => alert(error.message));
   };
@@ -73,8 +74,9 @@ const LogIn = () => {
   };
 
   return (
-    <KeyboardAvoidingView behavior="padding">
-      <View style={styles.container}>
+    <KeyboardAvoidingView behavior="padding" style={{height: "100%", backgroundColor: "fff"}}>
+      <View style={[styles.container, { height: windowHeight },
+            { width: windowWidth}, ]}>
         <Image
           source={Logo}
           style={[
@@ -97,19 +99,6 @@ const LogIn = () => {
           secure={true}
         />
                 
-{/* 
-        <InputBox
-          // value={IGNOREpassword}
-          placeholder="STFU"
-          secure={isSecureEntry ? true : false}>
-          <MaterialCommunityIcons
-            name="access-point" size={24} color="black" 
-            // name={isSecureEntry ? 'eye-off' : 'eye'}
-            // onPress={() => setIsSecureEntry(!isSecureEntry)} 
-            />          
-        </InputBox> */}
-        {/* <MaterialCommunityIcons name="calendar-today" size={130} color="#1473E6" /> */}
-
         <TouchableOpacity
           onPress={() => navigation.replace("forgotPass")}
         >
@@ -132,7 +121,6 @@ export default LogIn;
 
 const styles = StyleSheet.create({
   container: {
-    width: "100%",
     backgroundColor: "#fff",
     alignItems: "center",
     padding: 100,

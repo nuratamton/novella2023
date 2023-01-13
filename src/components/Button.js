@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
   text_PRIMARY: {
     color: "#fff",
     fontWeight: "bold",
-    fontSize: "20px",
+    fontSize: 20,
   },
   text_TERTIARY: {
     padding: 10,

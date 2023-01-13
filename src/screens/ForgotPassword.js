@@ -1,7 +1,6 @@
 import {
   KeyboardAvoidingView,
   View,
-  Text,
   Image,
   StyleSheet,
   Dimensions,

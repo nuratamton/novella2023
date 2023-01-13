@@ -8,12 +8,14 @@ import { auth } from "../firebase";
 const Feed = () => {
   const navigation = useNavigation();
 
-  const handleSignOut = () => {
-    signOut(auth)
+const handleSignOut = async() => {
+    await signOut(auth)
       .then(() => {
-        navigation.replace("Login");
+        console.log("Logged out")
+        // navigation.replace("Login");
       })
       .catch((error) => alert(error.message));
+      console.log(auth.currentUser)
   };
 
   return (

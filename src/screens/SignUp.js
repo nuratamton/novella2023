@@ -11,7 +11,10 @@ import Logo from "../../assets/images/novella_logo.png";
 import InputBox from "../components/InputBox";
 import Button from "../components/Button";
 import { auth } from "../firebase";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+} from "firebase/auth";
 import { useNavigation } from "@react-navigation/core";
 
 const SignUp = () => {
@@ -27,7 +30,7 @@ const SignUp = () => {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
-        navigation.replace("Accountcr");
+        navigation.replace("EmailVerification");
       }
     });
 
@@ -40,7 +43,18 @@ const SignUp = () => {
         const user = userCredentials.user;
         console.log(user.email);
       })
-      .catch((error) => alert(error.message));
+      .then(() => {
+        signOut(auth);
+        sendEmailVerification(auth.currentUser);
+        console
+          .warn("here")
+          .then(() => {
+            alert("Verification Email Sent!");
+          })
+          .catch((error) => {
+            alert(error.message);
+          });
+      });
   };
 
   return (
