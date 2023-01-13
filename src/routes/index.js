@@ -3,7 +3,7 @@ import React from "react";
 import AppStack from "./AppStack";
 import AuthStack from "./AuthStack";
 import { useState, useEffect } from "react";
-import {auth} from "../firebase";
+import { auth } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
 
 const RootStack = () => {
@@ -21,7 +21,7 @@ const RootStack = () => {
     return unsubscribe;
   }, []);
 
-  return user ? <AppStack /> : <AuthStack />
+  return user ? <AppStack /> : <AuthStack />;
 };
 
 export default RootStack;

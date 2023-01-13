@@ -10,12 +10,11 @@ import { createStackNavigator } from "@react-navigation/stack";
 
 const Stack = createStackNavigator();
 
-
 const AuthStack = () => {
   return (
     <NavigationContainer style={styles.container}>
       <Stack.Navigator>
-      <Stack.Screen
+        <Stack.Screen
           options={{ headerShown: false }}
           name="Login"
           component={LogIn}

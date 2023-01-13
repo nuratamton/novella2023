@@ -17,7 +17,7 @@ const Tab = createMaterialBottomTabNavigator();
 const AppStack = () => {
   return (
     <NavigationContainer>
-        <Tab.Navigator >
+      <Tab.Navigator>
         <Tab.Screen
           name="Feed"
           component={Feed}
@@ -29,8 +29,7 @@ const AppStack = () => {
         <Tab.Screen
           name="Explore"
           component={Explore}
-
-         options={{
+          options={{
             tabBarLabel: false,
             tabBarIcon: () => (
               <AntDesign name="search1" size={25} color="black" />

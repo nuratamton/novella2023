@@ -30,7 +30,6 @@ const LogIn = () => {
   const [IGNOREpassword, IGNOREsetPassword] = useState(""); //IF YOU DID NOT NOTICE, IT SAYS IGNOREE
   const [isSecureEntry, setIsSecureEntry] = useState(true);
 
-
   const navigation = useNavigation();
 
   // useEffect(() => {
@@ -58,7 +57,6 @@ const LogIn = () => {
         const user = userCredentials.user;
         console.warn("Logged In: ", user.email);
         // navigation.navigate("Feed");
-
       })
       .catch((error) => alert(error.message));
   };
@@ -74,9 +72,17 @@ const LogIn = () => {
   };
 
   return (
-    <KeyboardAvoidingView behavior="padding" style={{height: "100%", backgroundColor: "fff"}}>
-      <View style={[styles.container, { height: windowHeight },
-            { width: windowWidth}, ]}>
+    <KeyboardAvoidingView
+      behavior="padding"
+      style={{ height: "100%", backgroundColor: "fff" }}
+    >
+      <View
+        style={[
+          styles.container,
+          { height: windowHeight },
+          { width: windowWidth },
+        ]}
+      >
         <Image
           source={Logo}
           style={[
@@ -98,11 +104,9 @@ const LogIn = () => {
           placeholder="Password"
           secure={true}
         />
-                
-        <TouchableOpacity
-          onPress={() => navigation.replace("forgotPass")}
-        >
-          <Text  style={styles.forgotPassword}> Forgot Password </Text>
+
+        <TouchableOpacity onPress={() => navigation.replace("forgotPass")}>
+          <Text style={styles.forgotPassword}> Forgot Password </Text>
         </TouchableOpacity>
 
         <Button onPress={handleLogIn} text="Login" />
@@ -132,7 +136,6 @@ const styles = StyleSheet.create({
   },
   forgotPassword: {
     color: "#949391",
-    left: 100
-    
-  }
+    left: 100,
+  },
 });
