@@ -17,6 +17,8 @@ import {
 } from "firebase/auth";
 import { useNavigation } from "@react-navigation/core";
 
+import { FontAwesome } from '@expo/vector-icons';
+
 const SignUp = () => {
   const windowWidth = Dimensions.get("window").width;
   const windowHeight = Dimensions.get("window").height;
