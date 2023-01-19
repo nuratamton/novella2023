@@ -4,10 +4,11 @@ import {
   StyleSheet,
   Dimensions,
   TouchableOpacity,
+  
 } from "react-native";
 import React from "react";
 
-const Button = ({ onPress, text, type = "PRIMARY", text_type = "PRIMARY" }) => {
+const Button = ({ onPress, text, type = "PRIMARY", text_type = "PRIMARY", icon }) => {
   const windowWidth = Dimensions.get("window").width;
 
   return (

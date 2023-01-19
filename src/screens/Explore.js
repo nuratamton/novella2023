@@ -3,7 +3,7 @@ import React from 'react'
 
 const Explore = () => {
   return (
-    <View>
+    <View style={styles.container}>
       <Text>Explore</Text>
     </View>
   )
@@ -11,4 +11,9 @@ const Explore = () => {
 
 export default Explore
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "blue"
+  }
+})

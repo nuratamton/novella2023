@@ -1,33 +1,60 @@
-import { KeyboardAvoidingView, StyleSheet, Text, View } from "react-native";
+import {
+  SafeAreaView,
+  TouchableOpacity,
+  StyleSheet,
+  Dimensions,
+  Text,
+  View,
+  Image,
+} from "react-native";
 import React from "react";
 import { signOut } from "firebase/auth";
-import { useNavigation } from "@react-navigation/core";
 import Button from "../components/Button";
 import { auth } from "../firebase";
+import Logo from "../../assets/images/novella.png";
 
 const Feed = () => {
-  const navigation = useNavigation();
-
-const handleSignOut = async() => {
-    await signOut(auth)
-      .then(() => {
-        console.log("Logged out")
-        // navigation.replace("Login");
-      })
-      .catch((error) => alert(error.message));
-      console.log(auth.currentUser)
-  };
+  const windowWidth = Dimensions.get("window").width;
+  const windowHeight = Dimensions.get("window").height;
 
   return (
-    <KeyboardAvoidingView behavior="padding">
-      <View>
-        <Text>Feed Screen</Text>
-        <Button onPress={handleSignOut} text="Sign out noob" />
+    <SafeAreaView style={styles.container}>
+      <View
+        style={[
+          styles.header,
+          { height: windowHeight * 0.1 },
+          { width: windowWidth },
+        ]}
+      >
+        <Image source={Logo} style={[styles.logo, {height: windowHeight * 0.07}, {width: windowWidth*0.09}]} resizeMode="contain" />
+        <TouchableOpacity>
+          <Text>Post</Text>
+        </TouchableOpacity>
       </View>
-    </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
 export default Feed;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    padding: 20,
+   
+  },
+  logo: {
+    justifyContent: "space-around",
+    alignContent: "center",
+    maxWidth: 100,
+    maxHeight: 100,
+    marginBottom: 30,
+    left: 10,
+    bottom: 15
+
+  },
+});

@@ -14,21 +14,16 @@ import InputBox from "../components/InputBox";
 import Button from "../components/Button";
 import { auth } from "../firebase";
 
-import {
-  signInWithEmailAndPassword,
-} from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 import { useNavigation } from "@react-navigation/core";
 
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 const LogIn = () => {
   const windowWidth = Dimensions.get("window").width;
   const windowHeight = Dimensions.get("window").height;
-
   const [email, setEmail] = useState("");
-
-
   const [password, setPassword] = useState("");
   const [data, setData] = useState({
     isSecureTextEntry: true,
@@ -41,7 +36,6 @@ const LogIn = () => {
       .then((userCredentials) => {
         const user = userCredentials.user;
         console.warn("Logged In: ", user.email);
-        // navigation.navigate("Feed");
       })
       .catch((error) => alert(error.message));
   };
@@ -73,15 +67,14 @@ const LogIn = () => {
           placeholder="Email"
           secure={false}
         />
-
-        <View style= {styles.passwordContainer}>
+        <View style={styles.passwordContainer}>
           <InputBox
             value={password}
             setValue={setPassword}
             placeholder="Password"
             secure={data.isSecureTextEntry ? true : false}
-            style= {styles.passwordInput}
-            />
+            style={styles.passwordInput}
+          />
           <TouchableOpacity
             onPress={() => {
               setData({
@@ -94,7 +87,7 @@ const LogIn = () => {
               color="gray"
               size={25}
               paddingHorizontal="12%"
-              style= {styles.eyeicon}
+              style={styles.eyeicon}
             />
           </TouchableOpacity>
         </View>
@@ -132,13 +125,12 @@ const styles = StyleSheet.create({
     color: "#949391",
     left: 100,
   },
-  passwordContainer:{
+  passwordContainer: {
     position: "relative",
     justifyContent: "center",
-    alignItems: "center"
+    alignItems: "center",
   },
-  eyeicon:{
+  eyeicon: {
     position: "absolute",
-
-  }
+  },
 });

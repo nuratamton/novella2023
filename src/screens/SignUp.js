@@ -29,25 +29,14 @@ const SignUp = () => {
 
   const navigation = useNavigation();
 
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user) {
-        navigation.replace("EmailVerification");
-      }
-    });
-
-    return unsubscribe;
-  }, []);
-
-  const handleSignUp = () => {
-    createUserWithEmailAndPassword(auth, email, password)
+  const handleSignUp = async () => {
+    await createUserWithEmailAndPassword(auth, email, password)
       .then((userCredentials) => {
         const user = userCredentials.user;
         console.log(user.email);
       })
-      .then(() => {
-        signOut(auth);
-        sendEmailVerification(auth.currentUser);
+      .then(async () => {
+        await sendEmailVerification(auth.currentUser);
         console
           .warn("here")
           .then(() => {
