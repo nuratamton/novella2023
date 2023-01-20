@@ -10,7 +10,6 @@ import React from "react";
 
 const Button = ({ onPress, text, type = "PRIMARY", text_type = "PRIMARY", icon }) => {
   const windowWidth = Dimensions.get("window").width;
-
   return (
     <TouchableOpacity
       onPress={onPress}
