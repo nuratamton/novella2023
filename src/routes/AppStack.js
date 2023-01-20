@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
 
-import { NavigationContainer } from "@react-navigation/native";
+import { NavigationContainer , createNavigationContainerRef} from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
 import { BlurView } from "expo-blur";
@@ -17,6 +17,8 @@ import Create from "../screens/Create";
 import Notifications from "../screens/Notifications";
 import UserProfile from "../screens/UserProfile";
 
+import Post from "../screens/Post";
+
 import CreateScrapbook from "../screens/CreateScrapbook";
 import CreateGroup from "../screens/CreateGroup";
 
@@ -25,60 +27,48 @@ import { createStackNavigator } from "@react-navigation/stack";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
-
-// function CreateStack({navigation}) {
-//   <NavigationContainer>
-//     <Stack.Navigator>
-//     <Stack.Screen
-//         // options={{ headerShown: false }}
-//         name="CreateModal"
-//         component={CreateModal}
-//       />
-//       <Stack.Screen
-//         // options={{ headerShown: false }}
-//         name="CreateScrapbook"
-//         component={CreateScrapbook}
-//       />
-//       <Stack.Screen
-//         // options={{ headerShown: false }}
-//         name="CreateGroup"
-//         component={CreateGroup}
-//       />
-//     </Stack.Navigator>
-//   </NavigationContainer>;
-// };
-
+export const navRef = createNavigationContainerRef();
 const AppStack = () => {
   CreateStack = () => {
-    return(
+    return (
       <Stack.Navigator>
-    <Stack.Screen
+        {/* <Stack.Screen
         // options={{ headerShown: false }}
         name="CreateModal"
         component={CreateModal}
-      />
-      <Stack.Screen
-        // options={{ headerShown: false }}
-        name="CreateScrapbook"
-        component={CreateScrapbook}
-      />
-      <Stack.Screen
-        // options={{ headerShown: false }}
-        name="CreateGroup"
-        component={CreateGroup}
-      />
-    </Stack.Navigator>
-      )
-    
+      /> */}
+        <Stack.Screen
+          options={{ headerShown: false }}
+          name="CreateScrapbook"
+          component={CreateScrapbook}
+        />
+        <Stack.Screen
+          options={{ headerShown: false }}
+          name="CreateGroup"
+          component={CreateGroup}
+        />
+      </Stack.Navigator>
+    );
+  };
 
-  }
- 
+  FeedStack = () => {
+    return (
+      <Stack.Navigator
+        screenOptions={{
+          headerShown: false,
+        }}
+      >
+        <Stack.Screen name="Feed" component={Feed} />
+        {/* <Stack.Screen name = "Post" component={Post} options={{presentation: "modal"}}/> */}
+      </Stack.Navigator>
+    );
+  };
 
-
-  return (
-    <NavigationContainer>
+  TabStack = () => {
+    return (
       <Tab.Navigator
         screenOptions={{
+          headerShown: false,
           tabBarLabel: ({ focused }) => {
             let label;
             return (label = focused ? (
@@ -96,9 +86,10 @@ const AppStack = () => {
         }}
       >
         <Tab.Screen
-          name="Feed"
-          component={Feed}
+          name="FeedStack"
+          component={FeedStack}
           options={{
+            headerShown: false,
             tabBarIcon: ({ focused }) => {
               let label;
               return (label = focused ? (
@@ -119,15 +110,15 @@ const AppStack = () => {
           }}
         />
         <Tab.Screen
-          name="CreateStack"
-          children={this.CreateStack}
+          name="CreateModal"
+          component={CreateModal}
           // component={CreateStack}
           style={styles.button}
           options={{
-            // tabBarButton: () => <CreateModal />,
-            tabBarIcon: () => (
-              <AntDesign name="pluscircle" size={30} color="purple" />
-            ),
+            tabBarButton: () => <CreateModal />,
+            // tabBarIcon: () => (
+            //   <AntDesign name="pluscircle" size={30} color="purple" />
+            // ),
           }}
         />
         <Tab.Screen
@@ -154,6 +145,26 @@ const AppStack = () => {
           }}
         />
       </Tab.Navigator>
+    );
+  };
+
+  return (
+    <NavigationContainer ref={navRef}>
+      <Stack.Navigator
+        screenOptions={{
+          headerShown: false,
+        }}
+      >
+        <Stack.Screen name="TabStack" component={TabStack} />
+        <Stack.Screen
+          name="Post"
+          component={Post}
+          options={{ presentation: "modal" }}
+        />
+        <Stack.Screen name="CreateModal" component={CreateModal} />
+        <Stack.Screen name="CreateScrapbook" component={CreateScrapbook} />
+        <Stack.Screen name="CreateGroup" component={CreateGroup} />
+      </Stack.Navigator>
     </NavigationContainer>
   );
 };

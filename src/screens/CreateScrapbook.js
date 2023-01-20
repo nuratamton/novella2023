@@ -1,14 +1,18 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, View , TouchableOpacity, SafeAreaView} from 'react-native'
 import React from 'react'
-
+import { popFromStack } from "../components/NavigationMethod"
 const CreateScrapbook = () => {
   return (
-    <View>
+    <SafeAreaView>
+      <TouchableOpacity onPress = {() => popFromStack()}>
       <Text>CreateScrapbook</Text>
-    </View>
+      </TouchableOpacity>
+    </SafeAreaView>
   )
 }
 
 export default CreateScrapbook
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  
+})

@@ -65,7 +65,6 @@ const LogIn = () => {
           value={email}
           setValue={setEmail}
           placeholder="Email"
-          secure={false}
         />
         <View style={styles.passwordContainer}>
           <InputBox

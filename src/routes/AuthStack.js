@@ -4,6 +4,7 @@ import Feed from "../screens/Feed";
 import LogIn from "../screens/LogIn";
 import SignUp from "../screens/SignUp";
 import ForgotPassword from "../screens/ForgotPassword";
+import UserInfo from "../screens/UserInfo";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 
@@ -28,6 +29,11 @@ const AuthStack = () => {
           name="forgotPass"
           component={ForgotPassword}
         />
+        <Stack.Screen
+          options={{headerShown : false}}
+          name = "UserInfo"
+          component={UserInfo}/>
+          
       </Stack.Navigator>
     </NavigationContainer>
   );

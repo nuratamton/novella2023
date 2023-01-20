@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
 import EmailVerification from "../screens/EmailVerification";
+import UserInfo from "../screens/UserInfo";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 
@@ -11,6 +12,11 @@ const VerifyStack = () => {
     
     <NavigationContainer>
       <Stack.Navigator>
+        <Stack.Screen 
+          options={{ headerShown: false}}
+          name="UserInfo"
+          component={UserInfo}
+        />
         <Stack.Screen
            options={{ headerShown: false}}
            name="EmailVerification"

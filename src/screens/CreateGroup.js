@@ -1,11 +1,13 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, View , SafeAreaView, TouchableOpacity } from 'react-native'
 import React from 'react'
-
+import { popFromStack } from "../components/NavigationMethod"
 const CreateGroup = () => {
   return (
-    <View>
+    <SafeAreaView>
+      <TouchableOpacity onPress = {() => popFromStack()}>
       <Text>CreateGroup</Text>
-    </View>
+      </TouchableOpacity>
+    </SafeAreaView>
   )
 }
 
