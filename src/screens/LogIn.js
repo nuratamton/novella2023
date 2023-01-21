@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Dimensions,
   TouchableOpacity,
+  ScrollView,
 } from "react-native";
 
 import React, { useState } from "react";
@@ -41,69 +42,58 @@ const LogIn = () => {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior="padding"
-      style={{ height: "100%", backgroundColor: "fff" }}
-    >
-      <View
-        style={[
-          styles.container,
-          { height: windowHeight },
-          { width: windowWidth },
-        ]}
-      >
-        <Image
-          source={Logo}
-          style={[
-            styles.logo,
-            { height: windowHeight * 0.3 },
-            { width: windowWidth * 0.8 },
-          ]}
-          resizeMode="contain"
-        />
-        <InputBox
-          value={email}
-          setValue={setEmail}
-          placeholder="Email"
-        />
-        <View style={styles.passwordContainer}>
-          <InputBox
-            value={password}
-            setValue={setPassword}
-            placeholder="Password"
-            secure={data.isSecureTextEntry ? true : false}
-            style={styles.passwordInput}
+    <ScrollView>
+      <KeyboardAvoidingView behavior="padding">
+        <View style={styles.container}>
+          <Image
+            source={Logo}
+            style={[
+              styles.logo,
+              { height: windowHeight * 0.3 },
+              { width: windowWidth * 0.8 },
+            ]}
+            resizeMode="contain"
           />
-          <TouchableOpacity
-            onPress={() => {
-              setData({
-                isSecureTextEntry: !data.isSecureTextEntry,
-              });
-            }}
-          >
-            <MaterialCommunityIcons
-              name={data.isSecureTextEntry ? "eye-off" : "eye"}
-              color="gray"
-              size={25}
-              paddingHorizontal="12%"
-              style={styles.eyeicon}
+          <InputBox value={email} setValue={setEmail} placeholder="Email" />
+          <View style={styles.passwordContainer}>
+            <InputBox
+              value={password}
+              setValue={setPassword}
+              placeholder="Password"
+              secure={data.isSecureTextEntry ? true : false}
+              style={styles.passwordInput}
             />
+            <TouchableOpacity
+              onPress={() => {
+                setData({
+                  isSecureTextEntry: !data.isSecureTextEntry,
+                });
+              }}
+            >
+              <MaterialCommunityIcons
+                name={data.isSecureTextEntry ? "eye-off" : "eye"}
+                color="gray"
+                size={25}
+                paddingHorizontal="12%"
+                style={styles.eyeicon}
+              />
+            </TouchableOpacity>
+          </View>
+
+          <TouchableOpacity onPress={() => navigation.replace("forgotPass")}>
+            <Text style={styles.forgotPassword}> Forgot Password </Text>
           </TouchableOpacity>
+
+          <Button onPress={handleLogIn} text="Login" />
+
+          <Button
+            onPress={() => navigation.replace("Signup")}
+            text="New Member? Sign Up"
+            type="SECONDARY"
+          />
         </View>
-
-        <TouchableOpacity onPress={() => navigation.replace("forgotPass")}>
-          <Text style={styles.forgotPassword}> Forgot Password </Text>
-        </TouchableOpacity>
-
-        <Button onPress={handleLogIn} text="Login" />
-
-        <Button
-          onPress={() => navigation.replace("Signup")}
-          text="New Member? Sign Up"
-          type="SECONDARY"
-        />
-      </View>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </ScrollView>
   );
 };
 
@@ -111,9 +101,11 @@ export default LogIn;
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#fff",
+    backgroundColor: "#FFFFFF",
     alignItems: "center",
     padding: 100,
+    width: "100%",
+    height: "100%",
   },
   logo: {
     maxWidth: 500,

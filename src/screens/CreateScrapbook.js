@@ -14,11 +14,22 @@ import InputBox from "../components/InputBox";
 import Button from "../components/Button";
 import * as ImagePicker from "expo-image-picker";
 import { db } from "../firebase";
-import { getStorage, ref, uploadBytes , getDownloadURL} from "firebase/storage";
-import { getDocs, collection, doc , setDoc , collectionGroup} from "firebase/firestore";
+import {
+  getStorage,
+  ref,
+  uploadBytesResumable,
+  getDownloadURL,
+} from "firebase/storage";
+import {
+  getDocs,
+  collection,
+  doc,
+  setDoc,
+  collectionGroup,
+} from "firebase/firestore";
 import { auth } from "../firebase";
-import uuid from 'react-native-uuid';
-const CreateScrapbook = () => {
+import uuid from "react-native-uuid";
+const CreateScrapbook = ({ navigation }) => {
   const [title, setTitle] = useState("");
   const [scrapbookCover, setScrapbookCover] = useState(null);
   const [hasPerm, setPerm] = useState(null);
@@ -60,18 +71,21 @@ const CreateScrapbook = () => {
   };
 
   const handleUpload = async () => {
-    await uploadBytes(storageRef, scrapbookCover); 
-    setUrl(await getDownloadURL(storageRef))
-    console.warn(Url)
-    await setDoc(doc(db, "users", auth.currentUser.uid , "Scrapbooks" , UUID ) ,{
-      title : title,
-      CoverImg : Url,
+      await uploadBytesResumable(storageRef, scrapbookCover);
+      setUrl(await getDownloadURL(storageRef));
+      
+      while(Url === null ){
+        setUrl(await getDownloadURL(storageRef));
+      }
+
+    console.warn(Url);
+    await setDoc(doc(db, "users", auth.currentUser.uid, "Scrapbooks", UUID), {
+      title: title,
+      CoverImg: Url,
       images: [],
       pages: 0,
       likes: 0,
       comments: [],
-
-
     })
       .then(() => {
         console.warn("Calm Down");

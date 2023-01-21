@@ -5,6 +5,7 @@ import {
   Image,
   StyleSheet,
   Dimensions,
+  ScrollView
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import Logo from "../../assets/images/novella_logo.png";
@@ -17,7 +18,8 @@ import {
 } from "firebase/auth";
 import { useNavigation } from "@react-navigation/core";
 
-import { FontAwesome } from '@expo/vector-icons';
+import { FontAwesome } from "@expo/vector-icons";
+
 
 const SignUp = () => {
   const windowWidth = Dimensions.get("window").width;
@@ -49,54 +51,56 @@ const SignUp = () => {
   };
 
   return (
-    <KeyboardAvoidingView behavior="padding">
-      <View style={styles.container}>
-        <Image
-          source={Logo}
-          style={[
-            styles.logo,
-            { height: windowHeight * 0.3 },
-            { width: windowWidth * 0.8 },
-          ]}
-          resizeMode="contain"
-        />
-        <InputBox
-          value={email}
-          setValue={setEmail}
-          placeholder="Email"
-          secure={false}
-        />
-        <InputBox
-          value={password}
-          setValue={setPassword}
-          placeholder="Password"
-          secure={true}
-        />
-        <InputBox
-          value={confpassword}
-          setValue={setConfPassword}
-          placeholder="Confirm Password"
-          secure={true}
-        />
-        <Button onPress={handleSignUp} text=" Sign Up" />
-        <Button
-          onPress={() => navigation.replace("Login")}
-          text="Existing Member? Log In"
-          type="SECONDARY"
-          text_type="SECONDARY"
-          style={[{ width: windowWidth * 10 }]}
-        />
-      </View>
-    </KeyboardAvoidingView>
+    <ScrollView>
+      <KeyboardAvoidingView behavior="padding">
+        <View style={styles.container}>
+          <Image
+            source={Logo}
+            style={[
+              styles.logo,
+              { height: windowHeight * 0.3 },
+              { width: windowWidth * 0.8 },
+            ]}
+            resizeMode="contain"
+          />
+          <InputBox
+            value={email}
+            setValue={setEmail}
+            placeholder="Email"
+            secure={false}
+          />
+          <InputBox
+            value={password}
+            setValue={setPassword}
+            placeholder="Password"
+            secure={true}
+          />
+          <InputBox
+            value={confpassword}
+            setValue={setConfPassword}
+            placeholder="Confirm Password"
+            secure={true}
+          />
+          <Button onPress={handleSignUp} text=" Sign Up" />
+          <Button
+            onPress={() => navigation.replace("Login")}
+            text="Existing Member? Log In"
+            type="SECONDARY"
+            text_type="SECONDARY"
+            style={[{ width: windowWidth * 10 }]}
+          />
+        </View>
+      </KeyboardAvoidingView>
+    </ScrollView>
   );
 };
-
 
 export default SignUp;
 
 const styles = StyleSheet.create({
   container: {
     width: "100%",
+    height: "100%",
     backgroundColor: "#fff",
     alignItems: "center",
     padding: 100,

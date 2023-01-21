@@ -19,7 +19,7 @@ import InputBox from "../components/InputBox";
 import Button from "../components/Button";
 import { getStorage, ref, uploadBytes } from "firebase/storage";
 import * as ImagePicker from "expo-image-picker";
-import { Feather } from '@expo/vector-icons'; 
+import { Feather } from "@expo/vector-icons";
 
 const UserInfo = () => {
   const windowWidth = Dimensions.get("window").width;
@@ -29,12 +29,12 @@ const UserInfo = () => {
   const [birthDate, setBirthDate] = useState(new Date());
   const [accountType, setAccountType] = useState("");
   const [bio, setBio] = useState("");
-  const [profilePic,setprofilePic] = useState(null);
+  const [profilePic, setprofilePic] = useState(null);
   const [hasPerm, setPerm] = useState(null);
   const storage = getStorage();
-  const uid = auth.currentUser.uid
-  
-  const storageRef = ref(storage, "/images/Profile Picture/"+uid);
+  const uid = auth.currentUser.uid;
+
+  const storageRef = ref(storage, "/images/Profile Picture/" + uid);
 
   useEffect(() => {
     (async () => {
@@ -86,7 +86,7 @@ const UserInfo = () => {
       accountType: accountType,
       bio: bio,
       email: auth.currentUser.email,
-      friends: []
+      friends: [],
     })
       .then(() => {
         console.warn("Dunzo");
@@ -94,33 +94,18 @@ const UserInfo = () => {
       .catch((error) => {
         console.log(error);
       });
-      await uploadBytes(storageRef, profilePic).then((snapshot) => {
-        console.log('Uploaded a blob or file!');
-      });
+    await uploadBytes(storageRef, profilePic).then((snapshot) => {
+      console.log("Uploaded a blob or file!");
+    });
     navigation.navigate("EmailVerification");
   };
   return (
     <KeyboardAvoidingView behavior="padding">
       <ScrollView>
         <View style={styles.container}>
-          <Image
-            source={Logo}
-            style={[
-              styles.logo,
-              { height: windowHeight * 0.3 },
-              { width: windowWidth * 0.8 },
-            ]}
-            resizeMode="contain"
-          />
-          {/* <TouchableOpacity style={styles.avatar}>
-          value={profilePic}
-          setValue={setprofilePic}
-          placeholder="ProfilePic"
-        </TouchableOpacity> */}
-
           <View style={styles.avatarContainer}>
             <TouchableOpacity style={styles.plusButton} onPress={pickImage}>
-              <Image style={styles.avatar} source={{ uri: profilePic}} />
+              <Image style={styles.avatar} source={{ uri: profilePic }} />
               <Feather name="plus" size={24} color="black" />
             </TouchableOpacity>
           </View>
@@ -134,7 +119,9 @@ const UserInfo = () => {
           <InputBox value={name} setValue={setName} placeholder="Name" />
 
           <View>
-            <Button title="Show Date Picker" onPress={showDatePicker} />
+            <TouchableOpacity onPress={showDatePicker} >
+            <InputBox placeholder="Date of Birth" />
+            </TouchableOpacity>
             <DateTimePickerModal
               title="Date Of Birth"
               isVisible={isDatePickerVisible}
@@ -184,17 +171,15 @@ const styles = StyleSheet.create({
     height: 100,
     borderRadius: 50,
     borderWidth: 1,
-    marginTop: 30,
+    marginBottom: 30,
     backgroundColor: "#f2f2f2",
     justifyContent: "center",
-    alignItems: "center"
-
+    alignItems: "center",
   },
   avatar: {
     position: "absolute",
     width: 100,
     height: 100,
     borderRadius: 50,
-
-  }
+  },
 });
