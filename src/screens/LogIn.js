@@ -31,8 +31,8 @@ const LogIn = () => {
 
   const navigation = useNavigation();
 
-  const handleLogIn = () => {
-    signInWithEmailAndPassword(auth, email, password)
+  const handleLogIn = async () => {
+    await signInWithEmailAndPassword(auth, email, password)
       .then((userCredentials) => {
         const user = userCredentials.user;
         console.warn("Logged In: ", user.email);

@@ -35,9 +35,9 @@ const RootStack = () => {
 
   if(user === undefined) {
     return <AuthStack/>
-  } else if (!isVerified && user !== undefined){
+  } else if (user && !isVerified){
     return <VerifyStack/>
-  }else if (user !== undefined && isVerified) {
+  }else if (user && isVerified) {
     return <AppStack/>     
   }
 };

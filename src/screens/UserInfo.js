@@ -14,7 +14,7 @@ import { db } from "../firebase";
 import { addDoc, collection, setDoc, doc } from "firebase/firestore";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { useNavigation } from "@react-navigation/native";
-import { Logo } from "../../assets/images/novella.png";
+import { Logo } from "../../assets/images/novella_logo.png";
 import InputBox from "../components/InputBox";
 import Button from "../components/Button";
 import { getStorage, ref, uploadBytes } from "firebase/storage";
@@ -32,7 +32,8 @@ const UserInfo = () => {
   const [profilePic,setprofilePic] = useState(null);
   const [hasPerm, setPerm] = useState(null);
   const storage = getStorage();
-  const storageRef = ref(storage, auth.currentUser.uid);
+  
+  const storageRef = ref(storage, auth.currentUser.email);
 
   useEffect(() => {
     (async () => {
@@ -46,6 +47,7 @@ const UserInfo = () => {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [4, 3],
+      quality: 1,
     });
     console.log(result);
     if (!result.canceled) {
@@ -71,7 +73,7 @@ const UserInfo = () => {
 
   const handleConfirm = (date) => {
     console.warn("A date has been picked: ", date);
-    setBirthDate(data);
+    setBirthDate(date);
     hideDatePicker();
   };
 
