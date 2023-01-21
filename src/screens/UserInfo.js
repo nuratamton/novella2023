@@ -32,8 +32,9 @@ const UserInfo = () => {
   const [profilePic,setprofilePic] = useState(null);
   const [hasPerm, setPerm] = useState(null);
   const storage = getStorage();
+  const uid = auth.currentUser.uid
   
-  const storageRef = ref(storage, auth.currentUser.email);
+  const storageRef = ref(storage, "/images/Profile Picture/"+uid);
 
   useEffect(() => {
     (async () => {
