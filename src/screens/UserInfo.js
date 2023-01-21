@@ -86,6 +86,7 @@ const UserInfo = () => {
       accountType: accountType,
       bio: bio,
       email: auth.currentUser.email,
+      friends: []
     })
       .then(() => {
         console.warn("Dunzo");

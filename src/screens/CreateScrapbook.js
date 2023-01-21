@@ -14,17 +14,19 @@ import InputBox from "../components/InputBox";
 import Button from "../components/Button";
 import * as ImagePicker from "expo-image-picker";
 import { db } from "../firebase";
-import { getDocs, collection, doc , setDoc } from "firebase/firestore";
+import { getStorage, ref, uploadBytes , getDownloadURL} from "firebase/storage";
+import { getDocs, collection, doc , setDoc , collectionGroup} from "firebase/firestore";
 import { auth } from "../firebase";
-
+import uuid from 'react-native-uuid';
 const CreateScrapbook = () => {
   const [title, setTitle] = useState("");
   const [scrapbookCover, setScrapbookCover] = useState(null);
   const [hasPerm, setPerm] = useState(null);
-  const [coverPic,setcoverPic] = useState(null);
-  const [coverImage, setCoverImage] = useState(null);
   const [Username, setUser] = useState("");
-  const storageRef = ref(storage, "/images/Scrapbook Cover/"+uid);
+  const [Url, setUrl] = useState(null);
+  const UUID = uuid.v4();
+  const storage = getStorage();
+  const storageRef = ref(storage, "/images/Scrapbook Cover/$(UUID)");
 
   useEffect(() => {
     (async () => {
@@ -58,15 +60,21 @@ const CreateScrapbook = () => {
   };
 
   const handleUpload = async () => {
-    await uploadBytes(storageRef, );
-    const ref = collection(db, "users",auth.currentUser.uid,"Scrapbook")
-    const uniqueId = ref.doc().id
-    await setDoc(doc(db, ref, uniqueId) ,{
-      title:title
+    await uploadBytes(storageRef, scrapbookCover); 
+    setUrl(await getDownloadURL(storageRef))
+    console.warn(Url)
+    await setDoc(doc(db, "users", auth.currentUser.uid , "Scrapbooks" , UUID ) ,{
+      title : title,
+      CoverImg : Url,
+      images: [],
+      pages: 0,
+      likes: 0,
+      comments: [],
+
 
     })
       .then(() => {
-        console.warn("Dunzo");
+        console.warn("Calm Down");
       })
       .catch((error) => {
         console.log(error);
