@@ -94,7 +94,7 @@ const Feed = ({ navigation }) => {
     }
 
     return (
-      <Card style={[styles.post ]}>
+      <Card style={[styles.post]}>
         <TouchableOpacity onPress={() => navigation.navigate("Post")}>
           <Card.Cover source={{ uri: post.postImage }} resizeMode="cover" />
         </TouchableOpacity>
