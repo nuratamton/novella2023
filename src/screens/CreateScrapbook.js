@@ -1,11 +1,4 @@
-import {
-  StyleSheet,
-  Text,
-  View,
-  SafeAreaView,
-  TouchableOpacity,
-  Image,
-} from "react-native";
+import { StyleSheet,Text,View,SafeAreaView,TouchableOpacity,Image } from "react-native";
 import React, { useState, useEffect } from "react";
 import { Feather } from "@expo/vector-icons";
 import { IconButton, Title } from "react-native-paper";
@@ -14,20 +7,8 @@ import InputBox from "../components/InputBox";
 import Button from "../components/Button";
 import * as ImagePicker from "expo-image-picker";
 import { db } from "../firebase";
-import {
-  getStorage,
-  ref,
-  uploadBytesResumable,
-  getDownloadURL,
-  uploadBytes,
-} from "firebase/storage";
-import {
-  getDocs,
-  collection,
-  doc,
-  setDoc,
-  collectionGroup,
-} from "firebase/firestore";
+import { getStorage,ref,uploadBytesResumable,getDownloadURL,uploadBytes } from "firebase/storage";
+import { getDocs,collection,doc,setDoc,collectionGroup } from "firebase/firestore";
 import { auth } from "../firebase";
 import uuid from "react-native-uuid";
 const CreateScrapbook = ({ navigation }) => {
@@ -40,7 +21,6 @@ const CreateScrapbook = ({ navigation }) => {
   const storage = getStorage();
   const [file,setFile] = useState("")
   
-
   useEffect(() => {
     (async () => {
       const gallery = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -79,22 +59,22 @@ const CreateScrapbook = ({ navigation }) => {
   
 
   const handleUpload = async () => {
-    console.log("hwew")
+    //console.log("hwew")
       const name = scrapbookCover.substring(scrapbookCover.lastIndexOf('/') +1 )
-      console.log("hwew2")
+      //console.log("hwew2")
       const storageRef = ref(storage, "images/Scrapbook Cover/" + name);
-      console.log("hwew3")
+      //console.log("hwew3")
       const imga = await fetch(scrapbookCover);
-      console.log("hwew4")
+      //console.log("hwew4")
       const bytes = await imga.blob();
-      console.log("hwew5")
+      //console.log("hwew5")
       await uploadBytes(storageRef, bytes)
 
       setUrl(await getDownloadURL(storageRef));
       
-      // while(Url === null ){
-      //   setUrl(await getDownloadURL(storageRef));
-      // }
+      while(Url === null ){
+        setUrl(await getDownloadURL(storageRef));
+      }
 
     console.warn(Url);
     await setDoc(doc(db, "users", auth.currentUser.uid, "Scrapbooks", UUID), {

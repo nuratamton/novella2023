@@ -31,7 +31,7 @@ const UserInfo = () => {
   const [birthDate, setBirthDate] = useState("Date Of Birth");
   const [accountType, setAccountType] = useState("");
   const [bio, setBio] = useState("");
-  const [profilePic, setprofilePic] = useState(null);
+  const [profilePic, setprofilePic] = useState('');
   const [hasPerm, setPerm] = useState(null);
   const [Url , setUrl] = useState("");
   const storage = getStorage();
@@ -82,7 +82,9 @@ const UserInfo = () => {
   };
 
   const HandleInfo = async () => {
-    await uploadBytesResumable(storageRef, profilePic);
+    const imga = await fetch(profilePic);
+    const bytes = await imga.blob();
+    await uploadBytes(storageRef, bytes);
     const url = await getDownloadURL(storageRef);
     while(url === null){
       url = await getDownloadURL(storageRef);

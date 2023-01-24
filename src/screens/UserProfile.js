@@ -1,12 +1,4 @@
-import {
-  TouchableOpacity,
-  StyleSheet,
-  Text,
-  View,
-  Image,
-  Dimensions,
-  FlatList,
-} from "react-native";
+import { TouchableOpacity,StyleSheet,Text,View,Image,Dimensions,FlatList } from "react-native";
 import React, { useEffect, useState } from "react";
 import { signOut } from "firebase/auth";
 import Button from "../components/Button";
@@ -18,14 +10,7 @@ import rukia_profile from "../../assets/icon.png";
 import Logo from "../../assets/icon.png";
 import { Card, Avatar } from "react-native-paper";
 import { ScrollView } from "react-native-gesture-handler";
-import {
-  getDocs,
-  getDoc,
-  collection,
-  doc,
-  setDoc,
-  collectionGroup,
-} from "firebase/firestore";
+import { getDocs,getDoc,collection,doc,setDoc,collectionGroup } from "firebase/firestore";
 const UserProfile = ({ navigation }) => {
   const windowWidth = Dimensions.get("window").width;
   const windowHeight = Dimensions.get("window").height;
@@ -41,6 +26,7 @@ const UserProfile = ({ navigation }) => {
       const data = await getDocs(ref);
       data.forEach((item) => {
         getScrapbooks((prev) => [...prev, item.data()]);
+        console.log(scrapbooks.length)
       });
     })();
   }, []);
@@ -99,15 +85,15 @@ const UserProfile = ({ navigation }) => {
     return (
       <Card style={[styles.post, { width: windowWidth / 2 - 15 }]}>
         <TouchableOpacity onPress={() => navigation.navigate("Post")}>
-          <Card.Cover source={{ uri: post.postImage }} resizeMode="cover" />
+          <Card.Cover source={{ uri: post.CoverImg }} resizeMode="cover" />
         </TouchableOpacity>
         <Card.Title
           style={styles.postHeader}
-          title={post.postTitle}
+          title={post.title}
           titleStyle={styles.cardTitle}
           // subtitle={post.userName}
           subtitleStyle={styles.cardSubTitle}
-          right={(props) => <Text>{post.postTime}</Text>}
+          //right={(props) => <Text>{post.postTime}</Text>}
           // left={(props) => (
           //   <Avatar.Image source={{ uri: post.userImage }} size={25} />
           // )}

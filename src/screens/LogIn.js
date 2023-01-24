@@ -1,24 +1,11 @@
-import {
-  KeyboardAvoidingView,
-  View,
-  Text,
-  Image,
-  StyleSheet,
-  Dimensions,
-  TouchableOpacity,
-  ScrollView,
-} from "react-native";
-
+import { KeyboardAvoidingView, View, Text, Image, StyleSheet, Dimensions, TouchableOpacity, ScrollView } from "react-native";
 import React, { useState } from "react";
 import Logo from "../../assets/images/novella_logo.png";
 import InputBox from "../components/InputBox";
 import Button from "../components/Button";
 import { auth } from "../firebase";
-
 import { signInWithEmailAndPassword } from "firebase/auth";
-
 import { useNavigation } from "@react-navigation/core";
-
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 const LogIn = () => {
@@ -85,11 +72,11 @@ const LogIn = () => {
           </TouchableOpacity>
 
           <Button onPress={handleLogIn} text="Login" />
-
           <Button
             onPress={() => navigation.replace("Signup")}
             text="New Member? Sign Up"
             type="SECONDARY"
+            text_type="SECONDARY"
           />
         </View>
       </KeyboardAvoidingView>
