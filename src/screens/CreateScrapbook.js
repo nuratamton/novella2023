@@ -79,17 +79,22 @@ const CreateScrapbook = ({ navigation }) => {
   
 
   const handleUpload = async () => {
+    console.log("hwew")
       const name = scrapbookCover.substring(scrapbookCover.lastIndexOf('/') +1 )
+      console.log("hwew2")
       const storageRef = ref(storage, "images/Scrapbook Cover/" + name);
+      console.log("hwew3")
       const imga = await fetch(scrapbookCover);
+      console.log("hwew4")
       const bytes = await imga.blob();
+      console.log("hwew5")
       await uploadBytes(storageRef, bytes)
 
       setUrl(await getDownloadURL(storageRef));
       
-      while(Url === null ){
-        setUrl(await getDownloadURL(storageRef));
-      }
+      // while(Url === null ){
+      //   setUrl(await getDownloadURL(storageRef));
+      // }
 
     console.warn(Url);
     await setDoc(doc(db, "users", auth.currentUser.uid, "Scrapbooks", UUID), {
