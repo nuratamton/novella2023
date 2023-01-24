@@ -15,7 +15,7 @@ import { BlurView } from "expo-blur";
 
 import { Card, Avatar } from "react-native-paper";
 
-export const posts = [
+const posts = [
   {
     id: "1",
     userName: "abc",
@@ -120,12 +120,12 @@ const Feed = ({ navigation }) => {
   return (
 
     <SafeAreaView style={styles.container}>
-      <BlurView tint="light" intensity={100} style={StyleSheet.absoluteFill} />
+      {/* <BlurView tint="light" intensity={100} style={StyleSheet.absoluteFill} /> */}
       <View
         style={[
           styles.header,
-          { height: windowHeight * 0.08 },
-          { width: windowWidth },
+          // { height: windowHeight * 0.08 },
+          // { width: windowWidth},
         ]}
       >
         <Image
@@ -137,7 +137,7 @@ const Feed = ({ navigation }) => {
           ]}
           resizeMode="contain"
         />
-        <TouchableOpacity>
+        <TouchableOpacity style={{marginBottom: 5}}>
           <Ionicons name="chatbubble-outline" size={24} color="black" />
         </TouchableOpacity>
       </View>
@@ -159,12 +159,18 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 100,
+    height: '100%',
+    width: '100%',
+    backgroundColor: "#FFFFFF"
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     padding: 20,
+    paddingBottom: 10,
+    // paddingVertical: 10,
     zIndex: 1,
+    height: '10%'
   },
   logo: {
     justifyContent: "space-around",

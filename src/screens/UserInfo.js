@@ -17,20 +17,23 @@ import { useNavigation } from "@react-navigation/native";
 import { Logo } from "../../assets/images/novella_logo.png";
 import InputBox from "../components/InputBox";
 import Button from "../components/Button";
-import { getStorage, ref, uploadBytes } from "firebase/storage";
+import { getStorage, ref, uploadBytesResumable , getDownloadURL} from "firebase/storage";
 import * as ImagePicker from "expo-image-picker";
 import { Feather } from "@expo/vector-icons";
+import { BorderlessButton } from "react-native-gesture-handler";
+import { Button as ButtonDate} from "react-native-paper";
 
+const windowWidth = Dimensions.get("window").width;
+const windowHeight = Dimensions.get("window").height;
 const UserInfo = () => {
-  const windowWidth = Dimensions.get("window").width;
-  const windowHeight = Dimensions.get("window").height;
   const [username, setUsername] = useState("");
   const [name, setName] = useState("");
-  const [birthDate, setBirthDate] = useState(new Date());
+  const [birthDate, setBirthDate] = useState("Date Of Birth");
   const [accountType, setAccountType] = useState("");
   const [bio, setBio] = useState("");
   const [profilePic, setprofilePic] = useState(null);
   const [hasPerm, setPerm] = useState(null);
+  const [Url , setUrl] = useState("");
   const storage = getStorage();
   const uid = auth.currentUser.uid;
 
@@ -79,6 +82,12 @@ const UserInfo = () => {
   };
 
   const HandleInfo = async () => {
+    await uploadBytesResumable(storageRef, profilePic);
+    const url = await getDownloadURL(storageRef);
+    while(url === null){
+      url = await getDownloadURL(storageRef);
+    }
+    setUrl(url);
     await setDoc(doc(db, "users", auth.currentUser.uid), {
       username: username,
       name: name,
@@ -86,7 +95,10 @@ const UserInfo = () => {
       accountType: accountType,
       bio: bio,
       email: auth.currentUser.email,
-      friends: [],
+      followers: [],
+      following: [],
+      profilePicsrc: url ,
+
     })
       .then(() => {
         console.warn("Dunzo");
@@ -94,13 +106,11 @@ const UserInfo = () => {
       .catch((error) => {
         console.log(error);
       });
-    await uploadBytes(storageRef, profilePic).then((snapshot) => {
-      console.log("Uploaded a blob or file!");
-    });
+
     navigation.navigate("EmailVerification");
   };
   return (
-    <KeyboardAvoidingView behavior="padding">
+    <KeyboardAvoidingView>
       <ScrollView>
         <View style={styles.container}>
           <View style={styles.avatarContainer}>
@@ -120,7 +130,9 @@ const UserInfo = () => {
 
           <View>
             <TouchableOpacity onPress={showDatePicker} >
-            <InputBox placeholder="Date of Birth" />
+            <ButtonDate buttonColor="#f2f2f2"  textColor= "#6E6E6E" style={styles.dateButton} labelStyle={{textAlign: 'left'}} >
+            <Text style={{textAlign:"left" , fontWeight: 'normal'}}> {birthDate.toString().substring(4,15)} </Text>
+            </ButtonDate>
             </TouchableOpacity>
             <DateTimePickerModal
               title="Date Of Birth"
@@ -181,5 +193,18 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
+  },
+  dateButton: {
+    width: windowWidth * 0.9,
+    maxWidth: 500,
+    borderColor: "#f2f2f2",
+    borderWidth: 1,
+    borderRadius: 15,
+    paddingTop: 10,
+    paddingBottom:10,
+    margin: 10,
+    display:'flex',
+    alignItems:'flex-start',
+
   },
 });

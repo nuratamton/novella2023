@@ -19,6 +19,7 @@ import {
   ref,
   uploadBytesResumable,
   getDownloadURL,
+  uploadBytes,
 } from "firebase/storage";
 import {
   getDocs,
@@ -37,7 +38,8 @@ const CreateScrapbook = ({ navigation }) => {
   const [Url, setUrl] = useState(null);
   const UUID = uuid.v4();
   const storage = getStorage();
-  const storageRef = ref(storage, "/images/Scrapbook Cover/$(UUID)");
+  const [file,setFile] = useState("")
+  
 
   useEffect(() => {
     (async () => {
@@ -56,6 +58,8 @@ const CreateScrapbook = ({ navigation }) => {
     console.log(result);
     if (!result.canceled) {
       setScrapbookCover(result.assets[0].uri);
+      setFile(result)
+      console.warn(scrapbookCover)
     }
   };
   if (hasPerm === false) {
@@ -69,9 +73,18 @@ const CreateScrapbook = ({ navigation }) => {
       setUser(doc.data().username);
     });
   };
+  const metadata = {
+    contentType: 'image/jpeg'
+  };
+  
 
   const handleUpload = async () => {
-      await uploadBytesResumable(storageRef, scrapbookCover);
+      const name = scrapbookCover.substring(scrapbookCover.lastIndexOf('/') +1 )
+      const storageRef = ref(storage, "images/Scrapbook Cover/" + name);
+      const imga = await fetch(scrapbookCover);
+      const bytes = await imga.blob();
+      await uploadBytes(storageRef, bytes)
+
       setUrl(await getDownloadURL(storageRef));
       
       while(Url === null ){

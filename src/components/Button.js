@@ -19,7 +19,7 @@ const Button = ({ onPress, text, type = "PRIMARY", text_type = "PRIMARY", icon }
         { width: windowWidth * 0.9 },
       ]}
     >
-      <Text style={[styles.text, styles[`text_${type}`]]}>{text}</Text>
+      <Text style={[styles.text, styles[`text_${text_type}`]]}>{text}</Text>
     </TouchableOpacity>
   );
 };
@@ -49,11 +49,16 @@ const styles = StyleSheet.create({
   },
 
   container_TERITARY: {
-    padding: 10,
-    margin: 0,
+    position: "relative",
+    backgroundColor: "#9576f5",
+    bottom: 1,
+    // borderWidth: 1,
+    padding: 10
   },
 
-  text: {},
+  text: {
+ 
+  },
 
   text_PRIMARY: {
     color: "#fff",
@@ -61,7 +66,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   text_TERTIARY: {
-    padding: 10,
+    color: "#fff",
     margin: 0,
   },
 });
