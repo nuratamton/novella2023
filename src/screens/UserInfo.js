@@ -84,7 +84,7 @@ const UserInfo = () => {
   const HandleInfo = async () => {
     const imga = await fetch(profilePic);
     const bytes = await imga.blob();
-    await uploadBytes(storageRef, bytes);
+    await uploadBytesResumable(storageRef, bytes);
     const url = await getDownloadURL(storageRef);
     while(url === null){
       url = await getDownloadURL(storageRef);

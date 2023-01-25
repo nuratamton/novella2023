@@ -16,12 +16,10 @@ const UserProfile = ({ navigation }) => {
   const windowHeight = Dimensions.get("window").height;
   const [userDetails, setUserDetails] = useState(null);
   const [scrapbooks, getScrapbooks] = useState([]);
+
+
   useEffect(() => {
     (async () => {
-      const Uref = doc(db, "users", auth.currentUser.uid);
-      const userDoc = await getDoc(Uref);
-      const UserJson = userDoc.data();
-      setUserDetails(UserJson);
       const ref = collection(db, "users", auth.currentUser.uid, "Scrapbooks");
       const data = await getDocs(ref);
       data.forEach((item) => {
@@ -132,8 +130,8 @@ const UserProfile = ({ navigation }) => {
             />
             {/* <Image source={rukia_profile} styles={styles.avatar} resizeMode="contain" /> */}
           </View>
-          <Text> Nura Riaz </Text>
-          <Text> Bio </Text>
+          <Text> {userDetails.username} </Text>
+          {/* <Text> {userDetails.bio} </Text> */}
           <Button
             onPress={() => navigation.replace("EditProfile")}
             text=" Edit Profile "

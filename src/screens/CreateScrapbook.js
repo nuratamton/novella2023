@@ -7,7 +7,7 @@ import InputBox from "../components/InputBox";
 import Button from "../components/Button";
 import * as ImagePicker from "expo-image-picker";
 import { db } from "../firebase";
-import { getStorage,ref,uploadBytesResumable,getDownloadURL,uploadBytes } from "firebase/storage";
+import { getStorage,ref,uploadBytesResumable,getDownloadURL } from "firebase/storage";
 import { getDocs,collection,doc,setDoc,collectionGroup } from "firebase/firestore";
 import { auth } from "../firebase";
 import uuid from "react-native-uuid";
@@ -68,7 +68,7 @@ const CreateScrapbook = ({ navigation }) => {
       //console.log("hwew4")
       const bytes = await imga.blob();
       //console.log("hwew5")
-      await uploadBytes(storageRef, bytes)
+      await uploadBytesResumable(storageRef, bytes)
 
       setUrl(await getDownloadURL(storageRef));
       

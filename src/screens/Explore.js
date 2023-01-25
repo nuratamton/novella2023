@@ -30,6 +30,19 @@ const Explore = () => {
 
   const [name, setName] = useState(users)
 
+  renderPost = (user) => {
+    const selectPost = () => {
+      setId(user.id);
+      console.warn(user.id);
+    };
+
+    return (
+      <View>
+        <Text> {user.id} </Text>
+      </View>
+    );
+  };
+
 
   return (
     <SafeAreaView style={styles.container}>
