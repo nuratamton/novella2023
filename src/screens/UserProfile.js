@@ -14,19 +14,41 @@ import { getDocs,getDoc,collection,doc,setDoc,collectionGroup } from "firebase/f
 const UserProfile = ({ navigation }) => {
   const windowWidth = Dimensions.get("window").width;
   const windowHeight = Dimensions.get("window").height;
-  const [userDetails, setUserDetails] = useState(null);
   const [scrapbooks, getScrapbooks] = useState([]);
+  const [username, setusername] = useState('');
+  const [bio, setbio]  = useState('');
+  const [image, setimage]  = useState('');
 
+
+  // useEffect(() => {
+  //   (async () => {
+  //     const ref = collection(db, "users", auth.currentUser.uid, "Scrapbooks");
+  //     const data = await getDocs(ref);
+  //     data.forEach((item) => {
+  //       getScrapbooks((prev) => [...prev, item.data()]);
+  //       console.log(scrapbooks.length)
+  //     });
+  //   })();
+  // }, []);
+  const getUserDetails = async () => {
+    const Uref = doc(db, "users", auth.currentUser.uid);
+    const userDoc = await getDoc(Uref);
+    setusername(userDoc.data().username)
+    setbio(userDoc.data().bio)
+    setimage(userDoc.data().profilePicsrc)
+    console.log(userDoc.data());
+  }
+  const Scrapbooks = async () => {
+    const ref = collection(db, "users", auth.currentUser.uid, "Scrapbooks");
+    const data = await getDocs(ref);
+    data.forEach((item) => {
+      getScrapbooks((prev) => [...prev, item.data()]);
+    })
+  }
 
   useEffect(() => {
-    (async () => {
-      const ref = collection(db, "users", auth.currentUser.uid, "Scrapbooks");
-      const data = await getDocs(ref);
-      data.forEach((item) => {
-        getScrapbooks((prev) => [...prev, item.data()]);
-        console.log(scrapbooks.length)
-      });
-    })();
+    getUserDetails();
+    Scrapbooks();
   }, []);
 
   const handleSignOut = () => {
@@ -38,41 +60,6 @@ const UserProfile = ({ navigation }) => {
     console.log(auth.currentUser);
   };
 
-  const posts = [
-    {
-      id: "1",
-      userName: "chitnis",
-      userImage: "https://bit.ly/dan-abramov",
-      postTime: "10 mins ago",
-      postText: "Stop following me",
-      postImage:
-        "https://iheartcraftythings.com/wp-content/uploads/2021/11/6-119.jpg",
-      postTitle: "Butterfly",
-    },
-    {
-      id: "2",
-      userName: "Gaurang Chitnis",
-      userImage:
-        "https://w7.pngwing.com/pngs/1008/377/png-transparent-computer-icons-avatar-user-profile-avatar-heroes-black-hair-computer.png",
-      postTime: "1 hour ago",
-      postText:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,",
-      postImage:
-        "https://i1.wp.com/i.pinimg.com/originals/a3/79/ed/a379ed1bfe120e37570cec581fc824f2.jpg",
-      postTitle: "Paint",
-    },
-    {
-      id: "3",
-      userName: "vnc",
-      userImage:
-        "https://w7.pngwing.com/pngs/312/283/png-transparent-man-s-face-avatar-computer-icons-user-profile-business-user-avatar-blue-face-heroes.png",
-      postTime: "19 mins ago",
-      postText: "Stop following me",
-      postImage:
-        "https://img.freepik.com/free-vector/abstract-background_53876-43362.jpg",
-      postTitle: "Crystals",
-    },
-  ];
 
   renderPost = (post) => {
     const selectPost = () => {
@@ -125,13 +112,13 @@ const UserProfile = ({ navigation }) => {
         <View style={styles.bodyContainer}>
           <View style={styles.avatarContainer}>
             <Avatar.Image
-              source={{ uri: "https://bit.ly/dan-abramov" }}
+              source={{ uri: image }}
               size={130}
             />
             {/* <Image source={rukia_profile} styles={styles.avatar} resizeMode="contain" /> */}
           </View>
-          <Text> {userDetails.username} </Text>
-          {/* <Text> {userDetails.bio} </Text> */}
+          <Text> {username} </Text>
+          <Text> {bio} </Text>
           <Button
             onPress={() => navigation.replace("EditProfile")}
             text=" Edit Profile "
@@ -143,7 +130,7 @@ const UserProfile = ({ navigation }) => {
           style={styles.feed}
           data={scrapbooks}
           renderItem={({ item }) => renderPost(item)}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(itemm) => itemm.id}
           showsVerticalScrollIndicator={false}
           numColumns={2}
         />
