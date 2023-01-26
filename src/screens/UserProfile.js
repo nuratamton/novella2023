@@ -11,13 +11,14 @@ import Logo from "../../assets/icon.png";
 import { Card, Avatar } from "react-native-paper";
 import { ScrollView } from "react-native-gesture-handler";
 import { getDocs,getDoc,collection,doc,setDoc,collectionGroup , orderBy ,query} from "firebase/firestore";
+import defProfile from '../../assets/images/default_profile.png'
 const UserProfile = ({ navigation }) => {
   const windowWidth = Dimensions.get("window").width;
   const windowHeight = Dimensions.get("window").height;
   const [scrapbooks, getScrapbooks] = useState([]);
-  const [username, setusername] = useState('');
-  const [bio, setbio]  = useState('');
-  const [image, setimage]  = useState('');
+  const [username, setusername] = useState('Default');
+  const [bio, setbio]  = useState('Bio');
+  const [image, setimage]  = useState('https://blogifs.azureedge.net/wp-content/uploads/2019/03/Guest_Blogger_v1.png');
 
 
   // useEffect(() => {
