@@ -7,7 +7,7 @@ import {
 } from "react-native";
 import React, { useState } from "react";
 import { Button, SearchBar } from "react-native-elements";
-import { FlatList } from "react-native-gesture-handler";
+import { FlatList, ScrollView } from "react-native-gesture-handler";
 // import filter from "lodash.filter";
 
 const Explore = () => {
@@ -75,6 +75,7 @@ const Explore = () => {
         onChangeText={setName}
         autoCorrect={false}
       />
+      <ScrollView>
       <FlatList
         style={styles.list}
         data={users}
@@ -82,6 +83,7 @@ const Explore = () => {
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
       />
+      </ScrollView>
     </SafeAreaView>
   );
 };
