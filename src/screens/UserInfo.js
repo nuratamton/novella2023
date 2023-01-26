@@ -100,6 +100,7 @@ const UserInfo = () => {
       followers: [],
       following: [],
       profilePicsrc: url ,
+      uid: auth.currentUser.uid
 
     })
       .then(() => {

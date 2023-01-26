@@ -10,7 +10,7 @@ import rukia_profile from "../../assets/icon.png";
 import Logo from "../../assets/icon.png";
 import { Card, Avatar } from "react-native-paper";
 import { ScrollView } from "react-native-gesture-handler";
-import { getDocs,getDoc,collection,doc,setDoc,collectionGroup } from "firebase/firestore";
+import { getDocs,getDoc,collection,doc,setDoc,collectionGroup , orderBy ,query} from "firebase/firestore";
 const UserProfile = ({ navigation }) => {
   const windowWidth = Dimensions.get("window").width;
   const windowHeight = Dimensions.get("window").height;
