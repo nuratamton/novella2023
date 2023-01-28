@@ -11,15 +11,16 @@ import { getStorage,ref,uploadBytesResumable,getDownloadURL } from "firebase/sto
 import { getDocs,collection,doc,setDoc,collectionGroup } from "firebase/firestore";
 import { auth } from "../firebase";
 import uuid from "react-native-uuid";
+import Apploader from '../components/Apploader';
 const CreateScrapbook = ({ navigation }) => {
   const [title, setTitle] = useState("");
   const [scrapbookCover, setScrapbookCover] = useState(null);
   const [hasPerm, setPerm] = useState(null);
   const [Username, setUser] = useState("");
-  const [Url, setUrl] = useState(null);
+  const [Url, setUrl] = useState(null); 
+  const [Loading , setLoading] = useState(false);
   const UUID = uuid.v4();
   const storage = getStorage();
-  const [file,setFile] = useState("")
   
   useEffect(() => {
     (async () => {
@@ -33,13 +34,16 @@ const CreateScrapbook = ({ navigation }) => {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [4, 3],
-      quality: 1,
+      quality: 0.1,
+      maxHeight: 600,
+      maxWidth: 800,
+      minCompressSize: 900,
+      compressQuality: 70,
     });
-    console.log(result);
+
     if (!result.canceled) {
+      console.log(result);
       setScrapbookCover(result.assets[0].uri);
-      setFile(result)
-      console.warn(scrapbookCover)
     }
   };
   if (hasPerm === false) {
@@ -59,22 +63,11 @@ const CreateScrapbook = ({ navigation }) => {
   
 
   const handleUpload = async () => {
-    //console.log("hwew")
+    setLoading(true)
       const name = scrapbookCover.substring(scrapbookCover.lastIndexOf('/') +1 )
-      //console.log("hwew2")
-      const storageRef = ref(storage, "images/Scrapbook Cover/" + name);
-      //console.log("hwew3")
-      const imga = await fetch(scrapbookCover);
-      //console.log("hwew4")
-      const bytes = await imga.blob();
-      //console.log("hwew5")
-      await uploadBytesResumable(storageRef, bytes)
 
-      setUrl(await getDownloadURL(storageRef));
-      
-      while(Url === null ){
-        setUrl(await getDownloadURL(storageRef));
-      }
+      const storageRef = ref(storage, "images/Scrapbook Cover/" + name);
+
 
     console.warn(Url);
     await setDoc(doc(db, "users", auth.currentUser.uid, "Scrapbooks", UUID), {
@@ -87,11 +80,13 @@ const CreateScrapbook = ({ navigation }) => {
     })
       .then(() => {
         console.warn("Calm Down");
+        setLoading(false)
       })
       .catch((error) => {
         console.log(error);
       });
-    navigation.navigate("Feed");
+    console.log(scrapbookCover)
+    navigation.navigate("CreateNext" , {item:UUID , item2:scrapbookCover});
   };
   return (
     <SafeAreaView style={styles.mainContainer}>
@@ -112,6 +107,7 @@ const CreateScrapbook = ({ navigation }) => {
 
       <InputBox value={title} setValue={setTitle} placeholder="Title" />
       <Button text="Upload" onPress={handleUpload} />
+      {Loading ? <Apploader/> : null }
     </SafeAreaView>
   );
 };

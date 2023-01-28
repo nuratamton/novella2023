@@ -7,7 +7,7 @@ import { auth } from "../firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useNavigation } from "@react-navigation/core";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-
+import Apploader from '../components/Apploader';
 const LogIn = () => {
   const windowWidth = Dimensions.get("window").width;
   const windowHeight = Dimensions.get("window").height;
@@ -16,16 +16,19 @@ const LogIn = () => {
   const [data, setData] = useState({
     isSecureTextEntry: true,
   });
+  const [Logging , setLogging] = useState(false);
 
   const navigation = useNavigation();
 
   const handleLogIn = async () => {
+    setLogging(true)
     await signInWithEmailAndPassword(auth, email, password)
       .then((userCredentials) => {
         const user = userCredentials.user;
         console.warn("Logged In: ", user.email);
       })
       .catch((error) => alert(error.message));
+      setLogging(false)
   };
 
   return (
@@ -78,6 +81,7 @@ const LogIn = () => {
             type="SECONDARY"
             text_type="SECONDARY"
           />
+          {Logging ? <Apploader/> : null }
         </View>
       </KeyboardAvoidingView>
     </ScrollView>

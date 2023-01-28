@@ -12,7 +12,6 @@ import React, { useState } from "react";
 import Logo from "../../assets/images/novella.png";
 import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
-
 import { Card, Avatar } from "react-native-paper";
 
 const posts = [
@@ -118,7 +117,6 @@ const Feed = ({ navigation }) => {
   };
 
   return (
-
     <SafeAreaView style={styles.container}>
       {/* <BlurView tint="light" intensity={100} style={StyleSheet.absoluteFill} /> */}
       <View
@@ -150,6 +148,7 @@ const Feed = ({ navigation }) => {
         showsVerticalScrollIndicator={false}
       />
       </SafeAreaView>
+  
   );
 };
 

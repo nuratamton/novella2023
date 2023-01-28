@@ -1,18 +1,19 @@
-import { SafeAreaView, StyleSheet, Text, View, FlatList, TextInput } from "react-native";
-import React, { useEffect, useState } from "react";
 import {
-  getDocs,
-  getDoc,
-  collection,
-  doc,
-  setDoc,
-  collectionGroup,
-  QuerySnapshot,
-} from "firebase/firestore";
-import { db, auth } from "../firebase";
-import InputBox from "../components/InputBox";
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  View,
+  FlatList,
+  TextInput,
+  Image,
+} from "react-native";
+import React, { useEffect, useState } from "react";
+import { getDocs, collection } from "firebase/firestore";
+import { db } from "../firebase";
+import { Avatar } from "react-native-paper";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
-const Explore = () => {
+const Explore = ({navigation}) => {
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [search, setSearch] = useState("");
@@ -60,13 +61,20 @@ const Explore = () => {
   };
 
   const ItemView = ({ item }) => {
-    return <Text>{item.username}</Text>;
+    return (
+      <TouchableOpacity onPress={() => navigation.navigate("Profile", {item: item.id})}>
+        <View style={styles.user}>
+          <Image style={styles.avatar} source={{ uri: item.profilePicsrc }} />
+          <Text style={styles.username}> {item.username}</Text>
+        </View>
+      </TouchableOpacity>
+    );
   };
 
   const ItemSeparatorView = () => {
     return (
       <View
-        style={{ height: 0.5, width: "100%", backgroundColor: "#C8C8C8" }}
+        style={{ height: 0.5, width: "100%", backgroundColor: "#F2F2F2" }}
       />
     );
   };
@@ -74,11 +82,12 @@ const Explore = () => {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.container}>
-        <TextInput 
-        style={styles.searchBox}
-        placeholder="Search"
+        <TextInput
+          style={styles.searchBox}
+          placeholder="Search"
           value={search}
-          onChangeText={(text) => searchFilter(text)}/>
+          onChangeText={(text) => searchFilter(text)}
+        />
         <FlatList
           data={filteredData}
           keyExtractor={(item, index) => index.toString()}
@@ -92,4 +101,38 @@ const Explore = () => {
 
 export default Explore;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: "#FFFFFF",
+    height: "100%",
+    width: "100%",
+  },
+  searchBox: {
+    borderRadius: 50,
+    padding: 15,
+    borderColor: "#F2F2F2",
+    borderWidth: 1,
+    marginBottom: 5,
+    backgroundColor: "#eacdf7",
+  },
+  avatar: {
+    position: "absolute",
+    width: 50,
+    height: 50,
+    borderRadius: 50,
+  },
+  user: {
+    // position: "relative",
+    flex: 1,
+    flexDirection: "row",
+    padding: 20,
+  },
+  avatar: {
+    // position: "absolute",
+    // left: 20,
+    // Top: 20
+  },
+  username: {
+    // position: "absolute",
+  },
+});

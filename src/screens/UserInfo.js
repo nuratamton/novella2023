@@ -14,15 +14,13 @@ import { db } from "../firebase";
 import { addDoc, collection, setDoc, doc } from "firebase/firestore";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { useNavigation } from "@react-navigation/native";
-import { Logo } from "../../assets/images/novella_logo.png";
 import InputBox from "../components/InputBox";
 import Button from "../components/Button";
 import { getStorage, ref, uploadBytesResumable , getDownloadURL} from "firebase/storage";
 import * as ImagePicker from "expo-image-picker";
 import { Feather } from "@expo/vector-icons";
-import { BorderlessButton } from "react-native-gesture-handler";
 import { Button as ButtonDate} from "react-native-paper";
-
+import Apploader from '../components/Apploader';
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 const UserInfo = () => {
@@ -33,7 +31,8 @@ const UserInfo = () => {
   const [bio, setBio] = useState("");
   const [profilePic, setprofilePic] = useState('');
   const [hasPerm, setPerm] = useState(null);
-  const [Url , setUrl] = useState("");
+  const [Url , setUrl] = useState('https://blogifs.azureedge.net/wp-content/uploads/2019/03/Guest_Blogger_v1.png');
+  const [Loading , setLoading] = useState(false);
   const storage = getStorage();
   const uid = auth.currentUser.uid;
 
@@ -82,6 +81,8 @@ const UserInfo = () => {
   };
 
   const HandleInfo = async () => {
+    setLoading(true)
+    if(profilePic) {
     const imga = await fetch(profilePic);
     const bytes = await imga.blob();
     await uploadBytesResumable(storageRef, bytes);
@@ -90,6 +91,7 @@ const UserInfo = () => {
       url = await getDownloadURL(storageRef);
     }
     setUrl(url);
+  }
     await setDoc(doc(db, "users", auth.currentUser.uid), {
       username: username,
       name: name,
@@ -99,19 +101,19 @@ const UserInfo = () => {
       email: auth.currentUser.email,
       followers: [],
       following: [],
-      profilePicsrc: url ,
+      profilePicsrc: Url ,
 
     })
       .then(() => {
-        console.warn("Dunzo");
       })
       .catch((error) => {
         console.log(error);
       });
-
+      setLoading(false)
     navigation.navigate("EmailVerification");
   };
   return (
+    <>
     <KeyboardAvoidingView>
       <ScrollView>
         <View style={styles.container}>
@@ -154,7 +156,7 @@ const UserInfo = () => {
 
           <Button onPress={HandleInfo} text="Submit" />
           <Button
-            onPress={() => navigation.replace("Login")}
+            onPress={() => auth.signOut()}
             text="Existing Member? Log In"
             type="SECONDARY"
             text_type="SECONDARY"
@@ -163,6 +165,8 @@ const UserInfo = () => {
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
+    {Loading ? <Apploader/> : null }
+    </>
   );
 };
 

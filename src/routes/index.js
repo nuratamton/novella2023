@@ -4,7 +4,6 @@ import React from "react";
 import AppStack from "./AppStack";
 import AuthStack from "./AuthStack";
 import VerifyStack from "./VerifyStack";
-import MainStack from "./MainStack";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { useState, useEffect } from "react";

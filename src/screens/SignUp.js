@@ -5,7 +5,7 @@ import {
   Image,
   StyleSheet,
   Dimensions,
-  ScrollView
+  ScrollView,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import Logo from "../../assets/images/novella_logo.png";
@@ -17,10 +17,8 @@ import {
   sendEmailVerification,
 } from "firebase/auth";
 import { useNavigation } from "@react-navigation/core";
-
 import { FontAwesome } from "@expo/vector-icons";
-
-
+import Apploader from '../components/Apploader';
 const SignUp = () => {
   const windowWidth = Dimensions.get("window").width;
   const windowHeight = Dimensions.get("window").height;
@@ -28,29 +26,36 @@ const SignUp = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confpassword, setConfPassword] = useState("");
-
+  const [Loading , setLoading] = useState(false);
   const navigation = useNavigation();
 
-  const handleSignUp = async () => {
-    await createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredentials) => {
-        const user = userCredentials.user;
-        console.log(user.email);
-      })
-      .then(async () => {
-        await sendEmailVerification(auth.currentUser);
-        console
-          .warn("here")
-          .then(() => {
-            alert("Verification Email Sent!");
-          })
-          .catch((error) => {
-            alert(error.message);
-          });
-      });
+  const handleSignUp = async (error) => {
+    setLoading(true)
+    if (password !== confpassword) {
+      alert("Passwords do not match");
+    } else {
+      await createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredentials) => {
+          const user = userCredentials.user;
+          console.log(user.email);
+        })
+        .then(async () => {
+          await sendEmailVerification(auth.currentUser);
+          console
+            .warn("here")
+            .then(() => {
+              alert("Verification Email Sent!");
+              setLoading(false)
+            })
+            .catch((error) => {
+              alert(error.message);
+            });
+        });
+    }
   };
 
   return (
+    <>
     <ScrollView>
       <KeyboardAvoidingView behavior="padding">
         <View style={styles.container}>
@@ -92,6 +97,8 @@ const SignUp = () => {
         </View>
       </KeyboardAvoidingView>
     </ScrollView>
+    {Loading ? <Apploader/> : null }
+    </>
   );
 };
 

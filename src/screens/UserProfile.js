@@ -12,6 +12,7 @@ import { Card, Avatar } from "react-native-paper";
 import { ScrollView } from "react-native-gesture-handler";
 import { getDocs,getDoc,collection,doc,setDoc,collectionGroup , orderBy ,query} from "firebase/firestore";
 import defProfile from '../../assets/images/default_profile.png'
+import Apploader from '../components/Apploader';
 const UserProfile = ({ navigation }) => {
   const windowWidth = Dimensions.get("window").width;
   const windowHeight = Dimensions.get("window").height;
@@ -19,19 +20,10 @@ const UserProfile = ({ navigation }) => {
   const [username, setusername] = useState('Default');
   const [bio, setbio]  = useState('Bio');
   const [image, setimage]  = useState('https://blogifs.azureedge.net/wp-content/uploads/2019/03/Guest_Blogger_v1.png');
+  const [Loading , setLoading] = useState(false);
 
-
-  // useEffect(() => {
-  //   (async () => {
-  //     const ref = collection(db, "users", auth.currentUser.uid, "Scrapbooks");
-  //     const data = await getDocs(ref);
-  //     data.forEach((item) => {
-  //       getScrapbooks((prev) => [...prev, item.data()]);
-  //       console.log(scrapbooks.length)
-  //     });
-  //   })();
-  // }, []);
   const getUserDetails = async () => {
+    
     const Uref = doc(db, "users", auth.currentUser.uid);
     const userDoc = await getDoc(Uref);
     setusername(userDoc.data().username)
@@ -39,15 +31,18 @@ const UserProfile = ({ navigation }) => {
     setimage(userDoc.data().profilePicsrc)
     console.log(userDoc.data());
   }
+
   const Scrapbooks = async () => {
     const ref = collection(db, "users", auth.currentUser.uid, "Scrapbooks");
     const data = await getDocs(ref);
     data.forEach((item) => {
       getScrapbooks((prev) => [...prev, item.data()]);
     })
+    setLoading(false)
   }
-
+  
   useEffect(() => {
+    setLoading(true);
     getUserDetails();
     Scrapbooks();
   }, []);
@@ -90,6 +85,7 @@ const UserProfile = ({ navigation }) => {
   };
 
   return (
+    <>
     <ScrollView showsVerticalScrollIndicator={false}>
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
@@ -138,6 +134,8 @@ const UserProfile = ({ navigation }) => {
         <Button onPress={handleSignOut} text="Sign out" />
       </SafeAreaView>
     </ScrollView>
+    {Loading ? <Apploader/> : null }
+    </>
   );
 };
 

@@ -16,13 +16,15 @@ import Explore from "../screens/Explore";
 import Create from "../screens/Create";
 import Notifications from "../screens/Notifications";
 import UserProfile from "../screens/UserProfile";
+import Profile from "../screens/Profile"
 
 import Post from "../screens/Post";
 
 import CreateScrapbook from "../screens/CreateScrapbook";
 import CreateGroup from "../screens/CreateGroup";
-
+import CreateNext from "../screens/CreateNext"
 import CreateModal from "../components/CreateModal";
+
 import { createStackNavigator } from "@react-navigation/stack";
 
 const Tab = createBottomTabNavigator();
@@ -164,6 +166,8 @@ const AppStack = () => {
         <Stack.Screen name="CreateModal" component={CreateModal} />
         <Stack.Screen name="CreateScrapbook" component={CreateScrapbook} />
         <Stack.Screen name="CreateGroup" component={CreateGroup} />
+        <Stack.Screen name="Profile" component={Profile} />
+        <Stack.Screen name="CreateNext" component={CreateNext} />
       </Stack.Navigator>
     </NavigationContainer>
   );
