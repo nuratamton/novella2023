@@ -34,7 +34,7 @@ const Explore = ({navigation}) => {
           id: doc.id,
         }));
         setData(newUserDataArray);
-        console.log(newUserDataArray);
+        //console.log(newUserDataArray);
       })
       .catch((err) => {
         if (unsubscribed) return;

@@ -64,9 +64,6 @@ const CreateScrapbook = ({ navigation }) => {
 
   const handleUpload = async () => {
     setLoading(true)
-      const name = scrapbookCover.substring(scrapbookCover.lastIndexOf('/') +1 )
-
-      const storageRef = ref(storage, "images/Scrapbook Cover/" + name);
 
 
     console.warn(Url);

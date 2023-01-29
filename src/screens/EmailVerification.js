@@ -31,6 +31,7 @@ const EmailVerification = () => {
       <Button
         text="Resend Mail"
         type="SECONDARY"
+        text_type="SECONDARY"
         disabled={disablebutton}
         onPress={ () => {
           if(limit < 11) {

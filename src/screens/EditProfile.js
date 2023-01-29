@@ -7,13 +7,13 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
+  SafeAreaView,
 } from "react-native";
-import React, { useState, useEffect , useRef} from "react";
+import React, { useState, useEffect } from "react";
 import { auth } from "../firebase";
 import { db } from "../firebase";
-import { addDoc, collection, setDoc, doc } from "firebase/firestore";
+import { addDoc, collection, setDoc, doc, updateDoc } from "firebase/firestore";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
-import { useNavigation } from "@react-navigation/native";
 import InputBox from "../components/InputBox";
 import Button from "../components/Button";
 import {
@@ -26,10 +26,11 @@ import * as ImagePicker from "expo-image-picker";
 import { Feather } from "@expo/vector-icons";
 import { Button as ButtonDate } from "react-native-paper";
 import Apploader from "../components/Apploader";
-import { async } from "@firebase/util";
+import { IconButton } from "react-native-paper";
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
-const UserInfo = () => {
+
+const EditProfile = ({ navigation, route }) => {
   const [username, setUsername] = useState("");
   const [name, setName] = useState("");
   const [birthDate, setBirthDate] = useState("Date Of Birth");
@@ -43,8 +44,8 @@ const UserInfo = () => {
   const [Loading, setLoading] = useState(false);
   const storage = getStorage();
   const uid = auth.currentUser.uid;
-  const storageRef = ref(storage, "/images/Profile Picture/" + uid);
 
+  const storageRef = ref(storage, "/images/Profile Picture/" + uid);
 
   useEffect(() => {
     (async () => {
@@ -52,13 +53,6 @@ const UserInfo = () => {
       setPerm(gallery.status === "granted");
     })();
   }, []);
-
-
-  useEffect(() => {
-    if (Url) {
-      console.log('run something here');
-    }
-  }, [Url]);
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -77,8 +71,6 @@ const UserInfo = () => {
     return <Text> No access to Internal Storage </Text>;
   }
 
-  const navigation = useNavigation();
-
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
   const showDatePicker = () => {
@@ -95,103 +87,94 @@ const UserInfo = () => {
     hideDatePicker();
   };
 
-  useEffect(() => {
-    HandleInfo;
-  },[]);
-
   const HandleInfo = async () => {
     setLoading(true);
     if (profilePic) {
       const imga = await fetch(profilePic);
       const bytes = await imga.blob();
-      await uploadBytesResumable(storageRef, bytes).then(async (snapshot) => {
-        await getDownloadURL(snapshot.ref).then(async (downloadURL) => {
-          console.log(downloadURL);
-          await setDoc(doc(db, "users", auth.currentUser.uid), {
-            profilePicsrc: downloadURL,
-          })
-        });
-      });
+      await uploadBytesResumable(storageRef, bytes);
+      const url = await getDownloadURL(storageRef);
+      while (url === null) {
+        url = await getDownloadURL(storageRef);
+      }
+      setUrl(url);
     }
-    await setDoc(doc(db, "users", auth.currentUser.uid), {
+    await updateDoc(doc(db, "users", auth.currentUser.uid), {
       username: username,
       name: name,
       Date: birthDate,
       accountType: accountType,
       bio: bio,
       email: auth.currentUser.email,
-      followers: [],
-      following: [],
-      followingCount: 0,
-      followerCount: 0,
-    }, {merge: true})
+      profilePicsrc: Url,
+    })
       .then(() => {})
       .catch((error) => {
         console.log(error);
       });
     setLoading(false);
-    navigation.navigate("EmailVerification");
+    navigation.navigate("UserProfile");
   };
   return (
     <>
       <KeyboardAvoidingView>
         <ScrollView>
-          <View style={styles.container}>
-            <View style={styles.avatarContainer}>
-              <TouchableOpacity style={styles.plusButton} onPress={pickImage}>
-                <Image style={styles.avatar} source={{ uri: profilePic }} />
-                <Feather name="plus" size={24} color="black" />
-              </TouchableOpacity>
-            </View>
-
-            <InputBox
-              value={username}
-              setValue={setUsername}
-              placeholder="Username"
-              secure={false}
+          <SafeAreaView>
+            <IconButton
+              icon="chevron-left"
+              size={24}
+              iconColor="black"
+              onPress={() => navigation.goBack()}
             />
-            <InputBox value={name} setValue={setName} placeholder="Name" />
+            <View style={styles.container}>
+              <View style={styles.avatarContainer}>
+                <TouchableOpacity style={styles.plusButton} onPress={pickImage}>
+                  <Image style={styles.avatar} source={{ uri: profilePic }} />
+                  <Feather name="plus" size={24} color="black" />
+                </TouchableOpacity>
+              </View>
 
-            <View>
-              <TouchableOpacity onPress={showDatePicker}>
-                <ButtonDate
-                  buttonColor="#f2f2f2"
-                  textColor="#6E6E6E"
-                  style={styles.dateButton}
-                  labelStyle={{ textAlign: "left" }}
-                >
-                  <Text style={{ textAlign: "left", fontWeight: "normal" }}>
-                    {" "}
-                    {birthDate.toString().substring(4, 15)}{" "}
-                  </Text>
-                </ButtonDate>
-              </TouchableOpacity>
-              <DateTimePickerModal
-                title="Date Of Birth"
-                isVisible={isDatePickerVisible}
-                mode="date"
-                display="default"
-                onConfirm={handleConfirm}
-                onCancel={hideDatePicker}
+              <InputBox
+                value={username}
+                setValue={setUsername}
+                placeholder="Username"
+                secure={false}
               />
+              <InputBox value={name} setValue={setName} placeholder="Name" />
+
+              <View>
+                <TouchableOpacity onPress={showDatePicker}>
+                  <ButtonDate
+                    buttonColor="#f2f2f2"
+                    textColor="#6E6E6E"
+                    style={styles.dateButton}
+                    labelStyle={{ textAlign: "left" }}
+                  >
+                    <Text style={{ textAlign: "left", fontWeight: "normal" }}>
+                      {" "}
+                      {birthDate.toString().substring(4, 15)}{" "}
+                    </Text>
+                  </ButtonDate>
+                </TouchableOpacity>
+                <DateTimePickerModal
+                  title="Date Of Birth"
+                  isVisible={isDatePickerVisible}
+                  mode="date"
+                  onConfirm={handleConfirm}
+                  onCancel={hideDatePicker}
+                />
+              </View>
+
+              <InputBox
+                value={accountType}
+                setValue={setAccountType}
+                placeholder="AccountType"
+              />
+              <InputBox value={bio} setValue={setBio} placeholder="Bio" />
+
+              <Button onPress={HandleInfo} text="Update" />
             </View>
-
-            <InputBox
-              value={accountType}
-              setValue={setAccountType}
-              placeholder="AccountType"
-            />
-            <InputBox value={bio} setValue={setBio} placeholder="Bio" />
-
-            <Button onPress={HandleInfo} text="Submit" />
-            <Button
-              onPress={() => auth.signOut()}
-              text="Existing Member? Log In"
-              type="SECONDARY"
-              text_type="SECONDARY"
-              style={[{ width: windowWidth * 10 }]}
-            />
-          </View>
+          </SafeAreaView>
         </ScrollView>
       </KeyboardAvoidingView>
       {Loading ? <Apploader /> : null}
@@ -199,11 +182,12 @@ const UserInfo = () => {
   );
 };
 
-export default UserInfo;
+export default EditProfile;
 
 const styles = StyleSheet.create({
   container: {
     width: "100%",
+    height: "100%",
     backgroundColor: "#fff",
     alignItems: "center",
     padding: 100,

@@ -1,8 +1,12 @@
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
 
-import { NavigationContainer , createNavigationContainerRef} from "@react-navigation/native";
+import {
+  NavigationContainer,
+  createNavigationContainerRef
+} from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { createDrawerNavigator } from "@react-navigation/drawer";
 
 import { BlurView } from "expo-blur";
 
@@ -16,21 +20,27 @@ import Explore from "../screens/Explore";
 import Create from "../screens/Create";
 import Notifications from "../screens/Notifications";
 import UserProfile from "../screens/UserProfile";
-import Profile from "../screens/Profile"
+import Profile from "../screens/Profile";
 
 import Post from "../screens/Post";
 
 import CreateScrapbook from "../screens/CreateScrapbook";
 import CreateGroup from "../screens/CreateGroup";
-import CreateNext from "../screens/CreateNext"
+import CreateNext from "../screens/CreateNext";
 import CreateModal from "../components/CreateModal";
+import EditProfile from "../screens/EditProfile";
 
 import { createStackNavigator } from "@react-navigation/stack";
+import DrawerModel from "../screens/DrawerModel";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
+const Drawer = createDrawerNavigator();
+
 export const navRef = createNavigationContainerRef();
+
 const AppStack = () => {
+
   CreateStack = () => {
     return (
       <Stack.Navigator>
@@ -63,6 +73,18 @@ const AppStack = () => {
         <Stack.Screen name="Feed" component={Feed} />
         {/* <Stack.Screen name = "Post" component={Post} options={{presentation: "modal"}}/> */}
       </Stack.Navigator>
+    );
+  };
+
+  function UserStack() {
+    return (
+      <Drawer.Navigator
+        screenOptions={{ headerShown: false, drawerPosition: "right" }}
+        initialRouteName="UserProfile"
+      >
+        <Drawer.Screen name="UserProfile" component={UserProfile} />
+        <Drawer.Screen name="DrawerModel" component={DrawerModel} />
+      </Drawer.Navigator>
     );
   };
 
@@ -133,8 +155,8 @@ const AppStack = () => {
           }}
         />
         <Tab.Screen
-          name="UserProfile"
-          component={UserProfile}
+          name="UserStack"
+          component={UserStack}
           options={{
             tabBarIcon: ({ focused }) => {
               let label;
@@ -168,6 +190,7 @@ const AppStack = () => {
         <Stack.Screen name="CreateGroup" component={CreateGroup} />
         <Stack.Screen name="Profile" component={Profile} />
         <Stack.Screen name="CreateNext" component={CreateNext} />
+        <Stack.Screen name="EditProfile" component={EditProfile} />
       </Stack.Navigator>
     </NavigationContainer>
   );

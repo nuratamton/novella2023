@@ -13,6 +13,13 @@ import { ScrollView } from "react-native-gesture-handler";
 import { getDocs,getDoc,collection,doc,setDoc,collectionGroup , orderBy ,query} from "firebase/firestore";
 import defProfile from '../../assets/images/default_profile.png'
 import Apploader from '../components/Apploader';
+
+import {
+
+  DrawerActions 
+} from "@react-navigation/native";
+
+
 const UserProfile = ({ navigation }) => {
   const windowWidth = Dimensions.get("window").width;
   const windowHeight = Dimensions.get("window").height;
@@ -103,6 +110,7 @@ const UserProfile = ({ navigation }) => {
               size={24}
               color="black"
               style={{ alignItems: "flex-end" }}
+              onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
             />
           </TouchableOpacity>
         </View>
@@ -117,7 +125,7 @@ const UserProfile = ({ navigation }) => {
           <Text> {username} </Text>
           <Text> {bio} </Text>
           <Button
-            onPress={() => navigation.replace("EditProfile")}
+            onPress={() => navigation.navigate("EditProfile")}
             text=" Edit Profile "
             type="TERITARY"
             text_type="TERTIARY"
