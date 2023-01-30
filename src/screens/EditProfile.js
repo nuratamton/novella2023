@@ -12,7 +12,7 @@ import {
 import React, { useState, useEffect } from "react";
 import { auth } from "../firebase";
 import { db } from "../firebase";
-import { addDoc, collection, setDoc, doc, updateDoc } from "firebase/firestore";
+import { addDoc, collection, setDoc, doc, updateDoc, getDoc } from "firebase/firestore";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import InputBox from "../components/InputBox";
 import Button from "../components/Button";
@@ -31,17 +31,18 @@ const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 
 const EditProfile = ({ navigation, route }) => {
-  const [username, setUsername] = useState("");
+   const [username, setUsername] = useState("");
   const [name, setName] = useState("");
-  const [birthDate, setBirthDate] = useState("Date Of Birth");
+  // const [birthDate, setBirthDate] = useState("Date Of Birth");
   const [accountType, setAccountType] = useState("");
   const [bio, setBio] = useState("");
   const [profilePic, setprofilePic] = useState("");
+  const [Loading , setLoading] = useState(false);
   const [hasPerm, setPerm] = useState(null);
-  const [Url, setUrl] = useState(
-    "https://blogifs.azureedge.net/wp-content/uploads/2019/03/Guest_Blogger_v1.png"
-  );
-  const [Loading, setLoading] = useState(false);
+  // const [Url, setUrl] = useState(
+  //   "https://blogifs.azureedge.net/wp-content/uploads/2019/03/Guest_Blogger_v1.png"
+  // );
+  // const [Loading, setLoading] = useState(false);
   const storage = getStorage();
   const uid = auth.currentUser.uid;
 
@@ -51,7 +52,18 @@ const EditProfile = ({ navigation, route }) => {
     (async () => {
       const gallery = await ImagePicker.requestMediaLibraryPermissionsAsync();
       setPerm(gallery.status === "granted");
-    })();
+    })
+    async () => {
+      const Uref = doc(db, "users", uid);
+      const userDoc = await getDoc(Uref);
+
+      setUsername(userDoc.data().username);
+      setBio(userDoc.data().bio);
+      setprofilePic(userDoc.data().profilePicsrc);
+      setName(userDoc.data().name);
+      setAccountType(userDoc.data().accountType);
+    }
+
   }, []);
 
   const pickImage = async () => {
@@ -92,28 +104,27 @@ const EditProfile = ({ navigation, route }) => {
     if (profilePic) {
       const imga = await fetch(profilePic);
       const bytes = await imga.blob();
-      await uploadBytesResumable(storageRef, bytes);
-      const url = await getDownloadURL(storageRef);
-      while (url === null) {
-        url = await getDownloadURL(storageRef);
-      }
-      setUrl(url);
+      await uploadBytesResumable(storageRef, bytes).then(async (snapshot) => {
+        await getDownloadURL(snapshot.ref).then(async (downloadURL) => {
+          console.log(downloadURL);
+          await setDoc(doc(db, "users", auth.currentUser.uid), {
+            profilePicsrc: downloadURL,
+          })
+        });
+      });
     }
-    await updateDoc(doc(db, "users", auth.currentUser.uid), {
+    await setDoc(doc(db, "users", auth.currentUser.uid), {
       username: username,
       name: name,
-      Date: birthDate,
       accountType: accountType,
       bio: bio,
-      email: auth.currentUser.email,
-      profilePicsrc: Url,
-    })
+    }, {merge:true})
       .then(() => {})
       .catch((error) => {
         console.log(error);
       });
     setLoading(false);
-    navigation.navigate("UserProfile");
+    navigation.navigate("UserProfile" , {item: true});
   };
   return (
     <>
@@ -142,7 +153,7 @@ const EditProfile = ({ navigation, route }) => {
               />
               <InputBox value={name} setValue={setName} placeholder="Name" />
 
-              <View>
+              {/* <View>
                 <TouchableOpacity onPress={showDatePicker}>
                   <ButtonDate
                     buttonColor="#f2f2f2"
@@ -163,7 +174,7 @@ const EditProfile = ({ navigation, route }) => {
                   onConfirm={handleConfirm}
                   onCancel={hideDatePicker}
                 />
-              </View>
+              </View> */}
 
               <InputBox
                 value={accountType}
