@@ -27,7 +27,7 @@ const LogIn = () => {
         const user = userCredentials.user;
         console.warn("Logged In: ", user.email);
       })
-      .catch((error) => alert(error.message));
+      .catch((error) => alert("Incorrect login details entered!"));
       setLogging(false)
   };
 

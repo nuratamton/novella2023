@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import React from "react";
 
 import {
@@ -6,7 +6,8 @@ import {
   createNavigationContainerRef
 } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { createDrawerNavigator } from "@react-navigation/drawer";
+import { createDrawerNavigator, DrawerItem, DrawerContentScrollView,
+  DrawerItemList, } from "@react-navigation/drawer";
 
 import { BlurView } from "expo-blur";
 
@@ -32,6 +33,7 @@ import EditProfile from "../screens/EditProfile";
 
 import { createStackNavigator } from "@react-navigation/stack";
 import DrawerModel from "../screens/DrawerModel";
+import CustomDrawer from "../components/CustomDrawer"
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -78,13 +80,42 @@ const AppStack = () => {
 
   function UserStack() {
     return (
+      // <Drawer.Navigator
+      //   screenOptions={{ headerShown: false, drawerPosition: "right", drawerType: "front" }}
+      //   initialRouteName="UserProfile"
+      //   drawerContent={props=>{<CustomDrawer {...props} />
+      //     // <DrawerContentScrollView {...props}>
+      //     //   <DrawerItemList {...props} />
+      //     //   <DrawerItem label = "Sign Out" onPress={() => props.navigation.replace("Login")}/>
+      //     // </DrawerContentScrollView>
+      //   }
+      //   }
+      // >
+      
+      //   <Drawer.Screen name="UserProfile" component={UserProfile} initialParams={{ item: false }} />
+      //   <Drawer.Screen name="DrawerModel" component={DrawerModel} />
+  
+      // </Drawer.Navigator>
+
+
       <Drawer.Navigator
-        screenOptions={{ headerShown: false, drawerPosition: "right" }}
-        initialRouteName="UserProfile"
-      >
-        <Drawer.Screen name="UserProfile" component={UserProfile} initialParams={{ item: false }} />
-        <Drawer.Screen name="DrawerModel" component={DrawerModel} />
-      </Drawer.Navigator>
+      drawerContent={props => <CustomDrawer {...props} />}
+      screenOptions={{
+        drawerType: "front", 
+        headerShown: false,
+        drawerPosition: "right",
+        drawerActiveBackgroundColor: '#aa18ea',
+        drawerActiveTintColor: '#fff',
+        drawerInactiveTintColor: '#333',
+        drawerLabelStyle: {
+          marginLeft: -25,
+          fontSize: 15,
+        },
+      }}>
+
+    <Drawer.Screen name="UserProfile" component={UserProfile} initialParams={{ item: false }} />
+    </Drawer.Navigator>
+
     );
   };
 

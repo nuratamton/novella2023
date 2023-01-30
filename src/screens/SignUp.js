@@ -29,10 +29,17 @@ const SignUp = () => {
   const [Loading , setLoading] = useState(false);
   const navigation = useNavigation();
 
+  const disallowed = ["~", "`", "!","#","$","%","^","&","*","(",")","_","-","+","=","{","[","}","]","|","/\//g",":",";","\"","'","<",",",">","/","?"]
+  
+
   const handleSignUp = async (error) => {
     setLoading(true)
     if (password !== confpassword) {
       alert("Passwords do not match");
+    } else if (password.length < 6) {
+      alert("Please enter a password which is at least 6 characters long")
+    } else if (disallowed.some(v => password.includes(v))){
+      alert("Please enter a password which is does not contain special characters")
     } else {
       await createUserWithEmailAndPassword(auth, email, password)
         .then((userCredentials) => {

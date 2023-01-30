@@ -12,6 +12,8 @@ import { getDocs,collection,doc,setDoc,collectionGroup } from "firebase/firestor
 import { auth } from "../firebase";
 import uuid from "react-native-uuid";
 import Apploader from '../components/Apploader';
+
+
 const CreateScrapbook = ({ navigation }) => {
   const [title, setTitle] = useState("");
   const [scrapbookCover, setScrapbookCover] = useState(null);
@@ -64,19 +66,14 @@ const CreateScrapbook = ({ navigation }) => {
 
   const handleUpload = async () => {
     setLoading(true)
-
-
-    console.warn(Url);
     await setDoc(doc(db, "users", auth.currentUser.uid, "Scrapbooks", UUID), {
       title: title,
-      CoverImg: Url,
       images: [],
       pages: 0,
       likes: 0,
       comments: [],
     })
       .then(() => {
-        console.warn("Calm Down");
         setLoading(false)
       })
       .catch((error) => {
@@ -100,10 +97,10 @@ const CreateScrapbook = ({ navigation }) => {
           <Image style={styles.coverImage} source={{ uri: scrapbookCover }} />
           <Feather name="plus" size={24} color="black" />
         </TouchableOpacity>
-      </View>
-
-      <InputBox value={title} setValue={setTitle} placeholder="Title" />
+      
+      <InputBox value={title} setValue={setTitle} placeholder="Title" style={styles.title} />
       <Button text="Upload" onPress={handleUpload} />
+      </View>
       {Loading ? <Apploader/> : null }
     </SafeAreaView>
   );
@@ -119,13 +116,15 @@ const styles = StyleSheet.create({
   },
   coverContainer: {
     alignItems: "center",
+    
   },
   plusButton: {
     width: "90%",
     height: "70%",
     borderRadius: 10,
     borderWidth: 1,
-    marginTop: 30,
+    marginTop: 20,
+    marginBottom: 10,
     backgroundColor: "#f2f2f2",
     justifyContent: "center",
     alignItems: "center",

@@ -128,8 +128,8 @@ const EditProfile = ({ navigation, route }) => {
   };
   return (
     <>
-      <KeyboardAvoidingView>
-        <ScrollView>
+      <KeyboardAvoidingView behavior="padding" style={{backgroundColor: "#ffffff"}}>
+        <ScrollView style = {{backgroundColor: "#ffffff", height: '100%'}}>
           <SafeAreaView>
             <IconButton
               icon="chevron-left"

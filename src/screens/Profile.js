@@ -37,7 +37,8 @@ const Profile = ({ navigation, route }) => {
   const [onFollowClick, setOnFollowClick] = useState(false);
   const [username, setusername] = useState("Default");
   const [name, setName] = useState("Name");
-  // const [followersCount, setFollowersCount]= useState(0)
+  const [FollowersCount, setFollowersCount]= useState(0);
+  const [FollowingCount, setFollowingCount] = useState(0);
   const [bio, setbio] = useState("Bio");
   const [image, setimage] = useState(
     "https://blogifs.azureedge.net/wp-content/uploads/2019/03/Guest_Blogger_v1.png"
@@ -54,6 +55,8 @@ const Profile = ({ navigation, route }) => {
     setbio(userDoc.data().bio);
     setimage(userDoc.data().profilePicsrc);
     setName(userDoc.data().name);
+    setFollowersCount(userDoc.data().followerCount);
+    setFollowingCount(userDoc.data().followingCount);
     // setFollowers(userDoc.data().followers);
     // setMyFollowing(myDoc.data().following);
     console.log(userDoc.data());
@@ -71,6 +74,10 @@ const Profile = ({ navigation, route }) => {
     getUserDetails();
     Scrapbooks();
   }, []);
+
+  useEffect(() => {
+    getUserDetails();
+  }, [FollowersCount, FollowingCount])
 
   renderPost = (post) => {
     const selectPost = () => {
@@ -101,6 +108,7 @@ const Profile = ({ navigation, route }) => {
     const currDoc = doc(db, "users", currentUserId);
     const currGet = await getDoc(currDoc).then(async (QuerySnapshot) => {
       if (QuerySnapshot.data().following.includes(uid)) {
+        setFollowingCount(FollowingCount - 1)
         await updateDoc(doc(db, "users", uid), {
           followers: arrayRemove(currentUserId),
           followerCount: increment(-1),
@@ -111,10 +119,12 @@ const Profile = ({ navigation, route }) => {
         });
         setOnFollowClick(false);
       } else {
+        setFollowersCount(FollowersCount + 1)
         await updateDoc(doc(db, "users", uid), {
           followers: arrayUnion(currentUserId),
           followerCount: increment(1),
         });
+        
         await updateDoc(doc(db, "users", currentUserId), {
           following: arrayUnion(uid),
           followingCount: increment(1),
@@ -153,11 +163,11 @@ const Profile = ({ navigation, route }) => {
           <View style={styles.infoContainer}>
             <View style={styles.followerCount}>
               {/* {currDoc = doc(db, "users", currentUserId)} */}
-              <Text>10</Text>
+              <Text>{FollowersCount}</Text>
               <Text>Followers</Text>
             </View>
             <View style={styles.followingCount}>
-              <Text>10</Text>
+              <Text>{FollowingCount}</Text>
               <Text>Following</Text>
             </View>
           </View>

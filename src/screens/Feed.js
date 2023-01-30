@@ -83,6 +83,7 @@ export const postID = () => {
 const Feed = ({ navigation }) => {
   const windowWidth = Dimensions.get("window").width;
   const windowHeight = Dimensions.get("window").height;
+
   const [id, setId] = useState(1);
 
   renderPost = (post) => {
@@ -156,7 +157,7 @@ export default Feed;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    // flex: 1,
     padding: 100,
     height: '100%',
     width: '100%',
