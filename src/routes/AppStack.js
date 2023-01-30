@@ -82,7 +82,7 @@ const AppStack = () => {
         screenOptions={{ headerShown: false, drawerPosition: "right" }}
         initialRouteName="UserProfile"
       >
-        <Drawer.Screen name="UserProfile" component={UserProfile} />
+        <Drawer.Screen name="UserProfile" component={UserProfile} initialParams={{ item: false }} />
         <Drawer.Screen name="DrawerModel" component={DrawerModel} />
       </Drawer.Navigator>
     );

@@ -20,7 +20,7 @@ import {
 } from "@react-navigation/native";
 
 
-const UserProfile = ({ navigation }) => {
+const UserProfile = ({ navigation , route}) => {
   const windowWidth = Dimensions.get("window").width;
   const windowHeight = Dimensions.get("window").height;
   const [scrapbooks, getScrapbooks] = useState([]);
@@ -28,6 +28,7 @@ const UserProfile = ({ navigation }) => {
   const [bio, setbio]  = useState('Bio');
   const [image, setimage]  = useState('https://blogifs.azureedge.net/wp-content/uploads/2019/03/Guest_Blogger_v1.png');
   const [Loading , setLoading] = useState(false);
+  const [renderLoad , setrenderLoad] = useState(false);
 
   const getUserDetails = async () => {
     
@@ -49,10 +50,17 @@ const UserProfile = ({ navigation }) => {
   }
   
   useEffect(() => {
+    if(route.params.item !== undefined){
+      setrenderLoad(true)
+    }
     setLoading(true);
     getUserDetails();
     Scrapbooks();
   }, []);
+
+  useEffect(() => {
+    getUserDetails()
+  } , [renderLoad])
 
   const handleSignOut = () => {
     signOut(auth)
