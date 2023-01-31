@@ -8,11 +8,23 @@ import {
   Image,
   FlatList,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Logo from "../../assets/images/novella.png";
 import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import { Card, Avatar } from "react-native-paper";
+import {
+  getDocs,
+  getDoc,
+  collection,
+  doc,
+  updateDoc,
+  arrayRemove,
+  arrayUnion,
+  increment,
+} from "firebase/firestore";
+
+import { auth, db } from "../firebase";
 
 const posts = [
   {
@@ -36,7 +48,6 @@ const posts = [
     postImage:
       "https://media.npr.org/assets/img/2016/03/29/ap_090911089838_sq-3271237f28995f6530d9634ff27228cae88e3440-s1100-c50.jpg",
     postTitle: "Sad",
-
   },
   {
     id: "3",
@@ -48,7 +59,6 @@ const posts = [
     postImage:
       "https://www.highlandernews.org/wp-content/uploads/2016/02/ops.meme_.nba_-1024x768.jpg",
     postTitle: "Uncle",
-
   },
   {
     id: "4",
@@ -59,7 +69,6 @@ const posts = [
     postImage:
       "http://images7.memedroid.com/images/UPLOADED743/60416b642824c.jpeg",
     postTitle: "Title",
-
   },
   {
     id: "5",
@@ -71,45 +80,78 @@ const posts = [
     postImage:
       "https://stickerly.pstatic.net/sticker_pack/tuhLgeeNbLotJ5dQNtjBYg/KQ7T1T/6/d4e3f6b7-2a08-47f4-b722-99f5994419a9.png",
     postTitle: "surprised",
-
   },
 ];
 
 export const postID = () => {
   // console.warn(id)
-  return{id};
+  return { id };
 };
 
 const Feed = ({ navigation }) => {
   const windowWidth = Dimensions.get("window").width;
   const windowHeight = Dimensions.get("window").height;
 
+  const [scrapbooks, getScrapbooks] = useState([]);
+
+  const [Loading, setLoading] = useState(false);
+
   const [id, setId] = useState(1);
+  useEffect(() => {
+    console.log(scrapbooks)
+  }, [scrapbooks])
+
+  const FollowerListtttt = async () => {
+    const currDoc = doc(db, "users", auth.currentUser.uid);
+    await getDoc(currDoc).then(async (QuerySnapshot) => {
+      QuerySnapshot.data().following.forEach(async (element) => {
+        const ref = collection(db, "users", element, "Scrapbooks");
+        await getDocs(ref).then((data) => {
+          data.forEach((item) => {
+            getScrapbooks((prev) => [...prev, item.data()]);
+          })
+        })
+      });
+    });
+  };
+  useEffect(() => {
+    FollowerListtttt();
+  }, []);
+
+  // async function Scrapbooks(uid) {
+  //   await getDocs(ref).then((data) => {
+  //     data.forEach((item) => {
+  //       getScrapbooks((prev) => [...prev, item.data()]);
+  //     });
+  //   })
+  //   setLoading(false);
+  //   };
+const test = () => {
+  console.log(scrapbooks)
+}
+
 
   renderPost = (post) => {
-
-    const selectPost = () => {
+    selectPost = () => {
       setId(post.id);
       console.warn(post.id);
-    }
+    };
 
     return (
-      <Card style={[styles.post ]}>
-        <TouchableOpacity onPress={() => navigation.navigate("Post")}>
-          <Card.Cover source={{ uri: post.postImage }} resizeMode="cover" />
+      <Card style={[styles.post]}>
+        <TouchableOpacity onPress={() => navigation.navigate('Post')}>
+          <Card.Cover source={{ uri: post.CoverImg }} resizeMode="cover" />
         </TouchableOpacity>
         <Card.Title
           style={styles.postHeader}
           title={post.postTitle}
           titleStyle={styles.cardTitle}
-          subtitle={post.userName}
+          subtitle={post.username}
           subtitleStyle={styles.cardSubTitle}
-          right={(props) => (
-            <Text>{post.postTime}</Text>
-          )}
+          right={(props) => <Text>{post.postTime}</Text>}
           // rightStyle={}
           left={(props) => (
-            <Avatar.Image source={{ uri: post.userImage }} size={25} />
+            <Avatar.Image source={{ uri: post.profilepic }} size={25} />
           )}
           leftStyle={styles.profilePicture}
         />
@@ -136,20 +178,19 @@ const Feed = ({ navigation }) => {
           ]}
           resizeMode="contain"
         />
-        <TouchableOpacity style={{marginBottom: 5}}>
+        <TouchableOpacity style={{ marginBottom: 5 }}>
           <Ionicons name="chatbubble-outline" size={24} color="black" />
         </TouchableOpacity>
       </View>
 
       <FlatList
         style={styles.feed}
-        data={posts}
+        data={scrapbooks}
         renderItem={({ item }) => renderPost(item)}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
       />
-      </SafeAreaView>
-  
+    </SafeAreaView>
   );
 };
 
@@ -159,9 +200,9 @@ const styles = StyleSheet.create({
   container: {
     // flex: 1,
     padding: 100,
-    height: '100%',
-    width: '100%',
-    backgroundColor: "#FFFFFF"
+    height: "100%",
+    width: "100%",
+    backgroundColor: "#FFFFFF",
   },
   header: {
     flexDirection: "row",
@@ -170,7 +211,7 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
     // paddingVertical: 10,
     zIndex: 1,
-    height: '10%'
+    height: "10%",
   },
   logo: {
     justifyContent: "space-around",
@@ -183,7 +224,7 @@ const styles = StyleSheet.create({
   },
   feed: {
     marginHorizontal: 20,
-    marginBottom:37,
+    marginBottom: 37,
   },
   post: {
     marginVertical: 8,
@@ -197,8 +238,8 @@ const styles = StyleSheet.create({
   },
   cardSubTitle: {
     position: "absolute",
-    top:-4,
-    left:35
+    top: -4,
+    left: 35,
   },
   cardTitle: {
     position: "absolute",
@@ -207,6 +248,6 @@ const styles = StyleSheet.create({
   profilePicture: {
     position: "absolute",
     left: 17,
-    bottom: 10
-  }
+    bottom: 10,
+  },
 });

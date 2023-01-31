@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  StyleSheet,
   View,
   Text,
   ImageBackground,
@@ -14,6 +15,7 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import  { auth } from '../firebase.js'
+import { BlurView } from 'expo-blur';
 
 const handleSignOut = () => {
     signOut(auth)
@@ -26,7 +28,10 @@ const handleSignOut = () => {
 
 const CustomDrawer = props => {
   return (
+    
     <View style={{flex: 1}}>
+      
+      {/* <BlurView tint="light" intensity={100} style={StyleSheet.absoluteFill} /> */}
       <DrawerContentScrollView
         {...props}
         contentContainerStyle={{backgroundColor: '#8200d6'}}>
@@ -62,7 +67,7 @@ const CustomDrawer = props => {
           <DrawerItemList {...props} />
         </View>
       </DrawerContentScrollView>
-      <View style={{padding: 10, borderTopWidth: 1, borderTopColor: '#ccc'}}>
+      <View style={{paddingBottom: 70, borderTopWidth: 1, borderTopColor: '#ccc'}}>
         <TouchableOpacity onPress={() => {auth.signOut()}} style={{paddingVertical: 15}}>
           <View style={{flexDirection: 'row', alignItems: 'center'}}>
             <Ionicons name="exit-outline" size={22} color='red' />

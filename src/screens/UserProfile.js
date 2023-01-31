@@ -15,7 +15,6 @@ import defProfile from '../../assets/images/default_profile.png'
 import Apploader from '../components/Apploader';
 
 import {
-
   DrawerActions 
 } from "@react-navigation/native";
 
@@ -73,7 +72,7 @@ const UserProfile = ({ navigation , route}) => {
 
 
   renderPost = (post) => {
-    const selectPost = () => {
+    selectPost = () => {
       setId(post.id);
       console.warn(post.id);
     };

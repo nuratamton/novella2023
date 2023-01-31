@@ -28,8 +28,16 @@ const CreateScrapbook = ({ navigation }) => {
     (async () => {
       const gallery = await ImagePicker.requestMediaLibraryPermissionsAsync();
       setPerm(gallery.status === "granted");
-    })();
+    });
+    async () => {
+      const ref = doc(db, "users" , auth.currentUser.uid)
+      await getDoc(ref).then((item) => {
+        setUser(item.data().username);
+        setUrl(item.data().profilePicsrc)
+      })
+    }
   }, []);
+
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -72,6 +80,8 @@ const CreateScrapbook = ({ navigation }) => {
       pages: 0,
       likes: 0,
       comments: [],
+      username: Username,
+      profilepic: Url
     })
       .then(() => {
         setLoading(false)
