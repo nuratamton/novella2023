@@ -8,7 +8,7 @@ import Button from "../components/Button";
 import * as ImagePicker from "expo-image-picker";
 import { db } from "../firebase";
 import { getStorage,ref,uploadBytesResumable,getDownloadURL } from "firebase/storage";
-import { getDocs,collection,doc,setDoc,collectionGroup } from "firebase/firestore";
+import { getDocs,collection,doc,setDoc,collectionGroup, getDoc } from "firebase/firestore";
 import { auth } from "../firebase";
 import uuid from "react-native-uuid";
 import Apploader from '../components/Apploader';
@@ -23,22 +23,33 @@ const CreateScrapbook = ({ navigation }) => {
   const [Loading , setLoading] = useState(false);
   const UUID = uuid.v4();
   const storage = getStorage();
-  
+
+
+
   useEffect(() => {
     (async () => {
       const gallery = await ImagePicker.requestMediaLibraryPermissionsAsync();
       setPerm(gallery.status === "granted");
     });
-    async () => {
-      const ref = doc(db, "users" , auth.currentUser.uid)
-      await getDoc(ref).then((item) => {
-        setUser(item.data().username);
-        setUrl(item.data().profilePicsrc)
-      })
-    }
+    getUD()
   }, []);
 
+  useEffect(() => {
+    console.log(Username)
+  }, [Username])
 
+  useEffect(() => {
+    console.log(Url)
+  }, [Url])
+
+  const getUD = async () => {
+    const ref = doc(db, "users" , auth.currentUser.uid)
+    await getDoc(ref).then((item) => {
+      setUser(item.data().username);
+      setUrl(item.data().profilePicsrc)
+  })
+
+  }
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -52,7 +63,6 @@ const CreateScrapbook = ({ navigation }) => {
     });
 
     if (!result.canceled) {
-      console.log(result);
       setScrapbookCover(result.assets[0].uri);
     }
   };

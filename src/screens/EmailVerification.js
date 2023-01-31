@@ -11,12 +11,12 @@ const EmailVerification = () => {
   return (
     <View style={styles.container}>
       <IconButton
+      style = {styles.backIcon}
       icon="chevron-left" 
       size={24} 
       iconColor="black"
       onPress={ async () => {
         await auth.signOut();
-        
        }
       } 
       />
@@ -41,7 +41,6 @@ const EmailVerification = () => {
           else{
             console.warn("chill out buddy, no more emails for you......");
             setdisable(true);
-            
           }
         }
       }
@@ -62,4 +61,9 @@ const styles = StyleSheet.create({
     paddingTop: 300,
   },
   text: {},
+  backIcon: {
+   right: '90%',
+   bottom: '60%'
+
+  }
 });

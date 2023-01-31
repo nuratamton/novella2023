@@ -79,7 +79,7 @@ const UserProfile = ({ navigation , route}) => {
 
     return (
       <Card style={[styles.post, { width: windowWidth / 2 - 15 }]}>
-        <TouchableOpacity onPress={() => navigation.navigate("Post")}>
+        <TouchableOpacity onPress={() => navigation.navigate("Post",{item:post})}>
           <Card.Cover source={{ uri: post.CoverImg }} resizeMode="cover" />
         </TouchableOpacity>
         <Card.Title
@@ -146,7 +146,6 @@ const UserProfile = ({ navigation , route}) => {
           showsVerticalScrollIndicator={false}
           numColumns={2}
         />
-        <Button onPress={handleSignOut} text="Sign out" />
       </SafeAreaView>
     </ScrollView>
     {Loading ? <Apploader/> : null }

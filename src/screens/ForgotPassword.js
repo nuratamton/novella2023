@@ -49,7 +49,7 @@ const ForgotPassword = () => {
           placeholder="Email"
           secure={false}
         />
-        <Button onPress={forgotPasswordPressed} text=" Submit" />
+        <Button onPress={forgotPasswordPressed} text="Submit" />
         <Button
           onPress={() => navigation.replace("Login")}
           text="Log In"
@@ -67,7 +67,8 @@ export default ForgotPassword;
 const styles = StyleSheet.create({
   container: {
     width: "100%",
-    backgroundColor: "#fff",
+    height: "100%",
+    backgroundColor: "#ffffff",
     alignItems: "center",
     padding: 100,
   },

@@ -113,7 +113,7 @@ const EditProfile = ({ navigation, route }) => {
         });
       });
     }
-    await setDoc(doc(db, "users", auth.currentUser.uid), {
+    await updateDoc(doc(db, "users", auth.currentUser.uid), {
       username: username,
       name: name,
       accountType: accountType,

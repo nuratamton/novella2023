@@ -32,7 +32,7 @@ const windowHeight = Dimensions.get("window").height;
 const UserInfo = () => {
   const [username, setUsername] = useState("");
   const [name, setName] = useState("");
-  const [birthDate, setBirthDate] = useState("Date Of Birth");
+  const [birthDate, setBirthDate] = useState("xoxoDOB");
   const [accountType, setAccountType] = useState("");
   const [bio, setBio] = useState("");
   const [profilePic, setprofilePic] = useState("");
@@ -90,7 +90,6 @@ const UserInfo = () => {
   };
 
   const handleConfirm = (date) => {
-    console.warn("A date has been picked: ", date);
     setBirthDate(date);
     hideDatePicker();
   };
@@ -161,13 +160,12 @@ const UserInfo = () => {
                   labelStyle={{ textAlign: "left" }}
                 >
                   <Text style={{ textAlign: "left", fontWeight: "normal" }}>
-                    {" "}
-                    {birthDate.toString().substring(4, 15)}{" "}
+                  
+                    {birthDate.toString().substring(4, 15)}
                   </Text>
                 </ButtonDate>
               </TouchableOpacity>
               <DateTimePickerModal
-                title="Date Of Birth"
                 isVisible={isDatePickerVisible}
                 mode="date"
                 display="default"
