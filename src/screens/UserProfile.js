@@ -1,4 +1,12 @@
-import { TouchableOpacity,StyleSheet,Text,View,Image,Dimensions,FlatList } from "react-native";
+import {
+  TouchableOpacity,
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  Dimensions,
+  FlatList,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import { signOut } from "firebase/auth";
 import Button from "../components/Button";
@@ -10,47 +18,65 @@ import rukia_profile from "../../assets/icon.png";
 import Logo from "../../assets/icon.png";
 import { Card, Avatar } from "react-native-paper";
 import { ScrollView } from "react-native-gesture-handler";
-import { getDocs,getDoc,collection,doc,setDoc,collectionGroup , orderBy ,query} from "firebase/firestore";
-import defProfile from '../../assets/images/default_profile.png'
-import Apploader from '../components/Apploader';
-
 import {
-  DrawerActions 
-} from "@react-navigation/native";
+  getDocs,
+  getDoc,
+  collection,
+  doc,
+  updateDoc,
+  arrayRemove,
+  arrayUnion,
+  increment,
+} from "firebase/firestore";
+import defProfile from "../../assets/images/default_profile.png";
+import Apploader from "../components/Apploader";
 
+import { DrawerActions } from "@react-navigation/native";
 
-const UserProfile = ({ navigation , route}) => {
+const UserProfile = ({ navigation, route }) => {
   const windowWidth = Dimensions.get("window").width;
   const windowHeight = Dimensions.get("window").height;
   const [scrapbooks, getScrapbooks] = useState([]);
-  const [username, setusername] = useState('Default');
-  const [bio, setbio]  = useState('Bio');
-  const [image, setimage]  = useState('https://blogifs.azureedge.net/wp-content/uploads/2019/03/Guest_Blogger_v1.png');
-  const [Loading , setLoading] = useState(false);
-  const [renderLoad , setrenderLoad] = useState(false);
+  const [username, setusername] = useState("Default");
+  const [name, setName] = useState("Name");
+  const [bio, setbio] = useState("Bio");
+  const [image, setimage] = useState(
+    "https://blogifs.azureedge.net/wp-content/uploads/2019/03/Guest_Blogger_v1.png"
+  );
+  const [FollowersCount, setFollowersCount] = useState(0);
+  const [FollowingCount, setFollowingCount] = useState(0);
+  const [Loading, setLoading] = useState(false);
+  const [renderLoad, setrenderLoad] = useState(false);
+  
 
   const getUserDetails = async () => {
-    
     const Uref = doc(db, "users", auth.currentUser.uid);
     const userDoc = await getDoc(Uref);
-    setusername(userDoc.data().username)
-    setbio(userDoc.data().bio)
-    setimage(userDoc.data().profilePicsrc)
-    console.log(userDoc.data());
-  }
+    setFollowersCount(userDoc.data().followerCount);
+    setFollowingCount(userDoc.data().followingCount);
+    setusername(userDoc.data().username);
+    setName(userDoc.data().name);
+    setbio(userDoc.data().bio);
+    setimage(userDoc.data().profilePicsrc);
+    
+    console.error(userDoc.data().followersCount);
+    console.error(userDoc.data.followingCount);
+    console.warn(FollowersCount)
+    console.error(userDoc.data());
+  };
 
   const Scrapbooks = async () => {
     const ref = collection(db, "users", auth.currentUser.uid, "Scrapbooks");
     const data = await getDocs(ref);
     data.forEach((item) => {
       getScrapbooks((prev) => [...prev, item.data()]);
-    })
-    setLoading(false)
-  }
-  
+    });
+    setLoading(false);
+  };
+
   useEffect(() => {
-    if(route.params.item !== undefined){
-      setrenderLoad(true)
+    if (route.params.item !== undefined) {
+      setrenderLoad(true);
     }
     setLoading(true);
     getUserDetails();
@@ -58,8 +84,8 @@ const UserProfile = ({ navigation , route}) => {
   }, []);
 
   useEffect(() => {
-    getUserDetails()
-  } , [renderLoad])
+    getUserDetails();
+  }, [renderLoad]);
 
   const handleSignOut = () => {
     signOut(auth)
@@ -70,16 +96,21 @@ const UserProfile = ({ navigation , route}) => {
     console.log(auth.currentUser);
   };
 
+  useEffect(() => {
+    getUserDetails();
+  }, [FollowersCount, FollowingCount]);
 
   renderPost = (post) => {
-    selectPost = () => {
+    const selectPost = () => {
       setId(post.id);
       console.warn(post.id);
     };
 
     return (
       <Card style={[styles.post, { width: windowWidth / 2 - 15 }]}>
-        <TouchableOpacity onPress={() => navigation.navigate("Post",{item:post})}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate("Post", { item: post })}
+        >
           <Card.Cover source={{ uri: post.CoverImg }} resizeMode="cover" />
         </TouchableOpacity>
         <Card.Title
@@ -98,12 +129,20 @@ const UserProfile = ({ navigation , route}) => {
     );
   };
 
+  // const followUser = async (userDoc) => {
+  //   const currDoc = doc(db, "users", currentUserId);
+  //   await getDoc(currDoc).then(async (QuerySnapshot) => {
+  //     setFollowingCount(QuerySnapshot.data().followingCount);
+  //     setFollowersCount(QuerySnapshot.data().followersCount);
+  //   });
+  // };
+
   return (
     <>
-    <ScrollView showsVerticalScrollIndicator={false}>
-      <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
-          {/* <IconButton
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <SafeAreaView style={styles.container}>
+          <View style={styles.header}>
+            {/* <IconButton
           icon="chevron-left"
           size={24}
           iconColor="black"
@@ -111,44 +150,54 @@ const UserProfile = ({ navigation , route}) => {
             popFromStack();
           }}
         /> */}
-          <TouchableOpacity>
-            <MaterialCommunityIcons
-              name="dots-horizontal"
-              size={24}
-              color="black"
-              style={{ alignItems: "flex-end" }}
-              onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
-            />
-          </TouchableOpacity>
-        </View>
-        <View style={styles.bodyContainer}>
-          <View style={styles.avatarContainer}>
-            <Avatar.Image
-              source={{ uri: image }}
-              size={130}
-            />
-            {/* <Image source={rukia_profile} styles={styles.avatar} resizeMode="contain" /> */}
+            <TouchableOpacity>
+              <MaterialCommunityIcons
+                name="dots-horizontal"
+                size={24}
+                color="black"
+                style={{ alignItems: "flex-end" }}
+                onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
+              />
+            </TouchableOpacity>
           </View>
-          <Text> {username} </Text>
-          <Text> {bio} </Text>
-          <Button
-            onPress={() => navigation.navigate("EditProfile")}
-            text=" Edit Profile "
-            type="TERITARY"
-            text_type="TERTIARY"
+          <View style={styles.headerUsername}>
+            <Text> {username} </Text>
+          </View>
+          <View style={styles.bodyContainer}>
+            <View style={styles.avatarContainer}>
+              <Avatar.Image source={{ uri: image }} size={100} />
+            </View>
+            <View style={styles.infoContainer}>
+              <View style={styles.followerCount}>
+                {/* {currDoc = doc(db, "users", currentUserId)} */}
+                <Text>{FollowersCount}</Text>
+                <Text>Followers</Text>
+              </View>
+              <View style={styles.followingCount}>
+                <Text>{FollowingCount}</Text>
+                <Text>Following</Text>
+              </View>
+            </View>
+            <Text> {name} </Text>
+            <Text> {bio} </Text>
+            <Button
+              onPress={() => navigation.navigate("EditProfile")}
+              text=" Edit Profile "
+              type="TERITARY"
+              text_type="TERTIARY"
+            />
+          </View>
+          <FlatList
+            style={styles.feed}
+            data={scrapbooks}
+            renderItem={({ item }) => renderPost(item)}
+            keyExtractor={(itemm) => itemm.id}
+            showsVerticalScrollIndicator={false}
+            numColumns={2}
           />
-        </View>
-        <FlatList
-          style={styles.feed}
-          data={scrapbooks}
-          renderItem={({ item }) => renderPost(item)}
-          keyExtractor={(itemm) => itemm.id}
-          showsVerticalScrollIndicator={false}
-          numColumns={2}
-        />
-      </SafeAreaView>
-    </ScrollView>
-    {Loading ? <Apploader/> : null }
+        </SafeAreaView>
+      </ScrollView>
+      {Loading ? <Apploader /> : null}
     </>
   );
 };
@@ -160,6 +209,12 @@ const styles = StyleSheet.create({
   header: {
     alignItems: "flex-end",
     padding: 20,
+  },
+  headerUsername: {
+    backgroundColor: "#eacdf7",
+    alignItems: "center",
+    padding: 10,
+    marginBottom: 20,
   },
   bodyContainer: {
     justifyContent: "center",
@@ -188,5 +243,28 @@ const styles = StyleSheet.create({
     // width: 300,
     // maxWidth: "100%", // 100% devided by the number of rows you want
     // alignItems: "center",
+  },
+  infoContainer: {
+    // padding: 10,
+    marginTop: 50,
+    marginBottom: 30,
+    position: "relative",
+    top: 10,
+    display: "flex",
+    justifyContent: "space-between",
+    flex: 1,
+    flexDirection: "row",
+  },
+  followerCount: {
+    position: "absolute",
+    alignItems: "center",
+    right: 50,
+    bottom: 10,
+  },
+  followingCount: {
+    position: "absolute",
+    alignItems: "center",
+    left: 50,
+    bottom: 10,
   },
 });

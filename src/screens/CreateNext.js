@@ -6,8 +6,11 @@ import {
   Dimensions,
   FlatList,
   Image,
+  Animated,
+  StatusBar,
+  TouchableOpacity,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { db } from "../firebase";
 import {
   getStorage,
@@ -30,9 +33,6 @@ import Apploader from "../components/Apploader";
 // import Carousel from 'react-native-snap-carousel';
 import { Button as ButtonDate } from "react-native-paper";
 
-const windowWidth = Dimensions.get("window").width;
-const windowHeight = Dimensions.get("window").height;
-
 const CreateNext = ({ navigation, route }) => {
   const [Url, setUrl] = useState(null);
   const [LoadingPP, setLoadingPP] = useState(false);
@@ -44,8 +44,33 @@ const CreateNext = ({ navigation, route }) => {
   const [disable, setDisable] = useState(false);
   const storage = getStorage();
 
-  const width = windowWidth * 0.7;
-  const height = width * 1.54;
+  const scrollx = useRef(new Animated.Value(0)).current;
+  const { width, height } = Dimensions.get("screen");
+
+  const widthCard = width * 0.7;
+  const heightCard = widthCard * 1.54;
+
+  const topRef = useRef();
+  const bottomRef = useRef();
+  const [actIndex, setactIndex] = useState(0);
+  const setActiveIndex = (index) => {
+    setactIndex(index);
+    topRef?.current?.scrollToOffset({
+      offset: index * width,
+      animated: true,
+    });
+    if (index * (80 + 12) - 80 / 2 > width / 2) {
+      bottomRef?.current?.scrollToOffset({
+        offset: index * (80 + 12) - width / 2 + 80 / 2,
+        animated: true,
+      });
+    } else {
+      bottomRef?.current?.scrollToOffset({
+        offset: 0,
+        animated: true,
+      });
+    }
+  };
 
   useEffect(() => {
     console.warn(selectedImages);
@@ -124,74 +149,130 @@ const CreateNext = ({ navigation, route }) => {
       .catch((error) => {
         console.log(error);
       });
-    navigation.navigate('UserStack')
+    navigation.navigate("UserStack");
   };
   return (
     <>
-      <View style={styles.swiperContainer}>
+      <View style={{ flex: 1, backgroundColor: "#000" }}>
+     
+      </View>
+        <StatusBar hidden />
+
+        <View style={StyleSheet.absoluteFillObject}>
+         
+          {selectedImages.map((item, index) => {
+            const inputRange = [
+              (index - 1) * width,
+              index * width,
+              (index + 1) * width,
+            ];
+            const opacity = scrollx.interpolate({
+              inputRange,
+              outputRange: [0, 1, 0],
+            });
+            return (
+              <Animated.Image
+                key={`image-${index}`}
+                source={{ uri: item }}
+                style={[
+                  StyleSheet.absoluteFillObject,
+                  {
+                    opacity,
+                  },
+                ]}
+                blurRadius={50}
+              />
+            );
+          }
+          )}
+        </View>
         <Button onPress={() => pickImage()} />
-        <Button
-          type="TERITARY"
-          onPress={() => {
-            setLoadingimg(true);
-            uploadSelected();
-          }}
-          style={styles.button}
-        />
-        <FlatList
+          <Button
+            type="TERITARY"
+            onPress={() => {
+              setLoadingimg(true);
+              uploadSelected();
+            }}
+            style={styles.button}
+          />
+
+        <Animated.FlatList
+          ref={topRef}
           data={selectedImages}
-          horizontal
-          pagingEnabled
+          onScroll={Animated.event(
+            [{ nativeEvent: { contentOffset: { x: scrollx } } }],
+            { useNativeDriver: true }
+          )}
+          onMomentumScrollEnd={(ev) => {
+            setActiveIndex(Math.floor(ev.nativeEvent.contentOffset.x / width));
+          }}
           keyExtractor={(_, index) => index.toString()}
+          horizontal={true}
+          pagingEnabled
+          showsHorizontalScrollIndicatior={false}
           renderItem={({ item }) => {
             return (
               <View
                 style={{
-                  width: windowWidth,
+                  width,
                   justifyContent: "center",
                   alignItems: "center",
+                  shadowColor: "#000",
+                  shadowOpacity: 0.7,
+                  shadowOffset: {
+                    width: 0,
+                    height: 0,
+                  },
+                  shadowRadius: 30,
                 }}
               >
                 <Image
                   source={{ uri: item }}
                   style={{
-                    width: width,
-                    height: height,
-                    resizeMode: "contain",
-                    borderRadius: 50,
+                    width: widthCard,
+                    height: heightCard,
+                    resizeMode: "cover",
+                    borderRadius: 20,
                   }}
                 />
               </View>
             );
           }}
         />
+        <Animated.FlatList
+          ref={bottomRef}
+          data={selectedImages}
+          keyExtractor={(item) => item.toString()}
+          showsHorizontalScrollIndicator={false}
+          style={{ position: "absolute", bottom: 80, marginLeft: 60 }}
+          contentContainerStyle={{
+            paddingHorizontal: 10,
+            justifyContent: "center",
+          }}
+          horizontal
+          renderItem={({ item, index }) => {
+            return (
+              <TouchableOpacity onPress={() => setActiveIndex(index)}>
+                <Image
+                  source={{ uri: item }}
+                  style={{
+                    width: 80,
+                    height: 80,
+                    borderRadius: 12,
+                    marginRight: 10,
+                    borderWidth: 2,
+                    borderColor: actIndex === index ? "#fff" : "transparent",
+                  }}
+                />
+              </TouchableOpacity>
+            );
+          }}
+        />
 
-        {LoadingPP && Loadingimg ? <Apploader /> : null}
-        {!LoadingPP && Loadingimg ? <Apploader /> : null}
-        {LoadingPP && !Loadingimg && statechange ? <Apploader /> : null}
-        {LoadingUp && LoadingPP ? <Apploader /> : null}
-      </View>
     </>
   );
 };
 
 export default CreateNext;
 
-const styles = StyleSheet.create({
-  swiperContainer: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
-  button: {
-    width: windowWidth * 0.9,
-    maxWidth: 500,
-    borderColor: "#f2f2f2",
-    borderWidth: 1,
-    borderRadius: 15,
-    paddingTop: 10,
-    paddingBottom: 10,
-    margin: 10,
-    display: "flex",
-    alignItems: "flex-start",
-  },
-});
+const styles = StyleSheet.create({});

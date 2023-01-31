@@ -216,7 +216,7 @@ const AppStack = () => {
         <Stack.Screen
           name="Post"
           component={Post}
-          options={{ presentation: "modal" }}
+          options={{ presentation: "modal", headerMode: "float"}}
         />
         <Stack.Screen name="CreateModal" component={CreateModal} />
         <Stack.Screen name="CreateScrapbook" component={CreateScrapbook} />

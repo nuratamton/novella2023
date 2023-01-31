@@ -54,7 +54,7 @@ const Profile = ({ navigation, route }) => {
     setusername(userDoc.data().username);
     setbio(userDoc.data().bio);
     setimage(userDoc.data().profilePicsrc);
-    setName(userDoc.data().name);
+    
     setFollowersCount(userDoc.data().followerCount);
     setFollowingCount(userDoc.data().followingCount);
     // setFollowers(userDoc.data().followers);
@@ -87,7 +87,7 @@ const Profile = ({ navigation, route }) => {
 
     return (
       <Card style={[styles.post, { width: windowWidth / 2 - 15 }]}>
-        <TouchableOpacity onPress={() => navigation.navigate("Post")}>
+        <TouchableOpacity onPress={() => navigation.navigate("Post" , {item:post})}>
           <Card.Cover source={{ uri: post.CoverImg }} resizeMode="cover" />
         </TouchableOpacity>
         <Card.Title
