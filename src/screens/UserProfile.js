@@ -59,10 +59,6 @@ const UserProfile = ({ navigation, route }) => {
     setbio(userDoc.data().bio);
     setimage(userDoc.data().profilePicsrc);
     
-    console.error(userDoc.data().followersCount);
-    console.error(userDoc.data.followingCount);
-    console.warn(FollowersCount)
-    console.error(userDoc.data());
   };
 
   const Scrapbooks = async () => {

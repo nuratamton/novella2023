@@ -9,6 +9,7 @@ import {
   Animated,
   StatusBar,
   TouchableOpacity,
+  Button,
 } from "react-native";
 import React, { useEffect, useState, useRef } from "react";
 import { db } from "../firebase";
@@ -26,12 +27,12 @@ import {
   collectionGroup,
   arrayUnion,
 } from "firebase/firestore";
-import Button from "../components/Button";
 import { auth } from "../firebase";
 import * as ImagePicker from "expo-image-picker";
 import Apploader from "../components/Apploader";
-// import Carousel from 'react-native-snap-carousel';
-import { Button as ButtonDate } from "react-native-paper";
+
+import { IconButton } from 'react-native-paper'
+
 
 const CreateNext = ({ navigation, route }) => {
   const [Url, setUrl] = useState(null);
@@ -153,11 +154,10 @@ const CreateNext = ({ navigation, route }) => {
   };
   return (
     <>
-      <View style={{ flex: 1, backgroundColor: "#000" }}>
+      {/* <View style={{ flex: 1, backgroundColor: "#FFF" }}>
      
-      </View>
+      </View> */}
         <StatusBar hidden />
-
         <View style={StyleSheet.absoluteFillObject}>
          
           {selectedImages.map((item, index) => {
@@ -186,15 +186,28 @@ const CreateNext = ({ navigation, route }) => {
           }
           )}
         </View>
-        <Button onPress={() => pickImage()} />
-          <Button
-            type="TERITARY"
-            onPress={() => {
+        <IconButton
+        icon="image-plus"
+        size={25}
+        iconColor="black"
+        style={{alignItems: "center" , left:1,}}
+        onPress={async () => {
+          pickImage();
+        }}
+      />
+        {/* <IconButton onPress={() => pickImage()} /> */}
+        {/* <Button onPress={() => pickImage()} /> */}
+
+        <View style = {styles.container}>
+         <TouchableOpacity style = {styles.text} onPress={() => {
               setLoadingimg(true);
               uploadSelected();
-            }}
-            style={styles.button}
-          />
+            }}>
+            <Text >
+               Button
+            </Text>
+         </TouchableOpacity>
+      </View>
 
         <Animated.FlatList
           ref={topRef}
@@ -275,4 +288,24 @@ const CreateNext = ({ navigation, route }) => {
 
 export default CreateNext;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  backIcon: {
+    right: '90%',
+    bottom: '60%'
+ 
+   },
+   container: {
+    alignItems: 'center',
+ },
+ text: {
+    borderWidth: 1,
+    paddingTop: 25,
+    paddingBottom: 25,
+    paddingLeft: 100,
+    paddingRight: 100,
+    borderColor: 'black',
+    backgroundColor: '#9576f5',
+    borderRadius: 15,
+    top:300,
+ }
+});

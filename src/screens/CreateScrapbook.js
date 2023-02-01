@@ -12,6 +12,7 @@ import { getDocs,collection,doc,setDoc,collectionGroup, getDoc } from "firebase/
 import { auth } from "../firebase";
 import uuid from "react-native-uuid";
 import Apploader from '../components/Apploader';
+import { AntDesign } from '@expo/vector-icons'; 
 
 
 const CreateScrapbook = ({ navigation }) => {
@@ -104,24 +105,27 @@ const CreateScrapbook = ({ navigation }) => {
   };
   return (
     <SafeAreaView style={styles.mainContainer}>
-      <IconButton
+      {/* <IconButton
         icon="chevron-left"
         size={24}
         iconColor="black"
         onPress={async () => {
           popFromStack();
         }}
-      />
+      /> */}
       <View style={styles.coverContainer}>
         <TouchableOpacity style={styles.plusButton} onPress={pickImage}>
           <Image style={styles.coverImage} source={{ uri: scrapbookCover }} />
+          <Text> Add cover page </Text>
           <Feather name="plus" size={24} color="black" />
+        
+          
         </TouchableOpacity>
       
       <InputBox value={title} setValue={setTitle} placeholder="Title" style={styles.title} />
-      <Button text="Upload" onPress={handleUpload} />
+      <Button text="Add images" onPress={handleUpload} />
       </View>
-      {Loading ? <Apploader/> : null }
+      {/* {Loading ? <Apploader/> : null } */}
     </SafeAreaView>
   );
 };

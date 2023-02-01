@@ -240,12 +240,16 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: -4,
     left: 35,
+    fontSize: 15,
+    top:0.3,
   },
   cardTitle: {
     position: "absolute",
-    bottom: 5,
-    fontSize: 35,
-    padding: 30
+    fontSize: 22,
+    fontWeight:"600",
+    left: 0.5,
+    bottom:0.4,
+    zIndex: 1,
   },
   profilePicture: {
     position: "absolute",

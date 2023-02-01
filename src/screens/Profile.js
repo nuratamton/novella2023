@@ -37,7 +37,7 @@ const Profile = ({ navigation, route }) => {
   const [onFollowClick, setOnFollowClick] = useState(false);
   const [username, setusername] = useState("Default");
   const [name, setName] = useState("Name");
-  const [FollowersCount, setFollowersCount]= useState(0);
+  const [FollowersCount, setFollowersCount] = useState(0);
   const [FollowingCount, setFollowingCount] = useState(0);
   const [bio, setbio] = useState("Bio");
   const [image, setimage] = useState(
@@ -54,9 +54,10 @@ const Profile = ({ navigation, route }) => {
     setusername(userDoc.data().username);
     setbio(userDoc.data().bio);
     setimage(userDoc.data().profilePicsrc);
-    
+
     setFollowersCount(userDoc.data().followerCount);
     setFollowingCount(userDoc.data().followingCount);
+    getFollowStatus();
     // setFollowers(userDoc.data().followers);
     // setMyFollowing(myDoc.data().following);
     console.log(userDoc.data());
@@ -77,7 +78,7 @@ const Profile = ({ navigation, route }) => {
 
   useEffect(() => {
     getUserDetails();
-  }, [FollowersCount, FollowingCount])
+  }, [FollowersCount, FollowingCount]);
 
   renderPost = (post) => {
     const selectPost = () => {
@@ -87,7 +88,9 @@ const Profile = ({ navigation, route }) => {
 
     return (
       <Card style={[styles.post, { width: windowWidth / 2 - 15 }]}>
-        <TouchableOpacity onPress={() => navigation.navigate("Post" , {item:post})}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate("Post", { item: post })}
+        >
           <Card.Cover source={{ uri: post.CoverImg }} resizeMode="cover" />
         </TouchableOpacity>
         <Card.Title
@@ -106,9 +109,9 @@ const Profile = ({ navigation, route }) => {
     // follow person id:   uid
 
     const currDoc = doc(db, "users", currentUserId);
-    const currGet = await getDoc(currDoc).then(async (QuerySnapshot) => {
+    await getDoc(currDoc).then(async (QuerySnapshot) => {
       if (QuerySnapshot.data().following.includes(uid)) {
-        setFollowingCount(FollowingCount - 1)
+        setFollowingCount(FollowingCount - 1);
         await updateDoc(doc(db, "users", uid), {
           followers: arrayRemove(currentUserId),
           followerCount: increment(-1),
@@ -119,12 +122,12 @@ const Profile = ({ navigation, route }) => {
         });
         setOnFollowClick(false);
       } else {
-        setFollowersCount(FollowersCount + 1)
+        setFollowersCount(FollowersCount + 1);
         await updateDoc(doc(db, "users", uid), {
           followers: arrayUnion(currentUserId),
           followerCount: increment(1),
         });
-        
+
         await updateDoc(doc(db, "users", currentUserId), {
           following: arrayUnion(uid),
           followingCount: increment(1),
@@ -134,14 +137,23 @@ const Profile = ({ navigation, route }) => {
     });
   };
 
-  const getFollowStatus = () => {
+  const getFollowStatus = async () => {
     let status = false;
-    if (onFollowClick === true) {
-      status = true;
-    } else {
-      status = false;
-    }
-    return status;
+    const currDoc = doc(db, "users", currentUserId);
+    await getDoc(currDoc).then(async (QuerySnapshot) => {
+      if (QuerySnapshot.data().following.includes(uid)) {
+        setOnFollowClick(true);
+      } else {
+        setOnFollowClick(false);
+      }
+    });
+
+    // if (onFollowClick === true) {
+    //   status = true;
+    // } else {
+    //   status = false;
+    // }
+    // return status;
   };
 
   return (
@@ -175,7 +187,7 @@ const Profile = ({ navigation, route }) => {
           <Text> {bio} </Text>
           <Button
             onPress={() => followUser()}
-            text={getFollowStatus() ? "Unfollow" : "Follow"}
+            text={onFollowClick ? "Unfollow" : "Follow"}
             type="TERITARY"
           />
         </View>
