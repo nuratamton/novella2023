@@ -20,7 +20,9 @@ const EmailVerification = () => {
        }
       } 
       />
+      <View style={styles.textContainer}>
       <Text style={styles.text}> Verify Your Email </Text>
+      </View>
       <Button
         onPress={ () => { 
           auth.currentUser.reload()
@@ -60,10 +62,17 @@ const styles = StyleSheet.create({
     padding: 100,
     paddingTop: 300,
   },
-  text: {},
+  text: {
+    fontSize: 30,
+    textAlign: 'justify'
+  },
   backIcon: {
    right: '90%',
    bottom: '60%'
-
+  },
+  textContainer: {
+    bottom:'60%',
+    paddingRight:100,
+    backgroundColor: "#EEEE",
   }
 });

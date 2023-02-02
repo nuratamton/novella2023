@@ -20,12 +20,8 @@ import {
   getDownloadURL,
 } from "firebase/storage";
 import {
-  getDocs,
-  collection,
   doc,
   setDoc,
-  collectionGroup,
-  arrayUnion,
 } from "firebase/firestore";
 import { auth } from "../firebase";
 import * as ImagePicker from "expo-image-picker";
@@ -36,9 +32,7 @@ import { IconButton } from 'react-native-paper'
 
 const CreateNext = ({ navigation, route }) => {
   const [Url, setUrl] = useState(null);
-  const [LoadingPP, setLoadingPP] = useState(false);
-  const [Loadingimg, setLoadingimg] = useState(false);
-  const [statechange, setstatechange] = useState(false);
+  const [Loading, setLoading] = useState(false)
   const [selectedImages, setSelectedImages] = useState([]);
   const [LoadingUp, setLoadingUp] = useState(false);
   const [hasPerm, setPerm] = useState(null);
@@ -106,6 +100,7 @@ const CreateNext = ({ navigation, route }) => {
         });
       });
     }
+    setLoading(false)
   };
   if (hasPerm === false) {
     return <Text> No access to Internal Storage </Text>;
@@ -127,11 +122,9 @@ const CreateNext = ({ navigation, route }) => {
         setUrl(downloadURL);
       });
     });
-    setLoadingPP(false);
     console.warn("success3");
   };
   useEffect(() => {
-    setLoadingPP(true);
     upload();
   }, []);
 
@@ -145,7 +138,6 @@ const CreateNext = ({ navigation, route }) => {
       { merge: true }
     )
       .then(() => {
-        setLoadingimg(false);
       })
       .catch((error) => {
         console.log(error);
@@ -192,22 +184,13 @@ const CreateNext = ({ navigation, route }) => {
         iconColor="black"
         style={{alignItems: "center" , left:1,}}
         onPress={async () => {
+          setLoading(true)
           pickImage();
         }}
       />
         {/* <IconButton onPress={() => pickImage()} /> */}
         {/* <Button onPress={() => pickImage()} /> */}
 
-        <View style = {styles.container}>
-         <TouchableOpacity style = {styles.text} onPress={() => {
-              setLoadingimg(true);
-              uploadSelected();
-            }}>
-            <Text >
-               Button
-            </Text>
-         </TouchableOpacity>
-      </View>
 
         <Animated.FlatList
           ref={topRef}
@@ -257,7 +240,7 @@ const CreateNext = ({ navigation, route }) => {
           data={selectedImages}
           keyExtractor={(item) => item.toString()}
           showsHorizontalScrollIndicator={false}
-          style={{ position: "absolute", bottom: 80, marginLeft: 60 }}
+          style={{ position: "absolute", bottom: 90, marginLeft: 60 }}
           contentContainerStyle={{
             paddingHorizontal: 10,
             justifyContent: "center",
@@ -282,6 +265,43 @@ const CreateNext = ({ navigation, route }) => {
           }}
         />
 
+      <View style = {styles.container}>
+        
+         <TouchableOpacity style = {styles.text} onPress={() => {
+              uploadSelected();
+            }}>
+                        {selectedImages.map((item, index) => {
+            const inputRange = [
+              (index - 1) * width,
+              index * width,
+              (index + 1) * width,
+            ];
+            const opacity = scrollx.interpolate({
+              inputRange,
+              outputRange: [0, 1, 0],
+            });
+            return (
+              <Animated.Image
+                key={`image-${index}`}
+                source={{ uri: item }}
+                style={[
+                  StyleSheet.absoluteFillObject,
+                  {
+                    opacity,
+                  },
+                ]}
+                blurRadius={50}
+              />
+            );
+          }
+          )}
+            <Text style={styles.textStyle}>
+               Upload
+            </Text>
+         </TouchableOpacity>
+         {Loading? <Apploader/> : null}
+      </View>
+
     </>
   );
 };
@@ -295,17 +315,25 @@ const styles = StyleSheet.create({
  
    },
    container: {
+    paddingTop: "20%",
     alignItems: 'center',
  },
  text: {
-    borderWidth: 1,
-    paddingTop: 25,
-    paddingBottom: 25,
+    borderWidth: 7,
+    paddingTop: 10,
+    paddingBottom: "5%",
     paddingLeft: 100,
     paddingRight: 100,
-    borderColor: 'black',
-    backgroundColor: '#9576f5',
-    borderRadius: 15,
-    top:300,
- }
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    bottom: "10%",
+    zIndex:3,
+ },
+ textStyle:{
+  top:2,
+  fontWeight:"800",
+  fontSize: 20,
+  color: '#FFF'
+ },
+
 });
