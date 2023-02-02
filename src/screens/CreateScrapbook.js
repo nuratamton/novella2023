@@ -113,6 +113,9 @@ const CreateScrapbook = ({ navigation }) => {
           popFromStack();
         }}
       /> */}
+      <View style={styles.textCont}>
+      <Text style={styles.heading}> Select the Scrapbook Cover Image : </Text>
+      </View>
       <View style={styles.coverContainer}>
         <TouchableOpacity style={styles.plusButton} onPress={pickImage}>
           <Image style={styles.coverImage} source={{ uri: scrapbookCover }} />
@@ -121,11 +124,13 @@ const CreateScrapbook = ({ navigation }) => {
         
           
         </TouchableOpacity>
-      
-      <InputBox value={title} setValue={setTitle} placeholder="Title" style={styles.title} />
-      <Button text="Add images" onPress={handleUpload} />
+      <View style={styles.bottomCont}>
+        <Text style={styles.bottomTxt}> Enter a Scrapbook Title </Text>
       </View>
-      {/* {Loading ? <Apploader/> : null } */}
+      <InputBox value={title} setValue={setTitle} placeholder="Title" style={styles.title} />
+      <Button text="Submit" onPress={handleUpload} />
+      </View>
+      {Loading ? <Apploader/> : null }
     </SafeAreaView>
   );
 };
@@ -144,7 +149,7 @@ const styles = StyleSheet.create({
   },
   plusButton: {
     width: "90%",
-    height: "70%",
+    height: "50%",
     borderRadius: 10,
     borderWidth: 1,
     marginTop: 20,
@@ -158,5 +163,26 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
     borderRadius: 10,
+  },
+  textCont: {
+    position:'relative',
+    paddingBottom:"15%",
+    paddingTop:"20%",
+
+  },
+  heading:{
+    paddingTop:"20%",
+    position:'absolute',
+    left:"1.4%",
+    fontSize: 20,
+    fontWeight:'500'
+  },
+  bottomCont: {
+    top:'1%',
+    right:'25%',
+    paddingBottom:"4%",
+  },
+  bottomTxt: {
+    fontWeight:"600"
   },
 });
