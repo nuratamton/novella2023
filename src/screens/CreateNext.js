@@ -182,7 +182,7 @@ const CreateNext = ({ navigation, route }) => {
         icon="image-plus"
         size={25}
         iconColor="black"
-        style={{alignItems: "center" , left:1,}}
+        style={{alignItems: "center" , left:1, marginTop: 40, marginLeft: 30}}
         onPress={async () => {
           setLoading(true)
           pickImage();
@@ -240,7 +240,7 @@ const CreateNext = ({ navigation, route }) => {
           data={selectedImages}
           keyExtractor={(item) => item.toString()}
           showsHorizontalScrollIndicator={false}
-          style={{ position: "absolute", bottom: 90, marginLeft: 60 }}
+          style={{ position: "absolute", bottom: 120, marginLeft: 60 }}
           contentContainerStyle={{
             paddingHorizontal: 10,
             justifyContent: "center",
@@ -299,8 +299,8 @@ const CreateNext = ({ navigation, route }) => {
                Upload
             </Text>
          </TouchableOpacity>
-         {Loading? <Apploader/> : null}
       </View>
+      {Loading? <Apploader/> : null}
 
     </>
   );
@@ -328,6 +328,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     bottom: "10%",
     zIndex:3,
+    marginBottom:20,
  },
  textStyle:{
   top:2,

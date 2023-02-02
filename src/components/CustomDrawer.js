@@ -46,7 +46,6 @@ const CustomDrawer = props => {
             style={{
               color: '#fff',
               fontSize: 18,
-              fontFamily: 'Roboto-Medium',
               marginBottom: 5,
             }}>
             John Doe
@@ -55,7 +54,6 @@ const CustomDrawer = props => {
             <Text
               style={{
                 color: '#fff',
-                fontFamily: 'Roboto-Regular',
                 marginRight: 5,
               }}>
               280 Coins

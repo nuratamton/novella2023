@@ -17,6 +17,7 @@ const Explore = ({navigation}) => {
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [search, setSearch] = useState("");
+// setSearch(value)
 
   useEffect(() => {
     fetchData();
@@ -25,7 +26,9 @@ const Explore = ({navigation}) => {
 
   const fetchData = () => {
     let unsubscribed = false;
+    // goes to users collection
     const Uref = collection(db, "users");
+    // every user
     const userDoc = getDocs(Uref)
       .then((querySnapshot) => {
         if (unsubscribed) return;
@@ -33,6 +36,7 @@ const Explore = ({navigation}) => {
           ...doc.data(),
           id: doc.id,
         }));
+        // setting data variable to newUserDataArray
         setData(newUserDataArray);
         //console.log(newUserDataArray);
       })

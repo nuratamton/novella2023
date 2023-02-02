@@ -82,24 +82,6 @@ const AppStack = () => {
 
   function UserStack() {
     return (
-      // <Drawer.Navigator
-      //   screenOptions={{ headerShown: false, drawerPosition: "right", drawerType: "front" }}
-      //   initialRouteName="UserProfile"
-      //   drawerContent={props=>{<CustomDrawer {...props} />
-      //     // <DrawerContentScrollView {...props}>
-      //     //   <DrawerItemList {...props} />
-      //     //   <DrawerItem label = "Sign Out" onPress={() => props.navigation.replace("Login")}/>
-      //     // </DrawerContentScrollView>
-      //   }
-      //   }
-      // >
-      
-      //   <Drawer.Screen name="UserProfile" component={UserProfile} initialParams={{ item: false }} />
-      //   <Drawer.Screen name="DrawerModel" component={DrawerModel} />
-  
-      // </Drawer.Navigator>
-
-
       <Drawer.Navigator
       drawerContent={props => <CustomDrawer {...props} />}
       screenOptions={{

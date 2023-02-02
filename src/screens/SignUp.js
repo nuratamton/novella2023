@@ -47,9 +47,7 @@ const SignUp = () => {
           console.log(user.email);
         })
         .then(async () => {
-          await sendEmailVerification(auth.currentUser);
-          console
-            .warn("here")
+          await sendEmailVerification(auth.currentUser)
             .then(() => {
               alert("Verification Email Sent!");
               setLoading(false)

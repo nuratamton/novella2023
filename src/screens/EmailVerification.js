@@ -10,6 +10,8 @@ const EmailVerification = () => {
 
   return (
     <View style={styles.container}>
+     
+      <View style={styles.textContainer}>
       <IconButton
       style = {styles.backIcon}
       icon="chevron-left" 
@@ -20,7 +22,6 @@ const EmailVerification = () => {
        }
       } 
       />
-      <View style={styles.textContainer}>
       <Text style={styles.text}> Verify Your Email </Text>
       </View>
       <Button
@@ -61,18 +62,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 100,
     paddingTop: 300,
+  
   },
   text: {
     fontSize: 30,
     textAlign: 'justify'
   },
   backIcon: {
-   right: '90%',
-   bottom: '60%'
+   right: '40%',
+   top: '55%'
   },
   textContainer: {
     bottom:'60%',
-    paddingRight:100,
-    backgroundColor: "#EEEE",
+    
+    paddingTop: 40
+    // paddingRight:100,
+    // backgroundColor: "#EEEE",
   }
 });
