@@ -22,6 +22,7 @@ import {
 import {
   doc,
   setDoc,
+  serverTimestamp,
 } from "firebase/firestore";
 import { auth } from "../firebase";
 import * as ImagePicker from "expo-image-picker";
@@ -132,6 +133,7 @@ const CreateNext = ({ navigation, route }) => {
     await setDoc(
       doc(db, "users", auth.currentUser.uid, "Scrapbooks", route.params.item),
       {
+        timestamp: serverTimestamp(),
         CoverImg: Url,
         images: selectedImages,
       },

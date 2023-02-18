@@ -27,7 +27,6 @@ const EmailVerification = () => {
       <Button
         onPress={ () => { 
           auth.currentUser.reload()
-          console.warn('Checking') 
         }}
         text="Press to Continue"
       />
@@ -42,7 +41,6 @@ const EmailVerification = () => {
             setlimit(limit +1);
           }
           else{
-            console.warn("chill out buddy, no more emails for you......");
             setdisable(true);
           }
         }

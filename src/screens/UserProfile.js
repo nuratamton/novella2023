@@ -83,6 +83,14 @@ const UserProfile = ({ navigation, route }) => {
     getUserDetails();
   }, [renderLoad]);
 
+  useEffect(() => {
+    scrapbooks.sort(function (a, b) {
+      if (a.timestamp > b.timestamp) return -1;
+      if (a.timestamp < b.timestamp) return 1;
+      return 0;
+    });
+  }, [scrapbooks]);
+
   const handleSignOut = () => {
     signOut(auth)
       .then(() => {
@@ -125,27 +133,11 @@ const UserProfile = ({ navigation, route }) => {
     );
   };
 
-  // const followUser = async (userDoc) => {
-  //   const currDoc = doc(db, "users", currentUserId);
-  //   await getDoc(currDoc).then(async (QuerySnapshot) => {
-  //     setFollowingCount(QuerySnapshot.data().followingCount);
-  //     setFollowersCount(QuerySnapshot.data().followersCount);
-  //   });
-  // };
-
   return (
     <>
       <ScrollView showsVerticalScrollIndicator={false}>
         <SafeAreaView style={styles.container}>
           <View style={styles.header}>
-            {/* <IconButton
-          icon="chevron-left"
-          size={24}
-          iconColor="black"
-          onPress={async () => {
-            popFromStack();
-          }}
-        /> */}
             <TouchableOpacity>
               <MaterialCommunityIcons
                 name="dots-horizontal"

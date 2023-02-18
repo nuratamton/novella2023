@@ -7,6 +7,7 @@ import {
   View,
   Image,
   FlatList,
+  Button,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import Logo from "../../assets/images/novella.png";
@@ -16,15 +17,22 @@ import { Card, Avatar } from "react-native-paper";
 import {
   getDocs,
   getDoc,
+  updateDoc,
   collection,
   doc,
-  updateDoc,
-  arrayRemove,
+  orderBy,
+  query,
   arrayUnion,
+  arrayRemove,
   increment,
 } from "firebase/firestore";
 
+import { AntDesign } from "@expo/vector-icons";
+
+import { IconButton } from "react-native-paper";
+
 import { auth, db } from "../firebase";
+import { async } from "@firebase/util";
 
 // const posts = [
 //   {
@@ -91,15 +99,15 @@ export const postID = () => {
 const Feed = ({ navigation }) => {
   const windowWidth = Dimensions.get("window").width;
   const windowHeight = Dimensions.get("window").height;
-
+  const [likeCounter, setlikeCounter] = useState(0);
   const [scrapbooks, getScrapbooks] = useState([]);
-
   const [Loading, setLoading] = useState(false);
+  const [likePressed, setLikePressed] = useState(false);
 
   const [id, setId] = useState(1);
   useEffect(() => {
-    console.log(scrapbooks)
-  }, [scrapbooks])
+    console.log(scrapbooks);
+  }, [scrapbooks]);
 
   const FollowerListtttt = async () => {
     const currDoc = doc(db, "users", auth.currentUser.uid);
@@ -109,14 +117,24 @@ const Feed = ({ navigation }) => {
         await getDocs(ref).then((data) => {
           data.forEach((item) => {
             getScrapbooks((prev) => [...prev, item.data()]);
-          })
-        })
+          });
+        });
       });
     });
   };
+
   useEffect(() => {
     FollowerListtttt();
   }, []);
+
+
+  useEffect(() => {
+    scrapbooks.sort(function (a, b) {
+      if (a.timestamp > b.timestamp) return -1;
+      if (a.timestamp < b.timestamp) return 1;
+      return 0;
+    });
+  }, [scrapbooks]);
 
   // async function Scrapbooks(uid) {
   //   await getDocs(ref).then((data) => {
@@ -126,10 +144,9 @@ const Feed = ({ navigation }) => {
   //   })
   //   setLoading(false);
   //   };
-const test = () => {
-  console.log(scrapbooks)
-}
-
+  const test = () => {
+    console.log(scrapbooks);
+  };
 
   renderPost = (post) => {
     const selectPost = () => {
@@ -138,24 +155,29 @@ const test = () => {
     };
 
     return (
-      <Card style={[styles.post]}>
-        <TouchableOpacity onPress={() => navigation.navigate('Post', {item:post})}>
-          <Card.Cover source={{ uri: post.CoverImg }} resizeMode="cover" />
-        </TouchableOpacity>
-        <Card.Title
-          style={styles.postHeader}
-          title={post.title}
-          titleStyle={styles.cardTitle}
-          subtitle={post.username}
-          subtitleStyle={styles.cardSubTitle}
-          right={(props) => <Text>{post.postTime}</Text>}
-          // rightStyle={}
-          left={(props) => (
-            <Avatar.Image source={{ uri: post.profilepic }} size={25} />
-          )}
-          leftStyle={styles.profilePicture}
-        />
-      </Card>
+      <>
+        <Card style={[styles.post]}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("Post", { item: post })}
+          >
+            <Card.Cover source={{ uri: post.CoverImg }} resizeMode="cover" />
+          </TouchableOpacity>
+          <Card.Title
+            style={styles.postHeader}
+            title={post.title}
+            titleStyle={styles.cardTitle}
+            subtitle={post.username}
+            subtitleStyle={styles.cardSubTitle}
+            right={(props) => <Text>{post.likes}</Text>}
+            // rightStyle={}
+            left={(props) => (
+              <Avatar.Image source={{ uri: post.profilepic }} size={25} />
+            )}
+            leftStyle={styles.profilePicture}
+          />
+          
+        </Card>
+      </>
     );
   };
 
@@ -241,14 +263,14 @@ const styles = StyleSheet.create({
     top: -4,
     left: 35,
     fontSize: 15,
-    top:0.3,
+    top: 0.3,
   },
   cardTitle: {
     position: "absolute",
     fontSize: 22,
-    fontWeight:"600",
+    fontWeight: "600",
     left: 0.5,
-    bottom:0.4,
+    bottom: 0.4,
     zIndex: 1,
   },
   profilePicture: {

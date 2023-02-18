@@ -38,7 +38,9 @@ const Profile = ({ navigation, route }) => {
   const [username, setusername] = useState("Default");
   const [name, setName] = useState("Name");
   const [FollowersCount, setFollowersCount] = useState(0);
+  const [FollowersArray, setFollowersArray] = useState([])
   const [FollowingCount, setFollowingCount] = useState(0);
+  const [FollowingArray, setFollowingArray] = useState([])
   const [bio, setbio] = useState("Bio");
   const [image, setimage] = useState(
     "https://blogifs.azureedge.net/wp-content/uploads/2019/03/Guest_Blogger_v1.png"
@@ -76,9 +78,9 @@ const Profile = ({ navigation, route }) => {
     Scrapbooks();
   }, []);
 
-  useEffect(() => {
-    getUserDetails();
-  }, [FollowersCount, FollowingCount]);
+  // useEffect(() => {
+  //   getUserDetails();
+  // }, [FollowersCount, FollowingCount]);
 
   renderPost = (post) => {
     const selectPost = () => {
@@ -104,31 +106,33 @@ const Profile = ({ navigation, route }) => {
     );
   };
 
-  const followUser = async (userDoc) => {
+  const followUser = async () => {
     //  our id:  currentUserId
     // follow person id:   uid
 
     const currDoc = doc(db, "users", currentUserId);
     await getDoc(currDoc).then(async (QuerySnapshot) => {
       if (QuerySnapshot.data().following.includes(uid)) {
+        setFollowersCount(FollowersCount - 1);
         setFollowingCount(FollowingCount - 1);
         await updateDoc(doc(db, "users", uid), {
           followers: arrayRemove(currentUserId),
           followerCount: increment(-1),
         });
-        await updateDoc(doc(db, "users", currentUserId), {
+        await updateDoc(currDoc, {
           following: arrayRemove(uid),
           followingCount: increment(-1),
         });
         setOnFollowClick(false);
       } else {
         setFollowersCount(FollowersCount + 1);
+        // setFollowersArray("")
+        setFollowingCount(FollowingCount + 1);
         await updateDoc(doc(db, "users", uid), {
           followers: arrayUnion(currentUserId),
           followerCount: increment(1),
         });
-
-        await updateDoc(doc(db, "users", currentUserId), {
+        await updateDoc(currDoc, {
           following: arrayUnion(uid),
           followingCount: increment(1),
         });

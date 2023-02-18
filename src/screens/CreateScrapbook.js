@@ -88,9 +88,10 @@ const CreateScrapbook = ({ navigation }) => {
     await setDoc(doc(db, "users", auth.currentUser.uid, "Scrapbooks", UUID), {
       title: title,
       images: [],
-      pages: 0,
       likes: 0,
+      likesArray: [],
       comments: [],
+      uid: auth.currentUser.uid,
       username: Username,
       profilepic: Url
     })
