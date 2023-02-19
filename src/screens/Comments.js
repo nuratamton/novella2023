@@ -140,7 +140,6 @@ const Comments = ({ navigation, route }) => {
   }
 
   const postComment = async () => {
-    const id = route.params.item.docId;
     const currDoc = doc(db, "users", route.params.item.uid, "Scrapbooks", route.params.item.docId);
     await updateDoc(currDoc, {
       comments: arrayUnion({
