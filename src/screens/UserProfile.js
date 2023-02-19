@@ -63,25 +63,22 @@ const UserProfile = ({ navigation, route }) => {
 
   const Scrapbooks = async () => {
     const ref = collection(db, "users", auth.currentUser.uid, "Scrapbooks");
-    const data = await getDocs(ref);
-    data.forEach((item) => {
-      getScrapbooks((prev) => [...prev, item.data()]);
+    await getDocs(ref).then((querySnapshot) => {
+      querySnapshot.forEach((item) => {
+        getScrapbooks((prev) => [...prev, item.data()]);
+    })
     });
     setLoading(false);
   };
 
   useEffect(() => {
-    if (route.params.item !== undefined) {
-      setrenderLoad(true);
-    }
+
     setLoading(true);
     getUserDetails();
     Scrapbooks();
   }, []);
 
-  useEffect(() => {
-    getUserDetails();
-  }, [renderLoad]);
+
 
   useEffect(() => {
     scrapbooks.sort(function (a, b) {
