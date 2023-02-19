@@ -130,7 +130,7 @@ const Comments = ({ navigation, route }) => {
   };
 
   const fetchCommentsArray = async ()=>{
-    console.log(route.params.item.docId)
+
     const currDoc = doc(db, "users", route.params.item.uid, "Scrapbooks", route.params.item.docId);
     await getDoc(currDoc).then((QuerySnapshot)=> {
         QuerySnapshot.data().comments.forEach((comment)=>{
