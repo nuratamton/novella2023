@@ -106,7 +106,7 @@ const Feed = ({ navigation }) => {
 
   const [id, setId] = useState(1);
   useEffect(() => {
-    console.log(scrapbooks);
+
   }, [scrapbooks]);
 
   const FollowerListtttt = async () => {
@@ -144,9 +144,7 @@ const Feed = ({ navigation }) => {
   //   })
   //   setLoading(false);
   //   };
-  const test = () => {
-    console.log(scrapbooks);
-  };
+
 
   renderPost = (post) => {
     return (
@@ -203,7 +201,7 @@ const Feed = ({ navigation }) => {
       <FlatList
         style={styles.feed}
         data={scrapbooks}
-        renderItem={({ item }) => renderPost(item)}
+        renderItem={({ item , imdex}) => renderPost(item)}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
       />

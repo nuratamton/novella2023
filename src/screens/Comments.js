@@ -106,11 +106,12 @@ const Comments = ({ navigation, route }) => {
   const [profilePic, setPic] = useState("");
   const [username, setUsername] = useState("");
   const [changed, setChanged] = useState(false);
-  const [commentArray, setCommentArray] = useState(route.params.item.comments)
+  const [commentArray, setCommentArray] = useState([])
   
   useEffect(() => {
+    const comments = route.params.item.comments;
+    setCommentArray(comments)
     fetch();
-    fetchCommentsArray()
   }, []);
 
   useEffect(()=>{
@@ -130,12 +131,10 @@ const Comments = ({ navigation, route }) => {
   };
 
   const fetchCommentsArray = async ()=>{
-
     const currDoc = doc(db, "users", route.params.item.uid, "Scrapbooks", route.params.item.docId);
     await getDoc(currDoc).then((QuerySnapshot)=> {
-        QuerySnapshot.data().comments.forEach((comment)=>{
-            setCommentArray(comment)
-        })
+        setCommentArray(QuerySnapshot.data().comments)
+
     })
   }
 
@@ -212,7 +211,7 @@ const Comments = ({ navigation, route }) => {
       <FlatList
         style={styles.feed}
         data={commentArray}
-        renderItem={({ item }) => renderPost(item)}
+        renderItem={({ item, index }) => renderPost(item)}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
       />
@@ -233,7 +232,7 @@ const Comments = ({ navigation, route }) => {
           name="send"
           size={24}
           color="black"
-          style={{ position: "absolute", right: "10%", top: "93.55%" }}
+          style={{ position: "absolute", right: "10%", bottom: 50 }}
         />
       </TouchableOpacity>
 
