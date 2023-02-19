@@ -149,11 +149,6 @@ const Feed = ({ navigation }) => {
   };
 
   renderPost = (post) => {
-    const selectPost = () => {
-      setId(post.id);
-      console.warn(post.id);
-    };
-
     return (
       <>
         <Card style={[styles.post]}>

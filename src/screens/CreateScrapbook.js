@@ -8,7 +8,7 @@ import Button from "../components/Button";
 import * as ImagePicker from "expo-image-picker";
 import { db } from "../firebase";
 import { getStorage,ref,uploadBytesResumable,getDownloadURL } from "firebase/storage";
-import { getDocs,collection,doc,setDoc,collectionGroup, getDoc } from "firebase/firestore";
+import { getDocs,collection,doc,setDoc,collectionGroup, getDoc, documentId } from "firebase/firestore";
 import { auth } from "../firebase";
 import uuid from "react-native-uuid";
 import Apploader from '../components/Apploader';
@@ -93,7 +93,8 @@ const CreateScrapbook = ({ navigation }) => {
       comments: [],
       uid: auth.currentUser.uid,
       username: Username,
-      profilepic: Url
+      profilepic: Url,
+      docId: UUID,
     })
       .then(() => {
         setLoading(false)

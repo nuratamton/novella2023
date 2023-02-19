@@ -3,11 +3,15 @@ import React from "react";
 
 import {
   NavigationContainer,
-  createNavigationContainerRef
+  createNavigationContainerRef,
 } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { createDrawerNavigator, DrawerItem, DrawerContentScrollView,
-  DrawerItemList, } from "@react-navigation/drawer";
+import {
+  createDrawerNavigator,
+  DrawerItem,
+  DrawerContentScrollView,
+  DrawerItemList,
+} from "@react-navigation/drawer";
 
 import { BlurView } from "expo-blur";
 
@@ -33,7 +37,8 @@ import EditProfile from "../screens/EditProfile";
 
 import { createStackNavigator } from "@react-navigation/stack";
 import DrawerModel from "../screens/DrawerModel";
-import CustomDrawer from "../components/CustomDrawer"
+import CustomDrawer from "../components/CustomDrawer";
+import Comments from "../screens/Comments";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -42,7 +47,6 @@ const Drawer = createDrawerNavigator();
 export const navRef = createNavigationContainerRef();
 
 const AppStack = () => {
-
   CreateStack = () => {
     return (
       <Stack.Navigator>
@@ -70,7 +74,6 @@ const AppStack = () => {
       <Stack.Navigator
         screenOptions={{
           headerShown: false,
-          
         }}
         initialRouteName="Feed"
       >
@@ -83,25 +86,28 @@ const AppStack = () => {
   function UserStack() {
     return (
       <Drawer.Navigator
-      drawerContent={props => <CustomDrawer {...props} />}
-      screenOptions={{
-        drawerType: "front", 
-        headerShown: false,
-        drawerPosition: "right",
-        drawerActiveBackgroundColor: '#aa18ea',
-        drawerActiveTintColor: '#fff',
-        drawerInactiveTintColor: '#333',
-        drawerLabelStyle: {
-          marginLeft: -25,
-          fontSize: 15,
-        },
-      }}>
-
-    <Drawer.Screen name="UserProfile" component={UserProfile} initialParams={{ item: false }} />
-    </Drawer.Navigator>
-
+        drawerContent={(props) => <CustomDrawer {...props} />}
+        screenOptions={{
+          drawerType: "front",
+          headerShown: false,
+          drawerPosition: "right",
+          drawerActiveBackgroundColor: "#aa18ea",
+          drawerActiveTintColor: "#fff",
+          drawerInactiveTintColor: "#333",
+          drawerLabelStyle: {
+            marginLeft: -25,
+            fontSize: 15,
+          },
+        }}
+      >
+        <Drawer.Screen
+          name="UserProfile"
+          component={UserProfile}
+          initialParams={{ item: false }}
+        />
+      </Drawer.Navigator>
     );
-  };
+  }
 
   TabStack = () => {
     return (
@@ -198,7 +204,7 @@ const AppStack = () => {
         <Stack.Screen
           name="Post"
           component={Post}
-          options={{ presentation: "modal", headerMode: "float"}}
+          options={{ presentation: "modal", headerMode: "float" }}
         />
         <Stack.Screen name="CreateModal" component={CreateModal} />
         <Stack.Screen name="CreateScrapbook" component={CreateScrapbook} />
@@ -206,6 +212,11 @@ const AppStack = () => {
         <Stack.Screen name="Profile" component={Profile} />
         <Stack.Screen name="CreateNext" component={CreateNext} />
         <Stack.Screen name="EditProfile" component={EditProfile} />
+        <Stack.Screen
+          name="Comments"
+          component={Comments}
+          options={{ presentation: "modal" }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

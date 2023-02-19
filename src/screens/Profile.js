@@ -114,7 +114,7 @@ const Profile = ({ navigation, route }) => {
     await getDoc(currDoc).then(async (QuerySnapshot) => {
       if (QuerySnapshot.data().following.includes(uid)) {
         setFollowersCount(FollowersCount - 1);
-        setFollowingCount(FollowingCount - 1);
+        // setFollowingCount(FollowingCount - 1);
         await updateDoc(doc(db, "users", uid), {
           followers: arrayRemove(currentUserId),
           followerCount: increment(-1),
@@ -127,7 +127,7 @@ const Profile = ({ navigation, route }) => {
       } else {
         setFollowersCount(FollowersCount + 1);
         // setFollowersArray("")
-        setFollowingCount(FollowingCount + 1);
+        // setFollowingCount(FollowingCount + 1);
         await updateDoc(doc(db, "users", uid), {
           followers: arrayUnion(currentUserId),
           followerCount: increment(1),

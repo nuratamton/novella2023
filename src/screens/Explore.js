@@ -8,8 +8,8 @@ import {
   Image,
 } from "react-native";
 import React, { useEffect, useState } from "react";
-import { getDocs, collection } from "firebase/firestore";
-import { db } from "../firebase";
+import { getDocs, collection, query, where} from "firebase/firestore";
+import { db, auth } from "../firebase";
 import { Avatar } from "react-native-paper";
 import { TouchableOpacity } from "react-native-gesture-handler";
 
@@ -29,7 +29,7 @@ const Explore = ({navigation}) => {
     // goes to users collection
     const Uref = collection(db, "users");
     // every user
-    const userDoc = getDocs(Uref)
+    const userDoc = getDocs(query(Uref, where('email' , "!=" , auth.currentUser.email)))
       .then((querySnapshot) => {
         if (unsubscribed) return;
         const newUserDataArray = querySnapshot.docs.map((doc) => ({
@@ -48,6 +48,7 @@ const Explore = ({navigation}) => {
   };
 
   const searchFilter = (text) => {
+    
     if (text) {
       const newData = data.filter((item) => {
         const itemData = item.username

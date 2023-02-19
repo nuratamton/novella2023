@@ -16,8 +16,16 @@ import { postId } from "./Feed";
 
 import { auth, db } from "../firebase";
 
-import { doc, getDoc, updateDoc, arrayRemove, arrayUnion, increment } from "firebase/firestore";
-import { async } from "@firebase/util";
+import {
+  doc,
+  getDoc,
+  updateDoc,
+  arrayRemove,
+  arrayUnion,
+  increment,
+} from "firebase/firestore";
+import { FontAwesome } from "@expo/vector-icons";
+
 
 const Post = ({ navigation, route }) => {
   const scrollx = useRef(new Animated.Value(0)).current;
@@ -29,7 +37,7 @@ const Post = ({ navigation, route }) => {
   const topRef = useRef();
   const bottomRef = useRef();
   const [actIndex, setactIndex] = useState(0);
-  const [likes, setLikes] = useState(2);
+  const [likes, setLikes] = useState(0);
   const [likePressed, setLikePressed] = useState(false);
   const [likesArray, setLikesArray] = useState([]);
 
@@ -59,13 +67,13 @@ const Post = ({ navigation, route }) => {
     await getDoc(currDoc).then(async (QuerySnapshot) => {
       if (QuerySnapshot.data().likesArray.includes(auth.currentUser.uid)) {
         setLikePressed(false);
-        setLikes(likes)
+        setLikes(likes);
         await updateDoc(currDoc, {
           likesArray: arrayRemove(auth.currentUser.uid),
           likes: increment(-1),
         });
       } else {
-        setLikes(likes)
+        setLikes(likes);
         setLikePressed(true);
         await updateDoc(currDoc, {
           likesArray: arrayUnion(auth.currentUser.uid),
@@ -167,15 +175,120 @@ const Post = ({ navigation, route }) => {
                 shadowRadius: 30,
               }}
             >
-              <IconButton
-                icon={likePressed ? "heart" : "heart-outline"}
-                iconColor="purple"
-                size={30}
-                onPress={() => {
-                  likePost();
+              <View
+                style={{
+                  flex: 1,
+                  flexDirection: "row",
+                  justifyContent: "space-between",
                 }}
-              />
-              <Text style={{}}> {likes} </Text>
+              >
+                <View
+                  style={{
+                    backgroundColor: "black",
+                    height: "14%",
+                    width: "60%",
+                    borderTopRadius: 10,
+                    left: "6%",
+                    paddingRight: 385,
+                    paddingLeft: 100,
+                  }}
+                >
+                  <View
+                    style={{ flex: 1, flexDirection: "row", marginTop: 10 }}
+                  >
+                    <Text style={styles.cardTitle}>
+                      {route.params.item.title}
+                    </Text>
+                    <Avatar.Image
+                      source={{ uri: route.params.item.profilepic }}
+                      size={25}
+                      style={{
+                        marginRight: 5,
+                        marginTop: 20,
+                        alignSelf: "center ",
+                      }}
+                    />
+                    <Text
+                      style={{
+                        color: "white",
+                        zIndex: 1,
+                        position: "absolute",
+                        left: 35,
+                        top: 23,
+                      }}
+                    >
+                      {route.params.item.username}
+                    </Text>
+                  </View>
+                </View>
+
+                {/* View- aligned right */}
+                <View
+                  style={{
+                    flexDirection: "row",
+                    position: "absolute",
+                    right: 50,
+                    backgroundColor: "red",
+                    height: "14%",
+                    width: "27%",
+                  }}
+                >
+                  <View
+                    style={{
+                      position:"relative",
+                      backgroundColor: "white",
+                      borderRadius: 100,
+                      width: 38,
+                      height: 20,
+                      margin: 10,
+                     
+                    }}
+                  >
+                    <IconButton
+                      style={{
+                        position: "absolute",
+                        alignSelf: "center",
+                        justifyContent: "center",
+                      }}
+                      icon={likePressed ? "heart" : "heart-outline"}
+                      iconColor="purple"
+                      size={25}
+                      onPress={() => {
+                        likePost();
+                      }}
+                    />
+                    <Text
+                      style={{
+                        position: "absolute",
+                        left: 45,
+                        top: 17,
+                      }}
+                    >
+                      {likes}
+                    </Text>
+                  </View>
+
+                  <TouchableOpacity onPress={()=>navigation.navigate("Comments" , {item: route.params.item})}>
+                    <View
+                      style={{
+                        backgroundColor: "white",
+                        borderRadius: 100,
+                        width: 38,
+                      }}
+                    >
+                      <FontAwesome
+                        name="comments-o"
+                        size={24}
+                        color="black"
+                        style={{ paddingLeft: 7 }}
+                      />
+                    </View>
+                  </TouchableOpacity>
+
+                  {/*share */}
+                </View>
+              </View>
+
               <Image
                 source={{ uri: item }}
                 style={{
@@ -183,6 +296,8 @@ const Post = ({ navigation, route }) => {
                   height: heightCard,
                   resizeMode: "cover",
                   borderRadius: 20,
+                  position: "absolute",
+                  bottom: "25%",
                 }}
               />
             </View>
@@ -224,4 +339,26 @@ const Post = ({ navigation, route }) => {
 
 export default Post;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  cardTitle: {
+    color: "#ffffff",
+    fontSize: 15,
+    fontWeight: "600",
+    position: "absolute",
+  },
+  likeContainer: {
+    position: "relative",
+    backgroundColor: "#000100",
+    borderRadius: 100,
+    height: "5%",
+    width: 60,
+    top: "3%",
+    zIndex: 1,
+    right: 100,
+  },
+  likeButton: {
+    position: "absolute",
+    top: "1%",
+    zIndex: 1,
+  },
+});
