@@ -39,6 +39,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import DrawerModel from "../screens/DrawerModel";
 import CustomDrawer from "../components/CustomDrawer";
 import Comments from "../screens/Comments";
+import AddMembers from "../screens/AddMembers";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -208,7 +209,11 @@ const AppStack = () => {
         />
         <Stack.Screen name="CreateModal" component={CreateModal} />
         <Stack.Screen name="CreateScrapbook" component={CreateScrapbook} />
-        <Stack.Screen name="CreateGroup" component={CreateGroup} />
+        <Stack.Screen
+          name="CreateGroup"
+          component={CreateGroup}
+          
+        />
         <Stack.Screen name="Profile" component={Profile} />
         <Stack.Screen name="CreateNext" component={CreateNext} />
         <Stack.Screen name="EditProfile" component={EditProfile} />
@@ -217,7 +222,9 @@ const AppStack = () => {
           component={Comments}
           options={{ presentation: "modal" }}
         />
+        <Stack.Screen name="AddMembers" component={AddMembers}/>
       </Stack.Navigator>
+      
     </NavigationContainer>
   );
 };

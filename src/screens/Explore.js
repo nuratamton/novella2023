@@ -21,7 +21,7 @@ const Explore = ({navigation}) => {
 
   useEffect(() => {
     fetchData();
-    return () => {};
+    // return () => {};
   }, []);
 
   const fetchData = () => {

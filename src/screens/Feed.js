@@ -201,7 +201,7 @@ const Feed = ({ navigation }) => {
       <FlatList
         style={styles.feed}
         data={scrapbooks}
-        renderItem={({ item , imdex}) => renderPost(item)}
+        renderItem={({ item }) => renderPost(item)}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
       />

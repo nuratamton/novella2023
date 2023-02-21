@@ -32,6 +32,7 @@ const windowHeight = Dimensions.get("window").height;
 
 const EditProfile = ({ navigation, route }) => {
    const [username, setUsername] = useState("");
+   const [existingUsername, setExistingUsername] = useState("");
   const [name, setName] = useState("");
   // const [birthDate, setBirthDate] = useState("Date Of Birth");
   const [accountType, setAccountType] = useState("");
@@ -57,11 +58,13 @@ const EditProfile = ({ navigation, route }) => {
       const Uref = doc(db, "users", uid);
       const userDoc = await getDoc(Uref);
 
-      setUsername(userDoc.data().username);
-      setBio(userDoc.data().bio);
-      setprofilePic(userDoc.data().profilePicsrc);
-      setName(userDoc.data().name);
-      setAccountType(userDoc.data().accountType);
+      setExistingUsername(userDoc.data().username)
+
+      // setUsername(userDoc.data().username);
+      // setBio(userDoc.data().bio);
+      // setprofilePic(userDoc.data().profilePicsrc);
+      // setName(userDoc.data().name);
+      // setAccountType(userDoc.data().accountType);
     }
 
   }, []);
@@ -83,22 +86,6 @@ const EditProfile = ({ navigation, route }) => {
     return <Text> No access to Internal Storage </Text>;
   }
 
-  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-
-  const showDatePicker = () => {
-    setDatePickerVisibility(true);
-  };
-
-  const hideDatePicker = () => {
-    setDatePickerVisibility(false);
-  };
-
-  const handleConfirm = (date) => {
-    console.warn("A date has been picked: ", date);
-    setBirthDate(date);
-    hideDatePicker();
-  };
-
   const HandleInfo = async () => {
     setLoading(true);
     if (profilePic) {
@@ -109,20 +96,49 @@ const EditProfile = ({ navigation, route }) => {
           console.log(downloadURL);
           await setDoc(doc(db, "users", auth.currentUser.uid), {
             profilePicsrc: downloadURL,
-          })
+          }, {merge:true})
         });
       });
     }
-    await updateDoc(doc(db, "users", auth.currentUser.uid), {
-      username: username,
-      name: name,
-      accountType: accountType,
-      bio: bio,
-    }, {merge:true})
-      .then(() => {})
-      .catch((error) => {
-        console.log(error);
-      });
+
+    if(username !== ""){
+      await updateDoc(doc(db, "users", auth.currentUser.uid), {
+        username: username,
+      }, )
+        .then(() => {})
+        .catch((error) => {
+          console.log(error);
+        });
+
+    }
+    if (name !== ""){
+      await updateDoc(doc(db, "users", auth.currentUser.uid), {
+        name: name,
+      }, )
+        .then(() => {})
+        .catch((error) => {
+          console.log(error);
+        });
+    }
+    if (accountType !== ""){
+      await updateDoc(doc(db, "users", auth.currentUser.uid), {
+        accountType: accountType,
+      }, )
+        .then(() => {})
+        .catch((error) => {
+          console.log(error);
+        });
+    }
+    if (bio !== ""){
+      await updateDoc(doc(db, "users", auth.currentUser.uid), {
+        bio: bio,
+      }, )
+        .then(() => {})
+        .catch((error) => {
+          console.log(error);
+        });
+    }
+    
     setLoading(false);
     navigation.navigate("UserProfile" , {item: true});
   };
@@ -152,30 +168,6 @@ const EditProfile = ({ navigation, route }) => {
                 secure={false}
               />
               <InputBox value={name} setValue={setName} placeholder="Name" />
-
-              {/* <View>
-                <TouchableOpacity onPress={showDatePicker}>
-                  <ButtonDate
-                    buttonColor="#f2f2f2"
-                    textColor="#6E6E6E"
-                    style={styles.dateButton}
-                    labelStyle={{ textAlign: "left" }}
-                  >
-                    <Text style={{ textAlign: "left", fontWeight: "normal" }}>
-                      {" "}
-                      {birthDate.toString().substring(4, 15)}{" "}
-                    </Text>
-                  </ButtonDate>
-                </TouchableOpacity>
-                <DateTimePickerModal
-                  title="Date Of Birth"
-                  isVisible={isDatePickerVisible}
-                  mode="date"
-                  onConfirm={handleConfirm}
-                  onCancel={hideDatePicker}
-                />
-              </View> */}
-
               <InputBox
                 value={accountType}
                 setValue={setAccountType}

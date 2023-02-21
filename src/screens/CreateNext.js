@@ -144,7 +144,7 @@ const CreateNext = ({ navigation, route }) => {
       .catch((error) => {
         console.log(error);
       });
-    navigation.navigate("UserStack", {screen: 'UserProfile'} , {item: true});
+    navigation.navigate("UserStack", {screen: 'UserProfile'} , {itemCheck: true});
   };
   return (
     <>

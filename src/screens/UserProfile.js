@@ -30,8 +30,7 @@ import {
 } from "firebase/firestore";
 import defProfile from "../../assets/images/default_profile.png";
 import Apploader from "../components/Apploader";
-
-import { DrawerActions } from "@react-navigation/native";
+import { DrawerActions, useIsFocused} from "@react-navigation/native";
 
 const UserProfile = ({ navigation, route }) => {
   const windowWidth = Dimensions.get("window").width;
@@ -46,9 +45,7 @@ const UserProfile = ({ navigation, route }) => {
   const [FollowersCount, setFollowersCount] = useState(0);
   const [FollowingCount, setFollowingCount] = useState(0);
   const [Loading, setLoading] = useState(false);
-  const [renderLoad, setrenderLoad] = useState(false);
-  
-
+  const isFocused = useIsFocused();
   const getUserDetails = async () => {
     const Uref = doc(db, "users", auth.currentUser.uid);
     const userDoc = await getDoc(Uref);
@@ -61,24 +58,39 @@ const UserProfile = ({ navigation, route }) => {
     
   };
 
+
+
   const Scrapbooks = async () => {
+    let temp = []
     const ref = collection(db, "users", auth.currentUser.uid, "Scrapbooks");
     await getDocs(ref).then((querySnapshot) => {
       querySnapshot.forEach((item) => {
-        getScrapbooks((prev) => [...prev, item.data()]);
-    })
+        temp.push(item.data());    })
+    getScrapbooks(temp)
     });
     setLoading(false);
+
   };
 
   useEffect(() => {
 
     setLoading(true);
     getUserDetails();
-    Scrapbooks();
+    
   }, []);
 
+  // useEffect(() => {
+  //   getUserDetails();
+  // }, [renderLoad]);
 
+  // useEffect(() => {
+    
+  // }, [tempScrapbook])
+
+  useEffect(() => {
+    getUserDetails();
+    Scrapbooks();
+  }, [isFocused]);
 
   useEffect(() => {
     scrapbooks.sort(function (a, b) {
@@ -86,7 +98,7 @@ const UserProfile = ({ navigation, route }) => {
       if (a.timestamp < b.timestamp) return 1;
       return 0;
     });
-  }, [scrapbooks]);
+  }, [scrapbooks, Loading]);
 
   const handleSignOut = () => {
     signOut(auth)
