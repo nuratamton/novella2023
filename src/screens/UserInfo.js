@@ -29,6 +29,7 @@ import Apploader from "../components/Apploader";
 import { async } from "@firebase/util";
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
+
 const UserInfo = () => {
   const [username, setUsername] = useState("");
   const [name, setName] = useState("");
@@ -45,14 +46,12 @@ const UserInfo = () => {
   const uid = auth.currentUser.uid;
   const storageRef = ref(storage, "/images/Profile Picture/" + uid);
 
-
   useEffect(() => {
     (async () => {
       const gallery = await ImagePicker.requestMediaLibraryPermissionsAsync();
       setPerm(gallery.status === "granted");
     })();
   }, []);
-
 
   useEffect(() => {
     if (Url) {

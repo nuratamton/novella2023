@@ -15,12 +15,13 @@ import {
   doc,
   getDoc,
   updateDoc,
-  arrayRemove,
   arrayUnion,
-  increment,
   Timestamp,
-} from "firebase/firestore";
+  serverTimestamp,
+  setDoc,
 
+} from "firebase/firestore";
+import uuid from "react-native-uuid";
 // const notifications = [
 //   {
 //     id: "1",
@@ -102,6 +103,7 @@ import {
 // retrieve data from comments array of scrapbook
 
 const Comments = ({ navigation, route }) => {
+  const UUID = uuid.v4();
   const [comment, setComment] = useState("");
   const [profilePic, setPic] = useState("");
   const [username, setUsername] = useState("");
@@ -134,8 +136,8 @@ const Comments = ({ navigation, route }) => {
     const currDoc = doc(db, "users", route.params.item.uid, "Scrapbooks", route.params.item.docId);
     await getDoc(currDoc).then((QuerySnapshot)=> {
         setCommentArray(QuerySnapshot.data().comments)
-
     })
+    setChanged(false)
   }
 
   const postComment = async () => {
@@ -150,13 +152,30 @@ const Comments = ({ navigation, route }) => {
         username: username,
       }),
     });
+    sendCommentNotification()
     setChanged(true)
   };
+
+  const sendCommentNotification = async () => {
+    const currDoc = doc(db,"users", auth.currentUser.uid);
+    const receiver = doc(db,"users",route.params.item.uid,"Notifications",UUID)
+    await getDoc(currDoc).then(async (QuerySnapshot) => {
+      await setDoc(receiver , {
+          id:UUID,
+          message: `${QuerySnapshot.data().username} has commented on your scrapbook ${route.params.item.title}`,
+          From: auth.currentUser.uid,
+          profilePic: QuerySnapshot.data().profilePicsrc,
+          scrapbookID: route.params.item.docId,
+          timestamp: serverTimestamp()
+        
+      })
+    })
+  }
 
   renderPost = (post) => {
     return (
       <View style={[styles.notifications]}>
-        <TouchableOpacity>
+       
           <View style={styles.notificationBox}>
             <View style={styles.picture}>
               <Avatar.Image
@@ -167,7 +186,6 @@ const Comments = ({ navigation, route }) => {
             </View>
             <View>
               <Text style={{ fontSize: 25, fontWeight: "100" }}>
-                {" "}
                 {post.username}
               </Text>
               <Text
@@ -176,7 +194,7 @@ const Comments = ({ navigation, route }) => {
                   fontWeight: "300",
                   alignContent: "center",
                   padding: 5,
-                  marginRight: 10,
+                  marginRight: 100,
                 }}
               >
                 {post.comment}
@@ -184,7 +202,7 @@ const Comments = ({ navigation, route }) => {
               
             </View>
           </View>
-        </TouchableOpacity>
+        
       </View>
     );
   };
@@ -254,7 +272,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   notificationBox: {
-    padding: 20,
+    // padding: 20,
     flex: 1,
     flexDirection: "row",
     alignContent: "center",
@@ -266,10 +284,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#e6e6fa",
 
     shadowColor: "#fff",
-    shadowOffset: {
-      width: 0,
-      height: 5,
-    },
+    // shadowOffset: {
+    //   width: 0,
+    //   height: 5,
+    // },
     shadowOpacity: 1,
     shadowRadius: 10,
   },

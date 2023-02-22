@@ -12,6 +12,7 @@ import { getDocs, collection, query, where} from "firebase/firestore";
 import { db, auth } from "../firebase";
 import { Avatar } from "react-native-paper";
 import { TouchableOpacity } from "react-native-gesture-handler";
+import { Entypo } from '@expo/vector-icons'; 
 
 const Explore = ({navigation}) => {
   const [data, setData] = useState([]);
@@ -93,6 +94,7 @@ const Explore = ({navigation}) => {
           value={search}
           onChangeText={(text) => searchFilter(text)}
         />
+        <Entypo name="cross" size={24} color="black" />
         <FlatList
           data={filteredData}
           keyExtractor={(item, index) => index.toString()}

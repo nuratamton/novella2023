@@ -7,92 +7,130 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { Avatar } from "react-native-paper";
-import React from "react";
+import React, { useEffect, useState, useRef } from "react";
+import InputBox from "../components/InputBox";
+import { Ionicons } from "@expo/vector-icons";
+import { auth, db } from "../firebase";
+import {
+  doc,
+  getDocs,
+  updateDoc,
+  arrayUnion,
+  Timestamp,
+  serverTimestamp,
+  setDoc,
+  collection,
 
-const notifications = [
-  {
-    id: "1",
-    userName: "abc",
-    userImage: "https://bit.ly/dan-abramov",
-    postTime: "10 mins ago",
-    postText: "Luffy has requested to follow you",
-    postImage:
-      "https://i.gaw.to/content/photos/39/08/390843_Mercedes-Benz_G-Class.jpg?1024x640",
-    postTitle: "Car",
-  },
-  {
-    id: "2",
-    userName: "gaurangchitnis",
-    userImage:
-      "https://w7.pngwing.com/pngs/1008/377/png-transparent-computer-icons-avatar-user-profile-avatar-heroes-black-hair-computer.png",
-    postTime: "14 mins ago",
-    postText: "Gaurang Chit posted a new scrapbook",
-    postImage:
-      "https://media.npr.org/assets/img/2016/03/29/ap_090911089838_sq-3271237f28995f6530d9634ff27228cae88e3440-s1100-c50.jpg",
-    postTitle: "Sad",
-  },
-  {
-    id: "3",
-    userName: "Devesh Pansaare ",
-    userImage:
-      "https://w7.pngwing.com/pngs/312/283/png-transparent-man-s-face-avatar-computer-icons-user-profile-business-user-avatar-blue-face-heroes.png",
-    postTime: "42 mins ago",
-    postText: "invited you to join his group dsefrfder",
-    postImage:
-      "https://www.highlandernews.org/wp-content/uploads/2016/02/ops.meme_.nba_-1024x768.jpg",
-    postTitle: "Uncle",
-  },
-  {
-    id: "4",
-    userName: "testusername",
-    userImage: "https://bit.ly/dan-abramov",
-    postTime: "69 mins ago",
-    postText: "Ben commented on your scrapbook",
-    postImage:
-      "http://images7.memedroid.com/images/UPLOADED743/60416b642824c.jpeg",
-    postTitle: "Title",
-  },
-  {
-    id: "5",
-    userName: "helloworld",
-    userImage:
-      "https://callstack.github.io/react-native-paper/screenshots/avatar-image.png",
-    postTime: "1h ago",
-    postText: "Sai Vunnava liked your post",
-    postImage:
-      "https://stickerly.pstatic.net/sticker_pack/tuhLgeeNbLotJ5dQNtjBYg/KQ7T1T/6/d4e3f6b7-2a08-47f4-b722-99f5994419a9.png",
-    postTitle: "surprised",
-  },
-  {
-    id: "6",
-    userName: "helloworld",
-    userImage:
-      "https://callstack.github.io/react-native-paper/screenshots/avatar-image.png",
-    postTime: "1h ago",
-    postText: "Stop following me",
-    postImage:
-      "https://stickerly.pstatic.net/sticker_pack/tuhLgeeNbLotJ5dQNtjBYg/KQ7T1T/6/d4e3f6b7-2a08-47f4-b722-99f5994419a9.png",
-    postTitle: "surprised",
-  },
-  {
-    id: "7",
-    userName: "helloworld",
-    userImage:
-      "https://callstack.github.io/react-native-paper/screenshots/avatar-image.png",
-    postTime: "1h ago",
-    postText: "Stop following me",
-    postImage:
-      "https://stickerly.pstatic.net/sticker_pack/tuhLgeeNbLotJ5dQNtjBYg/KQ7T1T/6/d4e3f6b7-2a08-47f4-b722-99f5994419a9.png",
-    postTitle: "surprised",
-  },
-];
+} from "firebase/firestore";
+import moment from 'moment'
+import {useIsFocused} from "@react-navigation/native";
+
+// const notifications = [
+//   {
+//     id: "1",
+//     userName: "abc",
+//     userImage: "https://bit.ly/dan-abramov",
+//     postTime: "10 mins ago",
+//     postText: "Luffy has requested to follow you",
+//     postImage:
+//       "https://i.gaw.to/content/photos/39/08/390843_Mercedes-Benz_G-Class.jpg?1024x640",
+//     postTitle: "Car",
+//   },
+//   {
+//     id: "2",
+//     userName: "gaurangchitnis",
+//     userImage:
+//       "https://w7.pngwing.com/pngs/1008/377/png-transparent-computer-icons-avatar-user-profile-avatar-heroes-black-hair-computer.png",
+//     postTime: "14 mins ago",
+//     postText: "Gaurang Chit posted a new scrapbook",
+//     postImage:
+//       "https://media.npr.org/assets/img/2016/03/29/ap_090911089838_sq-3271237f28995f6530d9634ff27228cae88e3440-s1100-c50.jpg",
+//     postTitle: "Sad",
+//   },
+//   {
+//     id: "3",
+//     userName: "Devesh Pansaare ",
+//     userImage:
+//       "https://w7.pngwing.com/pngs/312/283/png-transparent-man-s-face-avatar-computer-icons-user-profile-business-user-avatar-blue-face-heroes.png",
+//     postTime: "42 mins ago",
+//     postText: "invited you to join his group dsefrfder",
+//     postImage:
+//       "https://www.highlandernews.org/wp-content/uploads/2016/02/ops.meme_.nba_-1024x768.jpg",
+//     postTitle: "Uncle",
+//   },
+//   {
+//     id: "4",
+//     userName: "testusername",
+//     userImage: "https://bit.ly/dan-abramov",
+//     postTime: "69 mins ago",
+//     postText: "Ben commented on your scrapbook",
+//     postImage:
+//       "http://images7.memedroid.com/images/UPLOADED743/60416b642824c.jpeg",
+//     postTitle: "Title",
+//   },
+//   {
+//     id: "5",
+//     userName: "helloworld",
+//     userImage:
+//       "https://callstack.github.io/react-native-paper/screenshots/avatar-image.png",
+//     postTime: "1h ago",
+//     postText: "Sai Vunnava liked your post",
+//     postImage:
+//       "https://stickerly.pstatic.net/sticker_pack/tuhLgeeNbLotJ5dQNtjBYg/KQ7T1T/6/d4e3f6b7-2a08-47f4-b722-99f5994419a9.png",
+//     postTitle: "surprised",
+//   },
+//   {
+//     id: "6",
+//     userName: "helloworld",
+//     userImage:
+//       "https://callstack.github.io/react-native-paper/screenshots/avatar-image.png",
+//     postTime: "1h ago",
+//     postText: "Stop following me",
+//     postImage:
+//       "https://stickerly.pstatic.net/sticker_pack/tuhLgeeNbLotJ5dQNtjBYg/KQ7T1T/6/d4e3f6b7-2a08-47f4-b722-99f5994419a9.png",
+//     postTitle: "surprised",
+//   },
+//   {
+//     id: "7",
+//     userName: "helloworld",
+//     userImage:
+//       "https://callstack.github.io/react-native-paper/screenshots/avatar-image.png",
+//     postTime: "1h ago",
+//     postText: "Stop following me",
+//     postImage:
+//       "https://stickerly.pstatic.net/sticker_pack/tuhLgeeNbLotJ5dQNtjBYg/KQ7T1T/6/d4e3f6b7-2a08-47f4-b722-99f5994419a9.png",
+//     postTitle: "surprised",
+//   },
+// ];
 
 const Notifications = () => {
+  const [notifications, setNotifications] = useState([]);
+  const isFocused = useIsFocused();
+  const fetch = async () => {
+    let temp = []
+    const ref = collection(db,"users",auth.currentUser.uid,"Notifications")
+    await getDocs(ref).then((querySnapshot) => {
+      querySnapshot.forEach((item) => {
+        temp.push(item.data())
+      })
+    })
+    setNotifications(temp)
+  }
+
+  useEffect(() => {
+    fetch()
+  }, []);
+
+  useEffect(() => {
+    fetch()
+  }, [isFocused]);
+
   renderPost = (post) => {
     const selectPost = () => {
       setId(post.id);
       console.warn(post.id);
     };
+
 
     return (
       <View style={[styles.notifications]}>
@@ -100,16 +138,16 @@ const Notifications = () => {
           <View style={styles.notificationBox}>
             <View style={styles.picture}>
               <Avatar.Image
-                source={{ uri: post.postImage }}
+                source={{ uri: post.profilePic }}
                 size={40}
                 style={{ marginRight: 12 }}
               />
             </View>
             <View>
-              <Text style={{ fontSize: 25, fontWeight: "100" }}>
+              {/* <Text style={{ fontSize: 25, fontWeight: "100" }}>
                 {" "}
-                {post.userName}
-              </Text>
+                {post.From}
+              </Text> */}
               <Text
                 style={{
                   fontSize: 15,
@@ -119,11 +157,11 @@ const Notifications = () => {
                   marginRight: 10,
                 }}
               >
-                {post.postText},
+                {post.message},
               </Text>
               <Text style={{ fontSize: 10, fontWeight: "400" }}>
                 {"  "}
-                {post.postTime}
+                {moment(post.timestamp.toDate()).fromNow()}
               </Text>
             </View>
           </View>

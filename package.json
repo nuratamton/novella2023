@@ -34,6 +34,7 @@
     "firebase": "^9.15.0",
     "lodash.filter": "^4.6.0",
     "lottie-react-native": "5.1.4",
+    "moment": "^2.29.4",
     "patch-package": "^6.5.1",
     "postinstall-postinstall": "^2.1.0",
     "react": "18.1.0",

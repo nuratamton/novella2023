@@ -24,16 +24,16 @@ import {
 } from "firebase/storage";
 import * as ImagePicker from "expo-image-picker";
 import { Feather } from "@expo/vector-icons";
-import { Button as ButtonDate } from "react-native-paper";
 import Apploader from "../components/Apploader";
 import { async } from "@firebase/util";
 import { popFromStack } from "../components/NavigationMethod";
+import uuid from "react-native-uuid";
 
-const CreateGroup = ({navigation}) => {
+const CreateGroup = ({ navigation }) => {
   const windowWidth = Dimensions.get("window").width;
   const windowHeight = Dimensions.get("window").height;
-  const [username, setUsername] = useState("");
-  const [name, setName] = useState("");
+  const [groupName, setGroupName] = useState("");
+  const [desc, setDesc] = useState("");
   const [birthDate, setBirthDate] = useState("xoxoDOB");
   const [accountType, setAccountType] = useState("");
   const [bio, setBio] = useState("");
@@ -45,7 +45,31 @@ const CreateGroup = ({navigation}) => {
   const [Loading, setLoading] = useState(false);
   const storage = getStorage();
   const uid = auth.currentUser.uid;
+  const UUID = uuid.v4();
   const storageRef = ref(storage, "/images/Profile Picture/" + uid);
+
+  const createGroup = async () => {
+    if (profilePic) {
+      const imga = await fetch(profilePic);
+      const bytes = await imga.blob();
+      await uploadBytesResumable(storageRef, bytes).then(async (snapshot) => {
+        await getDownloadURL(snapshot.ref).then(async (downloadURL) => {
+          console.log(downloadURL);
+          await setDoc(doc(db, "users", auth.currentUser.uid, "Groups", UUID), {
+            groupIcon: downloadURL,
+          })
+        });
+      });
+    }
+    await setDoc(doc(db, "users", auth.currentUser.uid, "Groups", UUID), {
+      groupId: UUID,
+      admin: auth.currentUser.uid,
+      groupname: groupName,
+      description: desc,
+      accountType: accountType,
+      members: []
+    }, {merge: true});
+  };
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -62,15 +86,10 @@ const CreateGroup = ({navigation}) => {
 
   return (
     <>
-    <ScrollView style={{backgroundColor:"white"}}>
-
-    
-      <KeyboardAvoidingView >
+      <ScrollView style={{ backgroundColor: "white" }}>
+        <KeyboardAvoidingView>
           <View style={styles.textCont}>
-            <Text style={styles.heading}>
-              {" "}
-              Create a new group :
-            </Text>
+            <Text style={styles.heading}> Create a new group :</Text>
           </View>
           <View style={styles.container}>
             <View style={styles.avatarContainer}>
@@ -80,14 +99,14 @@ const CreateGroup = ({navigation}) => {
               </TouchableOpacity>
             </View>
             <InputBox
-              value={username}
-              setValue={setUsername}
+              value={groupName}
+              setValue={setGroupName}
               placeholder="Group Name"
               secure={false}
             />
             <InputBox
-              value={name}
-              setValue={setName}
+              value={desc}
+              setValue={setDesc}
               placeholder="Description"
             />
             <InputBox
@@ -95,13 +114,13 @@ const CreateGroup = ({navigation}) => {
               setValue={setAccountType}
               placeholder="AccountType"
             />
-
-       
-           
           </View>
-          <Button onPress={()=> navigation.navigate("AddMembers")} text="Create" />
-       
-      </KeyboardAvoidingView>
+          <Button
+            onPress={() =>{createGroup(), navigation.navigate("AddMembers", {docId: UUID})}}
+            text="Create"
+         
+ />
+        </KeyboardAvoidingView>
       </ScrollView>
       {Loading ? <Apploader /> : null}
     </>
@@ -133,24 +152,21 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-   
   },
-  avatarContainer:{
-    paddingBottom:50
-
+  avatarContainer: {
+    paddingBottom: 50,
   },
   textCont: {
-    backgroundColor:"white",
-    position:'relative',
-    paddingBottom:"15%",
-    paddingTop:"20%",
-
+    backgroundColor: "white",
+    position: "relative",
+    paddingBottom: "15%",
+    paddingTop: "20%",
   },
-  heading:{
-    paddingTop:"20%",
-    position:'absolute',
-    left:"1.4%",
+  heading: {
+    paddingTop: "20%",
+    position: "absolute",
+    left: "1.4%",
     fontSize: 20,
-    fontWeight:'500'
+    fontWeight: "500",
   },
 });

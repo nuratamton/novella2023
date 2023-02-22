@@ -1,13 +1,19 @@
 import { View, Text, TextInput, StyleSheet, Dimensions } from "react-native";
 import React from "react";
 
-const InputBox = ({ value, setValue, placeholder, secure = false, ref }) => {
+const InputBox = ({
+  value,
+  setValue,
+  placeholder,
+  secure = false,
+  maxLength,
+}) => {
   const windowWidth = Dimensions.get("window").width;
 
   return (
     <View style={[styles.container, { width: windowWidth * 0.9 }]}>
       <TextInput
-        ref={ref}
+        maxLength={maxLength}
         value={value}
         onChangeText={setValue}
         placeholder={placeholder}

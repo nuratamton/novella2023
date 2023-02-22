@@ -13,19 +13,25 @@ import React, { useRef, useState, useEffect } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { Card, Avatar, IconButton } from "react-native-paper";
 import { postId } from "./Feed";
-
+import uuid from "react-native-uuid";
 import { auth, db } from "../firebase";
 
 import {
   doc,
+  setDoc,
   getDoc,
+  getDocs,
   updateDoc,
   arrayRemove,
   arrayUnion,
   increment,
+  deleteDoc,
+  query,
+  collection,
+  where,
+  serverTimestamp,
 } from "firebase/firestore";
 import { FontAwesome } from "@expo/vector-icons";
-
 
 const Post = ({ navigation, route }) => {
   const scrollx = useRef(new Animated.Value(0)).current;
@@ -33,7 +39,7 @@ const Post = ({ navigation, route }) => {
 
   const widthCard = width * 0.7;
   const heightCard = widthCard * 1.54;
-
+  const UUID = uuid.v4();
   const topRef = useRef();
   const bottomRef = useRef();
   const [actIndex, setactIndex] = useState(0);
@@ -50,6 +56,57 @@ const Post = ({ navigation, route }) => {
     retrieveLikes();
     likeStatus();
   }, [likesArray]);
+
+  const sendLikeNotification = async () => {
+    const currDoc = doc(db, "users", auth.currentUser.uid);
+    const receiver = doc(
+      db,
+      "users",
+      route.params.item.uid,
+      "Notifications",
+      UUID
+    );
+    await getDoc(currDoc).then(async (QuerySnapshot) => {
+      await setDoc(receiver, {
+        id: UUID,
+        message: `${QuerySnapshot.data().username} has liked your post ${
+          route.params.item.title
+        }`,
+        From: auth.currentUser.uid,
+        profilePic: QuerySnapshot.data().profilePicsrc,
+        scrapbookID: route.params.item.docId,
+        timestamp: serverTimestamp(),
+      });
+    });
+  };
+
+  const removeLikeNotification = async () => {
+    const receiver = collection(
+      db,
+      "users",
+      route.params.item.uid,
+      "Notifications"
+    );
+    const q = query(
+      receiver,
+      where("From", "==", auth.currentUser.uid),
+      where("scrapbookID", "==", route.params.item.docId)
+    );
+    await getDocs(q).then(async (QuerySnapshot) => {
+      QuerySnapshot.forEach(async (item) => {
+        await deleteDoc(
+          doc(
+            db,
+            "users",
+            route.params.item.uid,
+            "Notifications",
+            item.data().id
+          )
+        );
+      });
+      //   await deleteDoc(doc(db,"users", route.params.item.uid,"Notifications",doc.data().id))
+    });
+  };
 
   const retrieveLikes = async () => {
     const id = route.params.item.docId;
@@ -72,6 +129,7 @@ const Post = ({ navigation, route }) => {
           likesArray: arrayRemove(auth.currentUser.uid),
           likes: increment(-1),
         });
+        removeLikeNotification();
       } else {
         setLikes(likes);
         setLikePressed(true);
@@ -79,6 +137,7 @@ const Post = ({ navigation, route }) => {
           likesArray: arrayUnion(auth.currentUser.uid),
           likes: increment(1),
         });
+        sendLikeNotification();
       }
     });
   };
@@ -205,7 +264,6 @@ const Post = ({ navigation, route }) => {
                       style={{
                         marginRight: 5,
                         marginTop: 20,
-                        alignSelf: "center ",
                       }}
                     />
                     <Text
@@ -225,67 +283,78 @@ const Post = ({ navigation, route }) => {
                 {/* View- aligned right */}
                 <View
                   style={{
-                    flexDirection: "row",
+                    flexDirection: "column",
                     position: "absolute",
-                    right: 50,
-                    backgroundColor: "red",
+                    right: 20,
+                    // backgroundColor: "red",
                     height: "14%",
                     width: "27%",
+                    bottom: 750,
                   }}
                 >
-                  <View
-                    style={{
-                      position:"relative",
-                      backgroundColor: "white",
-                      borderRadius: 100,
-                      width: 38,
-                      height: 20,
-                      margin: 10,
-                     
-                    }}
-                  >
+                  <View>
                     <IconButton
                       style={{
-                        position: "absolute",
-                        alignSelf: "center",
-                        justifyContent: "center",
+                        backgroundColor: "white",
+                        borderRadius: 100,
+                        width: 27,
+                        height: 27,
+                        top: 70,
                       }}
                       icon={likePressed ? "heart" : "heart-outline"}
                       iconColor="purple"
-                      size={25}
+                      size={20}
                       onPress={() => {
                         likePost();
                       }}
                     />
+
                     <Text
                       style={{
                         position: "absolute",
-                        left: 45,
-                        top: 17,
+                        left: 40,
+                        top: 82,
+                        color: "white",
+                        fontWeight: "600"
                       }}
                     >
                       {likes}
                     </Text>
-                  </View>
-
-                  <TouchableOpacity onPress={()=>navigation.navigate("Comments" , {item: route.params.item})}>
-                    <View
+                    <IconButton
                       style={{
                         backgroundColor: "white",
                         borderRadius: 100,
-                        width: 38,
+                        width: 27,
+                        height: 27,
+                        top: 70,
                       }}
-                    >
-                      <FontAwesome
-                        name="comments-o"
-                        size={24}
-                        color="black"
-                        style={{ paddingLeft: 7 }}
-                      />
-                    </View>
-                  </TouchableOpacity>
-
-                  {/*share */}
+                      icon={"comment-multiple-outline"}
+                      iconColor="black"
+                      size={20}
+                      onPress={() => {
+                        navigation.navigate("Comments", {
+                          item: route.params.item,
+                        });
+                      }}
+                    />
+                    <IconButton
+                      style={{
+                        backgroundColor: "white",
+                        borderRadius: 100,
+                        width: 27,
+                        height: 27,
+                        top: 70,
+                      }}
+                      icon={"share-outline"}
+                      iconColor="black"
+                      size={20}
+                      onPress={() => {
+                        navigation.navigate("Comments", {
+                          item: route.params.item,
+                        });
+                      }}
+                    />
+                  </View>
                 </View>
               </View>
 
@@ -342,9 +411,10 @@ export default Post;
 const styles = StyleSheet.create({
   cardTitle: {
     color: "#ffffff",
-    fontSize: 15,
-    fontWeight: "600",
+    fontSize: 20,
+    fontWeight: "300",
     position: "absolute",
+    
   },
   likeContainer: {
     position: "relative",

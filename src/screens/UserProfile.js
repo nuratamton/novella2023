@@ -46,6 +46,8 @@ const UserProfile = ({ navigation, route }) => {
   const [FollowingCount, setFollowingCount] = useState(0);
   const [Loading, setLoading] = useState(false);
   const isFocused = useIsFocused();
+
+
   const getUserDetails = async () => {
     const Uref = doc(db, "users", auth.currentUser.uid);
     const userDoc = await getDoc(Uref);
@@ -58,8 +60,6 @@ const UserProfile = ({ navigation, route }) => {
     
   };
 
-
-
   const Scrapbooks = async () => {
     let temp = []
     const ref = collection(db, "users", auth.currentUser.uid, "Scrapbooks");
@@ -67,38 +67,21 @@ const UserProfile = ({ navigation, route }) => {
       querySnapshot.forEach((item) => {
         temp.push(item.data());    })
     getScrapbooks(temp)
+    }).catch((error) => {
+      console.log(error)
     });
     setLoading(false);
 
   };
 
   useEffect(() => {
-
     setLoading(true);
-    getUserDetails();
-    
   }, []);
-
-  // useEffect(() => {
-  //   getUserDetails();
-  // }, [renderLoad]);
-
-  // useEffect(() => {
-    
-  // }, [tempScrapbook])
 
   useEffect(() => {
     getUserDetails();
     Scrapbooks();
   }, [isFocused]);
-
-  useEffect(() => {
-    scrapbooks.sort(function (a, b) {
-      if (a.timestamp > b.timestamp) return -1;
-      if (a.timestamp < b.timestamp) return 1;
-      return 0;
-    });
-  }, [scrapbooks, Loading]);
 
   const handleSignOut = () => {
     signOut(auth)
@@ -128,7 +111,7 @@ const UserProfile = ({ navigation, route }) => {
         </TouchableOpacity>
         <Card.Title
           style={styles.postHeader}
-          title={post.title}
+          title={post.title.length > 10 ? post.title.substring(0,10) + "..." : post.title}
           titleStyle={styles.cardTitle}
           // subtitle={post.userName}
           subtitleStyle={styles.cardSubTitle}
@@ -186,7 +169,11 @@ const UserProfile = ({ navigation, route }) => {
           </View>
           <FlatList
             style={styles.feed}
-            data={scrapbooks}
+            data={scrapbooks.sort((a,b) => {
+              if (a.timestamp > b.timestamp) return -1;
+              if (a.timestamp < b.timestamp) return 1;
+              return 0;
+            })}
             renderItem={({ item }) => renderPost(item)}
             keyExtractor={(itemm) => itemm.id}
             showsVerticalScrollIndicator={false}

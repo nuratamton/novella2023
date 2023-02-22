@@ -1,4 +1,11 @@
-import { StyleSheet,Text,View,SafeAreaView,TouchableOpacity,Image } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  SafeAreaView,
+  TouchableOpacity,
+  Image,
+} from "react-native";
 import React, { useState, useEffect } from "react";
 import { Feather } from "@expo/vector-icons";
 import { IconButton, Title } from "react-native-paper";
@@ -7,50 +14,71 @@ import InputBox from "../components/InputBox";
 import Button from "../components/Button";
 import * as ImagePicker from "expo-image-picker";
 import { db } from "../firebase";
-import { getStorage,ref,uploadBytesResumable,getDownloadURL } from "firebase/storage";
-import { getDocs,collection,doc,setDoc,collectionGroup, getDoc, documentId } from "firebase/firestore";
+import {
+  getStorage,
+  ref,
+  uploadBytesResumable,
+  getDownloadURL,
+} from "firebase/storage";
+import {
+  getDocs,
+  collection,
+  doc,
+  setDoc,
+  collectionGroup,
+  getDoc,
+  documentId,
+} from "firebase/firestore";
 import { auth } from "../firebase";
 import uuid from "react-native-uuid";
-import Apploader from '../components/Apploader';
-import { AntDesign } from '@expo/vector-icons'; 
-
+import Apploader from "../components/Apploader";
+import { AntDesign } from "@expo/vector-icons";
 
 const CreateScrapbook = ({ navigation }) => {
   const [title, setTitle] = useState("");
   const [scrapbookCover, setScrapbookCover] = useState(null);
   const [hasPerm, setPerm] = useState(null);
   const [Username, setUser] = useState("");
-  const [Url, setUrl] = useState(null); 
-  const [Loading , setLoading] = useState(false);
+  const [Url, setUrl] = useState(null);
+  const [Loading, setLoading] = useState(false);
   const UUID = uuid.v4();
   const storage = getStorage();
 
-
-
   useEffect(() => {
-    (async () => {
+    async () => {
       const gallery = await ImagePicker.requestMediaLibraryPermissionsAsync();
       setPerm(gallery.status === "granted");
-    });
-    getUD()
+    };
+    getUD();
   }, []);
 
   useEffect(() => {
-    console.log(Username)
-  }, [Username])
+    console.log(Username);
+  }, [Username]);
 
   useEffect(() => {
-    console.log(Url)
-  }, [Url])
+    console.log(Url);
+  }, [Url]);
+
+  useEffect(() => {
+    if(title.length == 15){
+      alert("You cannot exceed 15 characters")
+    }
+  }, [title])
 
   const getUD = async () => {
-    const ref = doc(db, "users" , auth.currentUser.uid)
+    const ref = doc(db, "users", auth.currentUser.uid);
     await getDoc(ref).then((item) => {
       setUser(item.data().username);
-      setUrl(item.data().profilePicsrc)
-  })
-
-  }
+      setUrl(item.data().profilePicsrc);
+    });
+  };
+  // const maxLength = (item) => {
+  //   var tempLength = item.length.toString();
+  //   if(tempLength.length === 20){
+  //     Alert.alert("Please Make the title less than 20 characters")
+  //   }
+  // }
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -79,12 +107,11 @@ const CreateScrapbook = ({ navigation }) => {
     });
   };
   const metadata = {
-    contentType: 'image/jpeg'
+    contentType: "image/jpeg",
   };
-  
 
   const handleUpload = async () => {
-    setLoading(true)
+    setLoading(true);
     await setDoc(doc(db, "users", auth.currentUser.uid, "Scrapbooks", UUID), {
       title: title,
       images: [],
@@ -97,13 +124,13 @@ const CreateScrapbook = ({ navigation }) => {
       docId: UUID,
     })
       .then(() => {
-        setLoading(false)
+        setLoading(false);
       })
       .catch((error) => {
         console.log(error);
       });
-    console.log(scrapbookCover)
-    navigation.navigate("CreateNext" , {item:UUID , item2:scrapbookCover});
+    console.log(scrapbookCover);
+    navigation.navigate("CreateNext", { item: UUID, item2: scrapbookCover });
   };
   return (
     <SafeAreaView style={styles.mainContainer}>
@@ -116,23 +143,27 @@ const CreateScrapbook = ({ navigation }) => {
         }}
       /> */}
       <View style={styles.textCont}>
-      <Text style={styles.heading}> Select the Scrapbook Cover Image : </Text>
+        <Text style={styles.heading}> Select the Scrapbook Cover Image : </Text>
       </View>
       <View style={styles.coverContainer}>
         <TouchableOpacity style={styles.plusButton} onPress={pickImage}>
           <Image style={styles.coverImage} source={{ uri: scrapbookCover }} />
           <Text> Add cover page </Text>
           <Feather name="plus" size={24} color="black" />
-        
-          
         </TouchableOpacity>
-      <View style={styles.bottomCont}>
-        <Text style={styles.bottomTxt}> Enter a Scrapbook Title </Text>
+        <View style={styles.bottomCont}>
+          <Text style={styles.bottomTxt}> Enter a Scrapbook Title </Text>
+        </View>
+        <InputBox
+          value={title}
+          maxLength={15}
+          setValue={setTitle}
+          placeholder="Title"
+          style={styles.title}
+        />
+        <Button text="Submit" onPress={handleUpload} />
       </View>
-      <InputBox value={title} setValue={setTitle} placeholder="Title" style={styles.title} />
-      <Button text="Submit" onPress={handleUpload} />
-      </View>
-      {Loading ? <Apploader/> : null }
+      {Loading ? <Apploader /> : null}
     </SafeAreaView>
   );
 };
@@ -147,7 +178,6 @@ const styles = StyleSheet.create({
   },
   coverContainer: {
     alignItems: "center",
-    
   },
   plusButton: {
     width: "90%",
@@ -167,24 +197,23 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   textCont: {
-    position:'relative',
-    paddingBottom:"15%",
-    paddingTop:"20%",
-
+    position: "relative",
+    paddingBottom: "15%",
+    paddingTop: "20%",
   },
-  heading:{
-    paddingTop:"20%",
-    position:'absolute',
-    left:"1.4%",
+  heading: {
+    paddingTop: "20%",
+    position: "absolute",
+    left: "1.4%",
     fontSize: 20,
-    fontWeight:'500'
+    fontWeight: "500",
   },
   bottomCont: {
-    top:'1%',
-    right:'25%',
-    paddingBottom:"4%",
+    top: "1%",
+    right: "25%",
+    paddingBottom: "4%",
   },
   bottomTxt: {
-    fontWeight:"600"
+    fontWeight: "600",
   },
 });
