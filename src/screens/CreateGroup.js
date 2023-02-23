@@ -49,6 +49,7 @@ const CreateGroup = ({ navigation }) => {
   const storageRef = ref(storage, "/images/Profile Picture/" + uid);
 
   const createGroup = async () => {
+    setLoading(true)
     if (profilePic) {
       const imga = await fetch(profilePic);
       const bytes = await imga.blob();
@@ -67,10 +68,19 @@ const CreateGroup = ({ navigation }) => {
       groupname: groupName,
       description: desc,
       accountType: accountType,
-      members: []
-    }, {merge: true});
+      members: [auth.currentUser.uid],
+      memberCount: 1
+    }, {merge: true}).then(() => {})
+    .catch((error) => {
+      console.log(error)
+    })
+    setLoading(false);
+    navigation.navigate("AddMembers", {docId: UUID})
   };
-
+  // .then(() => {})
+  // .catch((error) => {
+  //   console.log(error);
+  // });
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -116,10 +126,10 @@ const CreateGroup = ({ navigation }) => {
             />
           </View>
           <Button
-            onPress={() =>{createGroup(), navigation.navigate("AddMembers", {docId: UUID})}}
-            text="Create"
-         
- />
+          onPress={() => {
+            createGroup()
+          }}
+            text="Create"/>
         </KeyboardAvoidingView>
       </ScrollView>
       {Loading ? <Apploader /> : null}

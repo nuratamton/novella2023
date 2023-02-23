@@ -5,6 +5,7 @@ import {
   SafeAreaView,
   FlatList,
   TouchableOpacity,
+  Button
 } from "react-native";
 import { Avatar } from "react-native-paper";
 import React, { useEffect, useState, useRef } from "react";
@@ -105,6 +106,7 @@ import {useIsFocused} from "@react-navigation/native";
 
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
+  const [status, setStatus] = useState(true);
   const isFocused = useIsFocused();
   const fetch = async () => {
     let temp = []
@@ -116,7 +118,9 @@ const Notifications = () => {
     })
     setNotifications(temp)
   }
-
+  useEffect(()=>{
+    console.log(status)
+  },[status])
   useEffect(() => {
     fetch()
   }, []);
@@ -143,11 +147,7 @@ const Notifications = () => {
                 style={{ marginRight: 12 }}
               />
             </View>
-            <View>
-              {/* <Text style={{ fontSize: 25, fontWeight: "100" }}>
-                {" "}
-                {post.From}
-              </Text> */}
+            <View styles={styles.textFollowButton}>
               <Text
                 style={{
                   fontSize: 15,
@@ -159,10 +159,17 @@ const Notifications = () => {
               >
                 {post.message},
               </Text>
+      
               <Text style={{ fontSize: 10, fontWeight: "400" }}>
                 {"  "}
                 {moment(post.timestamp.toDate()).fromNow()}
               </Text>
+              {post.type === "Follow" && !post.followBack ?
+            <TouchableOpacity  disabled={!status} onPress={() => setStatus(false)} style={styles.button}>
+
+              <Text style={styles.buttonText}> Follow </Text>
+
+            </TouchableOpacity> : null}
             </View>
           </View>
         </TouchableOpacity>
@@ -192,6 +199,19 @@ const Notifications = () => {
 export default Notifications;
 
 const styles = StyleSheet.create({
+  button: {
+    backgroundColor: "purple",
+    marginTop: 10,
+    paddingVertical: 6,
+    borderRadius: 25,
+    width: "20%",
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "white",
+    fontWeight: "700",
+    fontSize: 12,
+  },
   notifications: {
     width: "100%",
     

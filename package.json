@@ -56,6 +56,7 @@
     "react-native-svg": "13.4.0",
     "react-native-uuid": "^2.0.1",
     "react-native-vector-icons": "^9.2.0",
+    "react-native-virtualized-view": "^1.0.0",
     "react-native-web": "~0.18.7",
     "react-navigation-drawer": "react-navigation/drawer",
     "uuid": "^9.0.0"

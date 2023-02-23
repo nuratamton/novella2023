@@ -105,9 +105,7 @@ const Feed = ({ navigation }) => {
   const [likePressed, setLikePressed] = useState(false);
 
   const [id, setId] = useState(1);
-  useEffect(() => {
-
-  }, [scrapbooks]);
+  useEffect(() => {}, [scrapbooks]);
 
   const FollowerListtttt = async () => {
     const currDoc = doc(db, "users", auth.currentUser.uid);
@@ -127,14 +125,13 @@ const Feed = ({ navigation }) => {
     FollowerListtttt();
   }, []);
 
-
-  useEffect(() => {
-    scrapbooks.sort(function (a, b) {
-      if (a.timestamp > b.timestamp) return -1;
-      if (a.timestamp < b.timestamp) return 1;
-      return 0;
-    });
-  }, [scrapbooks]);
+  // useEffect(() => {
+  //   scrapbooks.sort(function (a, b) {
+  //     if (a.timestamp > b.timestamp) return -1;
+  //     if (a.timestamp < b.timestamp) return 1;
+  //     return 0;
+  //   });
+  // }, [scrapbooks]);
 
   // async function Scrapbooks(uid) {
   //   await getDocs(ref).then((data) => {
@@ -145,8 +142,10 @@ const Feed = ({ navigation }) => {
   //   setLoading(false);
   //   };
 
-
   renderPost = (post) => {
+    const selectPost = () => {
+      setId(post.id);
+    };
     return (
       <>
         <Card style={[styles.post]}>
@@ -168,7 +167,6 @@ const Feed = ({ navigation }) => {
             )}
             leftStyle={styles.profilePicture}
           />
-          
         </Card>
       </>
     );
@@ -200,9 +198,12 @@ const Feed = ({ navigation }) => {
 
       <FlatList
         style={styles.feed}
-        data={scrapbooks}
+        data={scrapbooks.sort(function (a, b) {
+          if (a.timestamp > b.timestamp) return -1;
+          if (a.timestamp < b.timestamp) return 1;
+          return 0;
+        })}
         renderItem={({ item }) => renderPost(item)}
-        keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
       />
     </SafeAreaView>

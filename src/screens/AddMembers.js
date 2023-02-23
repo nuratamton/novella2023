@@ -19,6 +19,7 @@ import {
   arrayRemove,
   updateDoc,
   getDoc,
+  increment,
 } from "firebase/firestore";
 import { db, auth } from "../firebase";
 import { Button as Btn } from "react-native";
@@ -30,8 +31,8 @@ const AddMembers = ({ navigation, route }) => {
   const [filteredData, setFilteredData] = useState(data);
   const [search, setSearch] = useState("");
 
+
   useEffect(() => {
-    
     fetchData();
   }, []);
 
@@ -91,10 +92,12 @@ const AddMembers = ({ navigation, route }) => {
       if (QuerySnapshot.data().members.includes(uid)) {
         await updateDoc(groupDoc, {
           members: arrayRemove(uid),
+          memberCount: increment(-1)
         });
       } else {
         await updateDoc(groupDoc, {
           members: arrayUnion(uid),
+          memberCount: increment(1)
         });
       }
     });
@@ -134,7 +137,7 @@ const AddMembers = ({ navigation, route }) => {
           ItemSeparatorComponent={ItemSeparatorView}
           renderItem={ItemView}
         />
-        <Button text="Next"/>
+        <Button text="Next" onPress={() => navigation.navigate("GroupProfile", {item: route.params.docId, uid: auth.currentUser.uid})}/>
       </View>
     </SafeAreaView>
   );

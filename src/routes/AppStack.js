@@ -40,6 +40,7 @@ import DrawerModel from "../screens/DrawerModel";
 import CustomDrawer from "../components/CustomDrawer";
 import Comments from "../screens/Comments";
 import AddMembers from "../screens/AddMembers";
+import GroupProfile from "../screens/GroupProfile";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -223,8 +224,8 @@ const AppStack = () => {
           options={{ presentation: "modal" }}
         />
         <Stack.Screen name="AddMembers" component={AddMembers}/>
+        <Stack.Screen name="GroupProfile" component={GroupProfile}/>
       </Stack.Navigator>
-      
     </NavigationContainer>
   );
 };

@@ -17,7 +17,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import rukia_profile from "../../assets/icon.png";
 import Logo from "../../assets/icon.png";
 import { Card, Avatar } from "react-native-paper";
-import { ScrollView } from "react-native-gesture-handler";
+import { ScrollView } from "react-native-virtualized-view";
 import {
   getDocs,
   getDoc,
@@ -99,7 +99,6 @@ const UserProfile = ({ navigation, route }) => {
   renderPost = (post) => {
     const selectPost = () => {
       setId(post.id);
-      console.warn(post.id);
     };
 
     return (
@@ -111,7 +110,7 @@ const UserProfile = ({ navigation, route }) => {
         </TouchableOpacity>
         <Card.Title
           style={styles.postHeader}
-          title={post.title.length > 10 ? post.title.substring(0,10) + "..." : post.title}
+          title={post.title}
           titleStyle={styles.cardTitle}
           // subtitle={post.userName}
           subtitleStyle={styles.cardSubTitle}
@@ -175,9 +174,11 @@ const UserProfile = ({ navigation, route }) => {
               return 0;
             })}
             renderItem={({ item }) => renderPost(item)}
-            keyExtractor={(itemm) => itemm.id}
+            keyExtractor={(item) => item.id}
             showsVerticalScrollIndicator={false}
+          
             numColumns={2}
+            
           />
         </SafeAreaView>
       </ScrollView>
