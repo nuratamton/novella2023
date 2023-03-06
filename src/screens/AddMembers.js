@@ -31,7 +31,6 @@ const AddMembers = ({ navigation, route }) => {
   const [filteredData, setFilteredData] = useState(data);
   const [search, setSearch] = useState("");
 
-
   useEffect(() => {
     fetchData();
   }, []);
@@ -92,13 +91,22 @@ const AddMembers = ({ navigation, route }) => {
       if (QuerySnapshot.data().members.includes(uid)) {
         await updateDoc(groupDoc, {
           members: arrayRemove(uid),
-          memberCount: increment(-1)
+          memberCount: increment(-1),
         });
       } else {
         await updateDoc(groupDoc, {
           members: arrayUnion(uid),
-          memberCount: increment(1)
+          memberCount: increment(1),
         });
+        await setDoc(
+          doc(db, "users", uid, "Groups", route.params.docId),{
+            //PASSS GROUP DATA HERE
+
+          })
+          .then(() => {})
+          .catch((error) => {
+            console.log(error);
+          });
       }
     });
   };
@@ -137,7 +145,15 @@ const AddMembers = ({ navigation, route }) => {
           ItemSeparatorComponent={ItemSeparatorView}
           renderItem={ItemView}
         />
-        <Button text="Next" onPress={() => navigation.navigate("GroupProfile", {item: route.params.docId, uid: auth.currentUser.uid})}/>
+        <Button
+          text="Next"
+          onPress={() =>
+            navigation.navigate("GroupProfile", {
+              item: route.params.docId,
+              uid: auth.currentUser.uid,
+            })
+          }
+        />
       </View>
     </SafeAreaView>
   );
