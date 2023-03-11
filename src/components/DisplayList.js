@@ -1,25 +1,17 @@
-import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity} from "react-native";
 import Modal from "react-native-modal";
 import { Button } from "react-native-elements";
 import React, { useState } from "react";
 import { BlurView } from "expo-blur";
+import { useNavigation } from "@react-navigation/native";
 import { AntDesign } from "@expo/vector-icons";
-import { PushToStack } from "../components/NavigationMethod"
+import { PushToStack } from "./NavigationMethod";
 
-const CreateModal = ({ navigation, route }) => {
+const DisplayList = (List) => {
   const [modalVisible, setModalVisible] = useState(false);
-  // const navigation = useNavigation();
+
   return (
     <>
-      <Button
-      style={{paddingLeft: 17, paddingRight: 17}}
-        onPress={() => {
-          setModalVisible(!modalVisible);
-        }}
-        buttonStyle={styles.createButton}
-        icon={<AntDesign name="pluscircle" size={33} color="purple" />}
-      />
-
       <View style={styles.container}>
         <BlurView tint="dark" intensity={100} style={StyleSheet.absoluteFill} />
         <Modal
@@ -28,17 +20,9 @@ const CreateModal = ({ navigation, route }) => {
           onBackdropPress={() => setModalVisible(false)}
           style={styles.modal}
         >
-          <TouchableOpacity
-             onPress={() =>{
-             PushToStack('CreateScrapbook')
-             setModalVisible(false);
-
-              }}
-          >
             <View style={styles.create_option1}>
               <Text> Create Scrapbook</Text>
             </View>
-          </TouchableOpacity>
           <View style={styles.divider}>
             <Text> </Text>
           </View>
@@ -57,9 +41,11 @@ const CreateModal = ({ navigation, route }) => {
       </View>
     </>
   );
+
+
 };
 
-export default CreateModal;
+export default DisplayList;
 
 const styles = StyleSheet.create({
   createButton: {

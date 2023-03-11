@@ -41,6 +41,7 @@ import CustomDrawer from "../components/CustomDrawer";
 import Comments from "../screens/Comments";
 import AddMembers from "../screens/AddMembers";
 import GroupProfile from "../screens/GroupProfile";
+import DisplayList from "../components/DisplayList";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -163,9 +164,6 @@ const AppStack = () => {
           style={styles.button}
           options={{
             tabBarButton: () => <CreateModal />,
-            // tabBarIcon: () => (
-            //   <AntDesign name="pluscircle" size={30} color="purple" />
-            // ),
           }}
         />
         <Tab.Screen
@@ -210,21 +208,18 @@ const AppStack = () => {
         />
         <Stack.Screen name="CreateModal" component={CreateModal} />
         <Stack.Screen name="CreateScrapbook" component={CreateScrapbook} />
-        <Stack.Screen
-          name="CreateGroup"
-          component={CreateGroup}
-          
-        />
+        <Stack.Screen name="CreateGroup" component={CreateGroup} />
         <Stack.Screen name="Profile" component={Profile} />
-        <Stack.Screen name="CreateNext" component={CreateNext} />
         <Stack.Screen name="EditProfile" component={EditProfile} />
         <Stack.Screen
           name="Comments"
           component={Comments}
           options={{ presentation: "modal" }}
         />
-        <Stack.Screen name="AddMembers" component={AddMembers}/>
-        <Stack.Screen name="GroupProfile" component={GroupProfile}/>
+        <Stack.Screen name="AddMembers" component={AddMembers} />
+        <Stack.Screen name="GroupProfile" component={GroupProfile} />
+        <Stack.Screen name="CreateNext" component={CreateNext} />
+        <Stack.Screen name="DisplayList" component={DisplayList}/>
       </Stack.Navigator>
     </NavigationContainer>
   );

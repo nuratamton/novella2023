@@ -46,7 +46,7 @@ const CreateGroup = ({ navigation }) => {
   const storage = getStorage();
   const uid = auth.currentUser.uid;
   const UUID = uuid.v4();
-  const storageRef = ref(storage, "/images/Profile Picture/" + uid);
+  const storageRef = ref(storage, "/images/GroupIcon/" + uid);
 
   const createGroup = async () => {
     setLoading(true)

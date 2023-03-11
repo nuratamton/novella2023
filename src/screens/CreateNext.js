@@ -130,6 +130,26 @@ const CreateNext = ({ navigation, route }) => {
   }, []);
 
   const uploadSelected = async () => {
+
+    if (route.params.group) {
+      await setDoc(
+        doc(db, "users", auth.currentUser.uid, "Groups", route.params.item3, "Scrapbooks", route.params.item),
+        {
+          timestamp: serverTimestamp(),
+          CoverImg: Url,
+          images: selectedImages,
+        },
+        { merge: true }
+      )
+        .then(() => {
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+      navigation.navigate("GroupProfile", {itemCheck: true});
+    }
+
+    else{
     await setDoc(
       doc(db, "users", auth.currentUser.uid, "Scrapbooks", route.params.item),
       {
@@ -146,6 +166,7 @@ const CreateNext = ({ navigation, route }) => {
       });
     navigation.navigate("UserStack", {screen: 'UserProfile'} , {itemCheck: true});
   };
+}
   return (
     <>
       {/* <View style={{ flex: 1, backgroundColor: "#FFF" }}>

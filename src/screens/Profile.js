@@ -6,6 +6,7 @@ import {
   Image,
   Dimensions,
   FlatList,
+  Button as Btn,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import Button from "../components/Button";
@@ -30,7 +31,7 @@ import {
   orderBy,
   deleteDoc,
 } from "firebase/firestore";
-import defProfile from "../../assets/images/default_profile.png";
+
 import uuid from "react-native-uuid";
 const Profile = ({ navigation, route }) => {
   const currentUserId = auth.currentUser.uid;
@@ -38,7 +39,7 @@ const Profile = ({ navigation, route }) => {
   const windowWidth = Dimensions.get("window").width;
   const windowHeight = Dimensions.get("window").height;
   const [scrapbooks, getScrapbooks] = useState([]);
-  const [groups, getGroups] = useState([])
+  const [groups, getGroups] = useState([]);
   const [onFollowClick, setOnFollowClick] = useState(false);
   const [username, setusername] = useState("Default");
   const [name, setName] = useState("Name");
@@ -47,6 +48,7 @@ const Profile = ({ navigation, route }) => {
   const [FollowingCount, setFollowingCount] = useState(0);
   // const [FollowingArray, setFollowingArray] = useState([]);
   const [bio, setbio] = useState("Bio");
+  const [displayScrap, setDisplayScrap] = useState(true);
   const [image, setimage] = useState(
     "https://blogifs.azureedge.net/wp-content/uploads/2019/03/Guest_Blogger_v1.png"
   );
@@ -69,24 +71,26 @@ const Profile = ({ navigation, route }) => {
   };
 
   const sendFollowNotification = async () => {
-    let followBack = false
+    let followBack = false;
     const currDoc = doc(db, "users", auth.currentUser.uid);
-    const receiverDoc = doc(db, "users", route.params.item)
+    const receiverDoc = doc(db, "users", route.params.item);
     const receiver = doc(db, "users", route.params.item, "Notifications", UUID);
-  await getDoc(receiverDoc).then(async (Snap) => {
-    followBack = Snap.data().following.includes(auth.currentUser.uid) ? true  : false
-    await getDoc(currDoc).then(async (QuerySnapshot) => {
-      await setDoc(receiver, {
-        id: UUID,
-        message: `${QuerySnapshot.data().username} started following you`,
-        From: auth.currentUser.uid,
-        profilePic: QuerySnapshot.data().profilePicsrc,
-        followBack: followBack,
-        timestamp: serverTimestamp(),
-        type: "Follow",
+    await getDoc(receiverDoc).then(async (Snap) => {
+      followBack = Snap.data().following.includes(auth.currentUser.uid)
+        ? true
+        : false;
+      await getDoc(currDoc).then(async (QuerySnapshot) => {
+        await setDoc(receiver, {
+          id: UUID,
+          message: `${QuerySnapshot.data().username} started following you`,
+          From: auth.currentUser.uid,
+          profilePic: QuerySnapshot.data().profilePicsrc,
+          followBack: followBack,
+          timestamp: serverTimestamp(),
+          type: "Follow",
+        });
       });
     });
-  } )
   };
 
   const removeFollowNotification = async () => {
@@ -125,8 +129,8 @@ const Profile = ({ navigation, route }) => {
     const groups = await getDocs(ref);
     groups.forEach((doc) => {
       getGroups((prev) => [...prev, doc.data()]);
-    })
-  }
+    });
+  };
 
   useEffect(() => {
     getUserDetails();
@@ -141,7 +145,6 @@ const Profile = ({ navigation, route }) => {
   renderPost = (post) => {
     const selectPost = () => {
       setId(post.id);
-
     };
 
     return (
@@ -163,12 +166,17 @@ const Profile = ({ navigation, route }) => {
   };
 
   renderGroup = (group) => {
-    const selectPost = () => {
-    };
-    return(
+    const selectPost = () => {};
+    return (
       <View style={[styles.notifications]}>
-      
-        <TouchableOpacity onPress={() => {navigation.navigate("GroupProfile" ,{item:group.groupId, uid:route.params.item})}}>
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate("GroupProfile", {
+              item: group.groupId,
+              uid: route.params.item,
+            });
+          }}
+        >
           <View style={styles.groupBox}>
             <View style={styles.picture}>
               <Avatar.Image
@@ -193,8 +201,8 @@ const Profile = ({ navigation, route }) => {
           </View>
         </TouchableOpacity>
       </View>
-    )
-  }
+    );
+  };
 
   const followUser = async () => {
     //  our id:  currentUserId
@@ -281,21 +289,30 @@ const Profile = ({ navigation, route }) => {
             type="TERITARY"
           />
         </View>
-        {/* <FlatList
-          style={styles.feed}
-          data={scrapbooks}
-          renderItem={({ item }) => renderPost(item)}
-          // keyExtractor={(itemm) => itemm.id}
-          showsVerticalScrollIndicator={false}
-          numColumns={2}
-        /> */}
-        <FlatList
-          style={styles.feed}
-          data={groups}
-          renderItem={({ item }) => renderGroup(item)}
-          keyExtractor={(itemm) => itemm.id}
-          showsVerticalScrollIndicator={false}
-        />
+
+        <View style={{flexDirection: "row", justifyContent: "space-evenly"}}>
+          <Btn title="Scrapbooks" color="#841584"  onPress={() => setDisplayScrap(true)} />
+          <Btn style = {{backgroundColor: "black"}} color="#841584" title="Groups" onPress={() => setDisplayScrap(false)} />
+        </View>
+
+        {displayScrap ? (
+          <FlatList
+            style={styles.feed}
+            data={scrapbooks}
+            renderItem={({ item }) => renderPost(item)}
+            // keyExtractor={(itemm) => itemm.id}
+            showsVerticalScrollIndicator={false}
+            numColumns={2}
+          />
+        ) : (
+          <FlatList
+            style={styles.feed}
+            data={groups}
+            renderItem={({ item }) => renderGroup(item)}
+            // keyExtractor={(itemm) => itemm.id}
+            showsVerticalScrollIndicator={false}
+          />
+        )}
       </ScrollView>
     </SafeAreaView>
     // </ScrollView>
@@ -367,10 +384,11 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderBottomColor: "#f2f2f2",
     backgroundColor: "#e6e6fa",
-    
-    shadowColor: '#fff',
+
+    shadowColor: "#fff",
     shadowOffset: {
-      width: 0, height: 5
+      width: 0,
+      height: 5,
     },
     shadowOpacity: 1,
     shadowRadius: 10,

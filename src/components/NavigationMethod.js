@@ -2,8 +2,11 @@ import {navRef} from "../routes/AppStack"
 import { StackActions } from "@react-navigation/native"
 
 export const PushToStack = (screenName) =>  {
+    let group
+    screenName === "CreateScrapbook" ? group = false : group = ""
+
     if(navRef.isReady()){
-        navRef.navigate(screenName)
+        navRef.navigate(screenName, {group: group})
     }
 
 }

@@ -14,27 +14,15 @@ import InputBox from "../components/InputBox";
 import Button from "../components/Button";
 import * as ImagePicker from "expo-image-picker";
 import { db } from "../firebase";
-import {
-  getStorage,
-  ref,
-  uploadBytesResumable,
-  getDownloadURL,
-} from "firebase/storage";
-import {
-  getDocs,
-  collection,
-  doc,
-  setDoc,
-  collectionGroup,
-  getDoc,
-  documentId,
-} from "firebase/firestore";
+import { getStorage } from "firebase/storage";
+import { getDocs, collection, doc, setDoc, getDoc } from "firebase/firestore";
 import { auth } from "../firebase";
 import uuid from "react-native-uuid";
 import Apploader from "../components/Apploader";
 import { AntDesign } from "@expo/vector-icons";
+import { rotateX } from "react-native-flip-page/src/transform-utils";
 
-const CreateScrapbook = ({ navigation }) => {
+const CreateScrapbook = ({ navigation, route }) => {
   const [title, setTitle] = useState("");
   const [scrapbookCover, setScrapbookCover] = useState(null);
   const [hasPerm, setPerm] = useState(null);
@@ -61,24 +49,38 @@ const CreateScrapbook = ({ navigation }) => {
   }, [Url]);
 
   useEffect(() => {
-    if(title.length == 15){
-      alert("You cannot exceed 15 characters")
+    if (title.length == 15) {
+      alert("You cannot exceed 15 characters");
     }
-  }, [title])
+  }, [title]);
 
   const getUD = async () => {
-    const ref = doc(db, "users", auth.currentUser.uid);
-    await getDoc(ref).then((item) => {
-      setUser(item.data().username);
-      setUrl(item.data().profilePicsrc);
-    });
+    let ref;
+    {
+      if (route.params.group) {
+        ref = doc(
+          db,
+          "users",
+          auth.currentUser.uid,
+          "Groups",
+          route.params.item
+        );
+        await getDoc(ref).then((item) => {
+          setUser(item.data().groupname);
+          setUrl(item.data().groupIcon);
+        });
+
+      } else {
+        ref = doc(db, "users", auth.currentUser.uid)
+        await getDoc(ref).then((item) => {
+          setUser(item.data().username);
+          setUrl(item.data().profilePicsrc);
+        });
+      }
+    }
+
+   
   };
-  // const maxLength = (item) => {
-  //   var tempLength = item.length.toString();
-  //   if(tempLength.length === 20){
-  //     Alert.alert("Please Make the title less than 20 characters")
-  //   }
-  // }
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -99,19 +101,29 @@ const CreateScrapbook = ({ navigation }) => {
     return <Text> No access to Internal Storage </Text>;
   }
 
-  const test = async () => {
-    const ref = collection(db, "users");
-    const testvar = await getDocs(ref);
-    testvar.forEach((doc) => {
-      setUser(doc.data().username);
-    });
-  };
-  const metadata = {
-    contentType: "image/jpeg",
-  };
-
   const handleUpload = async () => {
     setLoading(true);
+    if (route.params.group) {
+      await setDoc(doc(db, "users", auth.currentUser.uid, "Groups", route.params.item, "Scrapbooks", UUID), {
+        title: title,
+        images: [],
+        likes: 0,
+        likesArray: [],
+        comments: [],
+        uid: auth.currentUser.uid,
+        groupname: Username,
+        groupIcon: Url,
+        docId: UUID,
+      })
+    
+        .then(() => {
+          setLoading(false);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
+    else{
     await setDoc(doc(db, "users", auth.currentUser.uid, "Scrapbooks", UUID), {
       title: title,
       images: [],
@@ -123,14 +135,16 @@ const CreateScrapbook = ({ navigation }) => {
       profilepic: Url,
       docId: UUID,
     })
+  
       .then(() => {
         setLoading(false);
       })
       .catch((error) => {
         console.log(error);
       });
+    }
     console.log(scrapbookCover);
-    navigation.navigate("CreateNext", { item: UUID, item2: scrapbookCover });
+    navigation.navigate("CreateNext", { item: UUID, item2: scrapbookCover, item3: route.params.item, group: route.params.group });
   };
   return (
     <SafeAreaView style={styles.mainContainer}>
