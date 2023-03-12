@@ -46,7 +46,7 @@ const CreateGroup = ({ navigation }) => {
   const storage = getStorage();
   const uid = auth.currentUser.uid;
   const UUID = uuid.v4();
-  const storageRef = ref(storage, "/images/GroupIcon/" + uid);
+  const storageRef = ref(storage, "/images/GroupIcon/" + UUID);
 
   const createGroup = async () => {
     setLoading(true)
@@ -55,7 +55,7 @@ const CreateGroup = ({ navigation }) => {
       const bytes = await imga.blob();
       await uploadBytesResumable(storageRef, bytes).then(async (snapshot) => {
         await getDownloadURL(snapshot.ref).then(async (downloadURL) => {
-          console.log(downloadURL);
+       
           await setDoc(doc(db, "users", auth.currentUser.uid, "Groups", UUID), {
             groupIcon: downloadURL,
           })
@@ -88,7 +88,7 @@ const CreateGroup = ({ navigation }) => {
       aspect: [4, 3],
       quality: 1,
     });
-    console.log(result);
+
     if (!result.canceled) {
       setprofilePic(result.assets[0].uri);
     }

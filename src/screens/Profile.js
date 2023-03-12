@@ -107,7 +107,6 @@ const Profile = ({ navigation, route }) => {
     );
     await getDocs(q).then(async (QuerySnapshot) => {
       QuerySnapshot.forEach(async (item) => {
-        console.log(item.data().id);
         await deleteDoc(
           doc(db, "users", route.params.item, "Notifications", item.data().id)
         );
@@ -125,11 +124,28 @@ const Profile = ({ navigation, route }) => {
   };
 
   const Groups = async () => {
+    let temp=[]
     const ref = collection(db, "users", route.params.item, "Groups");
-    const groups = await getDocs(ref);
-    groups.forEach((doc) => {
-      getGroups((prev) => [...prev, doc.data()]);
-    });
+    const newref = doc(db, "users", route.params.item)
+    await getDoc(newref).then((querySnapshot)=>{
+      querySnapshot.data().groups.forEach(async(item)=>{
+        await getDoc(item).then((oogabooga)=>{
+          temp.push(oogabooga.data());
+        })
+      })
+      getGroups(temp)
+    })
+
+    await getDocs(ref)
+      .then((querySnapshot) => {
+        querySnapshot.forEach((item) => {
+          temp.push(item.data());
+        });
+        getGroups(temp);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   };
 
   useEffect(() => {
@@ -271,15 +287,15 @@ const Profile = ({ navigation, route }) => {
             <Avatar.Image source={{ uri: image }} size={100} />
           </View>
           <View style={styles.infoContainer}>
-            <View style={styles.followerCount}>
+            <TouchableOpacity style={styles.followerCount} onPress={() => navigation.navigate("DisplayFollowers", {uid: route.params.item})}>
               {/* {currDoc = doc(db, "users", currentUserId)} */}
               <Text>{FollowersCount}</Text>
               <Text>Followers</Text>
-            </View>
-            <View style={styles.followingCount}>
+            </TouchableOpacity >
+            <TouchableOpacity  style={styles.followingCount} onPress={() => navigation.navigate("DisplayFollowing", {uid: route.params.item})}>
               <Text>{FollowingCount}</Text>
               <Text>Following</Text>
-            </View>
+            </TouchableOpacity>
           </View>
           <Text> {name} </Text>
           <Text> {bio} </Text>

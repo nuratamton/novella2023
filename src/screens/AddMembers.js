@@ -6,6 +6,7 @@ import {
   TextInput,
   Image,
   Text,
+  TouchableOpacity,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import {
@@ -20,20 +21,48 @@ import {
   updateDoc,
   getDoc,
   increment,
+  deleteDoc,
+  DocumentReference,
 } from "firebase/firestore";
 import { db, auth } from "../firebase";
 import { Button as Btn } from "react-native";
 import { uuidv4 } from "@firebase/util";
 import Button from "../components/Button";
+import { Avatar } from "react-native-paper";
 
 const AddMembers = ({ navigation, route }) => {
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState(data);
   const [search, setSearch] = useState("");
 
+  const [accType, setAccountType] = useState("");
+  const [admin, setAdmin] = useState("");
+  const [desc, setDesc] = useState("");
+  const [groupId, setGroupId] = useState("");
+  const [groupname, setGroupname] = useState("");
+  const [memberCount, setMemberCount] = useState(0);
+  const [members, setMembers] = useState([]);
+  const [groupIcon, setGroupIcon] = useState("");
+
   useEffect(() => {
     fetchData();
+    fetchGroupData();
   }, []);
+
+  const fetchGroupData = async () => {
+    await getDoc(
+      doc(db, "users", auth.currentUser.uid, "Groups", route.params.docId)
+    ).then((item) => {
+      setAccountType(item.data().accountType);
+      setAdmin(item.data().admin);
+      setDesc(item.data().description);
+      setGroupId(item.data().groupId);
+      setGroupname(item.data().groupname);
+      setMemberCount(item.data().memberCount);
+      setMembers(item.data().members);
+      setGroupIcon(item.data().groupIcon);
+    });
+  };
 
   const fetchData = () => {
     let unsubscribed = false;
@@ -92,21 +121,35 @@ const AddMembers = ({ navigation, route }) => {
         await updateDoc(groupDoc, {
           members: arrayRemove(uid),
           memberCount: increment(-1),
-        });
+        }).then(async () => {});
+        setMemberCount(memberCount);
+        setMembers(members);
+        // await deleteDoc(doc(db, "users", uid, "Groups", route.params.docId));
       } else {
         await updateDoc(groupDoc, {
           members: arrayUnion(uid),
           memberCount: increment(1),
-        });
-        await setDoc(
-          doc(db, "users", uid, "Groups", route.params.docId),{
-            //PASSS GROUP DATA HERE
-
-          })
-          .then(() => {})
-          .catch((error) => {
-            console.log(error);
-          });
+        }).then(async () => {});
+        setMemberCount(memberCount);
+        setMembers(members);
+        await updateDoc(doc(db, "users", uid),{
+          groups: arrayUnion(groupDoc),
+        })
+        // await setDoc(doc(db, "users", uid, "Groups", route.params.docId), {
+        //   //PASSS GROUP DATA HERE
+        //   accountType: accType,
+        //   admin: admin,
+        //   description: desc,
+        //   groupId: groupId,
+        //   groupname: groupname,
+        //   memberCount: memberCount,
+        //   members: members,
+        //   groupIcon: groupIcon,
+        // })
+        //   .then(() => {})
+        //   .catch((error) => {
+        //     console.log(error);
+        //   });
       }
     });
   };
@@ -114,9 +157,14 @@ const AddMembers = ({ navigation, route }) => {
   const ItemView = ({ item }) => {
     return (
       <View style={styles.user}>
-        <Image style={styles.avatar} source={{ uri: item.profilePicsrc }} />
+        <Avatar.Image style={styles.avatar} source={{ uri: item.profilePicsrc }} />
         <Text style={styles.username}> {item.username}</Text>
-        <Btn title="Add" onPress={() => addToGroup(item.id)} />
+        <TouchableOpacity
+          style={styles.addbtn}
+          onPress={() => addToGroup(item.id)}
+        >
+          <Text style={styles.buttonText}> Add </Text>
+        </TouchableOpacity>
       </View>
     );
   };
@@ -162,8 +210,46 @@ const AddMembers = ({ navigation, route }) => {
 export default AddMembers;
 
 const styles = StyleSheet.create({
+  username: {
+    marginTop: 10,
+  },
   user: {
+    // position: "relative",
+    flex: 1,
     flexDirection: "row",
+    padding: 20,
+    backgroundColor: "#E6E6FA",
+    borderRadius: 10,
+    zIndex: 1,
     justifyContent: "space-between",
   },
+  avatar: {
+    position: "absolute",
+    // left: 20,
+    // Top: 20,
+  },
+  searchBox: {
+    marginTop: 5,
+    marginBottom: 5,
+    borderRadius: 50,
+    padding: 15,
+    borderColor: "#FFFFFF",
+    borderWidth: 1,
+    backgroundColor: "#ffffff",
+  },
+  addbtn: {
+    backgroundColor: "purple",
+    marginTop: 10,
+    paddingVertical: 6,
+    borderRadius: 25,
+    width: "20%",
+    alignItems: "center",
+    color: "white",
+  },
+  buttonText: {
+    color: "white",
+    fontWeight: "700",
+    fontSize: 12,
+  },
+  
 });

@@ -8,9 +8,6 @@ import {
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import {
   createDrawerNavigator,
-  DrawerItem,
-  DrawerContentScrollView,
-  DrawerItemList,
 } from "@react-navigation/drawer";
 
 import { BlurView } from "expo-blur";
@@ -22,7 +19,6 @@ import { FontAwesome } from "@expo/vector-icons";
 
 import Feed from "../screens/Feed";
 import Explore from "../screens/Explore";
-import Create from "../screens/Create";
 import Notifications from "../screens/Notifications";
 import UserProfile from "../screens/UserProfile";
 import Profile from "../screens/Profile";
@@ -36,12 +32,13 @@ import CreateModal from "../components/CreateModal";
 import EditProfile from "../screens/EditProfile";
 
 import { createStackNavigator } from "@react-navigation/stack";
-import DrawerModel from "../screens/DrawerModel";
 import CustomDrawer from "../components/CustomDrawer";
 import Comments from "../screens/Comments";
 import AddMembers from "../screens/AddMembers";
 import GroupProfile from "../screens/GroupProfile";
-import DisplayList from "../components/DisplayList";
+import DisplayFollowers from "../screens/DisplayFollowers";
+import DisplayFollowing from "../screens/DisplayFollowing";
+import DisplayMembers from "../screens/DisplayMembers";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -219,7 +216,9 @@ const AppStack = () => {
         <Stack.Screen name="AddMembers" component={AddMembers} />
         <Stack.Screen name="GroupProfile" component={GroupProfile} />
         <Stack.Screen name="CreateNext" component={CreateNext} />
-        <Stack.Screen name="DisplayList" component={DisplayList}/>
+        <Stack.Screen name="DisplayFollowers" component={DisplayFollowers}/>
+        <Stack.Screen name="DisplayFollowing" component={DisplayFollowing}/>
+        <Stack.Screen name="DisplayMembers" component={DisplayMembers}/>
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -8,25 +8,16 @@ import {
   FlatList,
   Button as Btn,
 } from "react-native";
-import { Button as But } from "react-native-elements";
-import { BlurView } from "expo-blur";
-import Modal from "react-native-modal";
 import React, { useEffect, useState } from "react";
-import { signOut } from "firebase/auth";
 import Button from "../components/Button";
 import { db, auth } from "../firebase";
-import { IconButton } from "react-native-paper";
 import { MaterialCommunityIcons, AntDesign } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
-import rukia_profile from "../../assets/icon.png";
-import Logo from "../../assets/icon.png";
 import { Card, Avatar } from "react-native-paper";
 import { ScrollView } from "react-native-virtualized-view";
 import { getDocs, getDoc, collection, doc } from "firebase/firestore";
-import defProfile from "../../assets/images/default_profile.png";
 import Apploader from "../components/Apploader";
 import { DrawerActions, useIsFocused } from "@react-navigation/native";
-import CreateModal from "../components/CreateModal";
 
 const UserProfile = ({ navigation, route }) => {
   const windowWidth = Dimensions.get("window").width;
@@ -79,6 +70,16 @@ const UserProfile = ({ navigation, route }) => {
   const Groups = async () => {
     temp = [];
     const ref = collection(db, "users", auth.currentUser.uid, "Groups");
+    const newref = doc(db, "users", auth.currentUser.uid)
+    await getDoc(newref).then((querySnapshot)=>{
+      querySnapshot.data().groups.forEach(async(item)=>{
+        await getDoc(item).then((oogabooga)=>{
+          temp.push(oogabooga.data());
+        })
+      })
+      getGroups(temp)
+    })
+
     await getDocs(ref)
       .then((querySnapshot) => {
         querySnapshot.forEach((item) => {
@@ -89,38 +90,6 @@ const UserProfile = ({ navigation, route }) => {
       .catch((error) => {
         console.log(error);
       });
-  };
-
-  const displayList = () => {
-    return (
-      <>
-        {/* <But
-        style={{paddingLeft: 17, paddingRight: 17}}
-          onPress={() => {
-            setModalVisible(!modalVisible);
-          }}
-          icon={<AntDesign name="pluscircle" size={33} color="purple" />}
-        /> */}
-
-        <View style={styles.container}>
-          <BlurView
-            tint="dark"
-            intensity={100}
-            style={StyleSheet.absoluteFill}
-          />
-          <Modal
-            isVisible={modalVisible}
-            backdropOpacity={0.1}
-            onBackdropPress={() => setModalVisible(false)}
-            style={styles.modal}
-          >
-            <View style={styles.create_option2}>
-              <Text> {followers}</Text>
-            </View>
-          </Modal>
-        </View>
-      </>
-    );
   };
 
   useEffect(() => {
@@ -149,12 +118,7 @@ const UserProfile = ({ navigation, route }) => {
           style={styles.postHeader}
           title={post.title}
           titleStyle={styles.cardTitle}
-          // subtitle={post.userName}
           subtitleStyle={styles.cardSubTitle}
-          //right={(props) => <Text>{post.postTime}</Text>}
-          // left={(props) => (
-          //   <Avatar.Image source={{ uri: post.userImage }} size={25} />
-          // )}
           leftStyle={styles.profilePicture}
         />
         <Card.Actions>
@@ -177,9 +141,6 @@ const UserProfile = ({ navigation, route }) => {
   };
 
   renderGroup = (group) => {
-    const selectPost = () => {
-      setId(group.id);
-    };
     return (
       <View style={[styles.notifications]}>
         <TouchableOpacity
@@ -217,6 +178,7 @@ const UserProfile = ({ navigation, route }) => {
     );
   };
 
+
   return (
     <>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -242,13 +204,13 @@ const UserProfile = ({ navigation, route }) => {
             <View style={styles.infoContainer}>
               <TouchableOpacity
                 style={styles.followerCount}
-                onPress={() => navigation.navigate("DisplayList")}
+                onPress={() => navigation.navigate("DisplayFollowers", {uid: auth.currentUser.uid})}
               >
                 {/* {currDoc = doc(db, "users", currentUserId)} */}
                 <Text>{FollowersCount}</Text>
                 <Text>Followers</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.followingCount}>
+              <TouchableOpacity style={styles.followingCount} onPress={() => navigation.navigate("DisplayFollowing", {uid: auth.currentUser.uid})} >
                 <Text>{FollowingCount}</Text>
                 <Text>Following</Text>
               </TouchableOpacity>

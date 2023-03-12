@@ -55,7 +55,7 @@ const UserInfo = () => {
 
   useEffect(() => {
     if (Url) {
-      console.log('run something here');
+      console.log('');
     }
   }, [Url]);
 
@@ -66,7 +66,6 @@ const UserInfo = () => {
       aspect: [4, 3],
       quality: 1,
     });
-    console.log(result);
     if (!result.canceled) {
       setprofilePic(result.assets[0].uri);
     }
@@ -104,7 +103,6 @@ const UserInfo = () => {
       const bytes = await imga.blob();
       await uploadBytesResumable(storageRef, bytes).then(async (snapshot) => {
         await getDownloadURL(snapshot.ref).then(async (downloadURL) => {
-          console.log(downloadURL);
           await setDoc(doc(db, "users", auth.currentUser.uid), {
             profilePicsrc: downloadURL,
           })

@@ -1,11 +1,30 @@
-import { StyleSheet, Text, View , FlatList, Dimensions, TouchableOpacity } from "react-native";
-import React, { useEffect, useState} from "react";
+import {
+  StyleSheet,
+  Text,
+  View,
+  FlatList,
+  Dimensions,
+  TouchableOpacity,
+} from "react-native";
+import React, { useEffect, useState } from "react";
 import { Card, Avatar, IconButton } from "react-native-paper";
 import Button from "../components/Button";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ScrollView } from "react-native-virtualized-view";
-import { doc, getDoc, collection, getDocs } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  collection,
+  getDocs,
+  updateDoc,
+  increment,
+  arrayRemove,
+  deleteDoc,
+  arrayUnion,
+  setDoc,
+} from "firebase/firestore";
 import { auth, db } from "../firebase";
+import { async } from "@firebase/util";
 
 const GroupProfile = ({ navigation, route }) => {
   const windowWidth = Dimensions.get("window").width;
@@ -17,6 +36,13 @@ const GroupProfile = ({ navigation, route }) => {
   const [members, setMembers] = useState([]);
   const [scrapbooks, getScrapbooks] = useState([]);
   const [memberPresent, setMemberPresent] = useState(false);
+  const [onClick, setOnClick] = useState(false);
+
+  const [accType, setAccountType] = useState("");
+  const [admin, setAdmin] = useState("");
+
+  const [groupId, setGroupId] = useState("");
+
 
   const getGroupDetails = async () => {
     const Uref = doc(
@@ -26,19 +52,28 @@ const GroupProfile = ({ navigation, route }) => {
       "Groups",
       route.params.item
     );
-    console.log(route.params.item);
     const groupDoc = await getDoc(Uref);
     setGroupname(groupDoc.data().groupname);
     setDesc(groupDoc.data().description);
     setGroupIcon(groupDoc.data().groupIcon);
     setMemberCount(groupDoc.data().memberCount);
     setMembers(groupDoc.data().members);
+    setAccountType(groupDoc.data().accountType);
+    setAdmin(groupDoc.data().admin);
+    setGroupId(groupDoc.data().groupId);
   };
 
   const Scrapbooks = async () => {
     let temp = [];
-    const ref = collection(db, "users", route.params.uid, "Groups", route.params.item, "Scrapbooks");
-    console.log(ref)
+    const ref = collection(
+      db,
+      "users",
+      route.params.uid,
+      "Groups",
+      route.params.item,
+      "Scrapbooks"
+    );
+    console.log(ref);
     await getDocs(ref)
       .then((querySnapshot) => {
         querySnapshot.forEach((item) => {
@@ -53,7 +88,7 @@ const GroupProfile = ({ navigation, route }) => {
 
   useEffect(() => {
     getGroupDetails();
-    Scrapbooks()
+    Scrapbooks();
   }, []);
 
   renderPost = (post) => {
@@ -75,23 +110,81 @@ const GroupProfile = ({ navigation, route }) => {
     );
   };
 
+  const joinGroup = async () => {
+    const currDoc = doc(
+      db,
+      "users",
+      route.params.uid,
+      "Groups",
+      route.params.item
+    );
+    await getDoc(currDoc).then(async (querySnapshot) => {
+      if (querySnapshot.data().members.includes(auth.currentUser.uid)) {
+        await updateDoc(
+          doc(db, "users", route.params.uid, "Groups", route.params.item),
+          {
+            memberCount: increment(-1),
+            members: arrayRemove(auth.currentUser.uid),
+          }
+        );
+        await deleteDoc
+          doc((db, "users", auth.currentUser.uid, "Groups", route.params.item))
+        ;
+      }else{
+        await updateDoc(
+          doc(db, "users", route.params.uid, "Groups", route.params.item),
+          {
+            memberCount: increment(1),
+            members: arrayUnion(auth.currentUser.uid),
+          }
+        );
+        
+        await setDoc(doc(db, "users", auth.currentUser.uid, "Groups", route.params.item), {
+          //PASSS GROUP DATA HERE
+          accountType: accType,
+          admin: admin,
+          description: desc,
+          groupId: groupId,
+          groupname: groupname,
+          memberCount: memberCount,
+          members: members,
+          groupIcon: groupIcon,
+        })
+      }
+    });
+  };
+
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
       <SafeAreaView style={styles.container}>
-        <View style={{flexDirection:"row", justifyContent:"space-between"}}>
+        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
           <IconButton
             icon="chevron-left"
             size={24}
             iconColor="black"
             onPress={() => navigation.goBack()}
           />
-          <IconButton
- 
-            icon="plus-circle"
-            size={24}
-            iconColor="purple"
-            onPress={() => navigation.navigate("CreateScrapbook", {item: route.params.item, group: true})}
-          />
+          <View
+            style={{ flexDirection: "row", justifyContent: "space-between" }}
+          >
+            <IconButton
+              icon="plus-circle"
+              size={24}
+              iconColor="purple"
+              onPress={() =>
+                navigation.navigate("CreateScrapbook", {
+                  item: route.params.item,
+                  group: true,
+                })
+              }
+            />
+            <IconButton
+              icon="check"
+              size={24}
+              iconColor="black"
+              onPress={() => navigation.navigate("UserStack")}
+            />
+          </View>
         </View>
         <View style={styles.header}>
           <Text> {groupname} </Text>
@@ -105,19 +198,20 @@ const GroupProfile = ({ navigation, route }) => {
             )}
           </View>
           <View style={styles.infoContainer}>
-            <View style={styles.followerCount}>
+            <TouchableOpacity style={styles.followerCount} onPress={()=>navigation.navigate("DisplayMembers", {uid: route.params.uid, item: route.params.item})}>
               <Text>{memberCount} </Text>
               <Text> Members </Text>
-            </View>
-            {/* <View style={styles.followingCount}>
-            <Text>{FollowingCount}</Text>
-            <Text>Following</Text>
-          </View> */}
+            </TouchableOpacity>
           </View>
-          <Text> {""} </Text>
+
           <Text> {desc} </Text>
 
-          <Button type="TERITARY" text_type="TERTIARY" text={"Member"} />
+          <Button
+            type="TERITARY"
+            text_type="TERTIARY"
+            text={onClick ? "Join" : "Member"}
+            onPress={()=>joinGroup()}
+          />
 
           <FlatList
             style={styles.feed}

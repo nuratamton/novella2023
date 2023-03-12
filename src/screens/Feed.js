@@ -71,9 +71,6 @@ const Feed = ({ navigation }) => {
   }, []);
 
   renderPost = (post) => {
-    const selectPost = () => {
-      setId(post.id);
-    };
     return (
       <>
         <Card style={[styles.post]}>
@@ -172,6 +169,8 @@ const styles = StyleSheet.create({
   },
   post: {
     marginVertical: 8,
+    // maxWidth: 500,
+    // alignSelf:"center"
   },
   postHeader: {
     position: "relative",

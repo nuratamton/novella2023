@@ -21,7 +21,7 @@ import uuid from "react-native-uuid";
 import Apploader from "../components/Apploader";
 import { AntDesign } from "@expo/vector-icons";
 import { rotateX } from "react-native-flip-page/src/transform-utils";
-
+import { Camera, CameraType } from 'expo-camera';
 const CreateScrapbook = ({ navigation, route }) => {
   const [title, setTitle] = useState("");
   const [scrapbookCover, setScrapbookCover] = useState(null);
@@ -31,11 +31,14 @@ const CreateScrapbook = ({ navigation, route }) => {
   const [Loading, setLoading] = useState(false);
   const UUID = uuid.v4();
   const storage = getStorage();
+  const [hasCam,setCam] = useState(null)
 
   useEffect(() => {
     async () => {
       const gallery = await ImagePicker.requestMediaLibraryPermissionsAsync();
       setPerm(gallery.status === "granted");
+      const cameraStatus = await Camera.requestPermissionsAsync();
+      setCam(cameraStatus.status === 'granted');
     };
     getUD();
   }, []);
@@ -116,8 +119,11 @@ const CreateScrapbook = ({ navigation, route }) => {
         docId: UUID,
       })
     
-        .then(() => {
+        .then(async () => {
           setLoading(false);
+          await getDoc(doc(db, "users", auth.currentUser.uid, "Groups", route.params.item)).then((item) => {
+            
+          })
         })
         .catch((error) => {
           console.log(error);

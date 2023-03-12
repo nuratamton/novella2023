@@ -85,7 +85,6 @@ const CreateNext = ({ navigation, route }) => {
     });
 
     if (!result.canceled) {
-      console.log(result);
       const name = result.assets[0].uri.substring(
         result.assets[0].uri.lastIndexOf("/") + 1
       );
@@ -94,7 +93,6 @@ const CreateNext = ({ navigation, route }) => {
         await res.blob().then(async (byt) => {
           await uploadBytesResumable(storageRef, byt).then((snapshot) => {
             getDownloadURL(snapshot.ref).then((downloadURL) => {
-              console.log("Download URL" + downloadURL);
               setSelectedImages((oldArray) => [...oldArray, downloadURL]);
             });
           });
@@ -104,7 +102,10 @@ const CreateNext = ({ navigation, route }) => {
     setLoading(false)
   };
   if (hasPerm === false) {
-    return <Text> No access to Internal Storage </Text>;
+    <Text> 
+      No access to Internal Storage
+    </Text>
+
   }
 
   const upload = async () => {
