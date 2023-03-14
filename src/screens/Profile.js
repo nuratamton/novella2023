@@ -314,7 +314,11 @@ const Profile = ({ navigation, route }) => {
         {displayScrap ? (
           <FlatList
             style={styles.feed}
-            data={scrapbooks}
+            data={scrapbooks.sort(function (a, b) {
+              if (a.timestamp > b.timestamp) return -1;
+              if (a.timestamp < b.timestamp) return 1;
+              return 0;
+            })}
             renderItem={({ item }) => renderPost(item)}
             // keyExtractor={(itemm) => itemm.id}
             showsVerticalScrollIndicator={false}

@@ -39,7 +39,7 @@ import GroupProfile from "../screens/GroupProfile";
 import DisplayFollowers from "../screens/DisplayFollowers";
 import DisplayFollowing from "../screens/DisplayFollowing";
 import DisplayMembers from "../screens/DisplayMembers";
-
+import EditScrapbook from "../screens/EditScrapbook"
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -208,6 +208,7 @@ const AppStack = () => {
         <Stack.Screen name="CreateGroup" component={CreateGroup} />
         <Stack.Screen name="Profile" component={Profile} />
         <Stack.Screen name="EditProfile" component={EditProfile} />
+        <Stack.Screen name="EditScrapbook" component={EditScrapbook}/>
         <Stack.Screen
           name="Comments"
           component={Comments}

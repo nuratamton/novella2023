@@ -11,13 +11,18 @@ import {
 import React, { useEffect, useState } from "react";
 import Button from "../components/Button";
 import { db, auth } from "../firebase";
-import { MaterialCommunityIcons, AntDesign } from "@expo/vector-icons";
+import {
+  MaterialCommunityIcons,
+  MaterialIcons,
+  AntDesign,
+} from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Card, Avatar } from "react-native-paper";
 import { ScrollView } from "react-native-virtualized-view";
 import { getDocs, getDoc, collection, doc } from "firebase/firestore";
 import Apploader from "../components/Apploader";
 import { DrawerActions, useIsFocused } from "@react-navigation/native";
+import { Feather } from "@expo/vector-icons";
 
 const UserProfile = ({ navigation, route }) => {
   const windowWidth = Dimensions.get("window").width;
@@ -70,15 +75,15 @@ const UserProfile = ({ navigation, route }) => {
   const Groups = async () => {
     temp = [];
     const ref = collection(db, "users", auth.currentUser.uid, "Groups");
-    const newref = doc(db, "users", auth.currentUser.uid)
-    await getDoc(newref).then((querySnapshot)=>{
-      querySnapshot.data().groups.forEach(async(item)=>{
-        await getDoc(item).then((oogabooga)=>{
+    const newref = doc(db, "users", auth.currentUser.uid);
+    await getDoc(newref).then((querySnapshot) => {
+      querySnapshot.data().groups.forEach(async (item) => {
+        await getDoc(item).then((oogabooga) => {
           temp.push(oogabooga.data());
-        })
-      })
-      getGroups(temp)
-    })
+        });
+      });
+      getGroups(temp);
+    });
 
     await getDocs(ref)
       .then((querySnapshot) => {
@@ -100,6 +105,8 @@ const UserProfile = ({ navigation, route }) => {
     getUserDetails();
     Scrapbooks();
     Groups();
+
+    setDisplayScrap(true);
   }, [isFocused]);
 
   useEffect(() => {
@@ -110,32 +117,67 @@ const UserProfile = ({ navigation, route }) => {
     return (
       <Card style={[styles.post, { width: windowWidth / 2 - 15 }]}>
         <TouchableOpacity
+          style={{ zIndex: 1 }}
           onPress={() => navigation.navigate("Post", { item: post })}
         >
           <Card.Cover source={{ uri: post.CoverImg }} resizeMode="cover" />
         </TouchableOpacity>
-        <Card.Title
-          style={styles.postHeader}
-          title={post.title}
-          titleStyle={styles.cardTitle}
-          subtitleStyle={styles.cardSubTitle}
-          leftStyle={styles.profilePicture}
-        />
-        <Card.Actions>
+        <View style={{ flexDirection: "column" }}>
+          <Card.Title
+            style={styles.postHeader}
+            title={post.title}
+            titleStyle={styles.cardTitle}
+            subtitleStyle={styles.cardSubTitle}
+            leftStyle={styles.profilePicture}
+          />
+          <TouchableOpacity
+            style={{ position: "absolute", left: "80%" }}
+            onPress={() =>
+              navigation.navigate("EditScrapbook", {
+                item: post,
+              })
+            }
+          >
+            <Feather name="edit" size={20} color="black" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{ position: "absolute", left: "90%" }}
+            onPress={() =>
+              navigation.navigate("EditScrapbook", {
+                item: post,
+              })
+            }
+          >
+            <MaterialIcons name="delete" size={23} color="black" />
+          </TouchableOpacity>
+        </View>
+
+        {/* <Card.Actions>
           <Btn
             title="Edit"
             style={styles.buttonTxt}
             onPress={() =>
-              navigation.navigate("CreateNext", {
-                item: auth.currentUser.uid,
-                item2: post,
+              navigation.navigate("EditScrapbook", {
+                item: post,
               })
             }
           >
             {" "}
             Edit{" "}
           </Btn>
-        </Card.Actions>
+          <Btn
+            title="Delete"
+            style={styles.buttonTxt}
+            onPress={() =>
+              navigation.navigate("EditScrapbook", {
+                item: post,
+              })
+            }
+          >
+            {" "}
+            Delete{" "}
+          </Btn>
+        </Card.Actions> */}
       </Card>
     );
   };
@@ -147,7 +189,7 @@ const UserProfile = ({ navigation, route }) => {
           onPress={() => {
             navigation.navigate("GroupProfile", {
               item: group.groupId,
-              uid: auth.currentUser.uid,
+              uid: group.admin,
             });
           }}
         >
@@ -178,7 +220,6 @@ const UserProfile = ({ navigation, route }) => {
     );
   };
 
-
   return (
     <>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -204,13 +245,24 @@ const UserProfile = ({ navigation, route }) => {
             <View style={styles.infoContainer}>
               <TouchableOpacity
                 style={styles.followerCount}
-                onPress={() => navigation.navigate("DisplayFollowers", {uid: auth.currentUser.uid})}
+                onPress={() =>
+                  navigation.navigate("DisplayFollowers", {
+                    uid: auth.currentUser.uid,
+                  })
+                }
               >
                 {/* {currDoc = doc(db, "users", currentUserId)} */}
                 <Text>{FollowersCount}</Text>
                 <Text>Followers</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.followingCount} onPress={() => navigation.navigate("DisplayFollowing", {uid: auth.currentUser.uid})} >
+              <TouchableOpacity
+                style={styles.followingCount}
+                onPress={() =>
+                  navigation.navigate("DisplayFollowing", {
+                    uid: auth.currentUser.uid,
+                  })
+                }
+              >
                 <Text>{FollowingCount}</Text>
                 <Text>Following</Text>
               </TouchableOpacity>

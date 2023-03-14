@@ -110,48 +110,114 @@ const Post = ({ navigation, route }) => {
 
   const retrieveLikes = async () => {
     const id = route.params.item.docId;
-    const docRef = doc(db, "users", route.params.item.uid, "Scrapbooks", id);
-    await getDoc(docRef).then((QuerySnapshot) => {
-      setLikesArray(QuerySnapshot.data().likesArray);
-      setLikes(QuerySnapshot.data().likes);
-    });
+    if (route.params.item.groupId) {
+      const groupDoc = doc(
+        db,
+        "users",
+        route.params.item.uid,
+        "Groups",
+        route.params.item.groupId,
+        "Scrapbooks",
+        route.params.item.docId
+      );
+      await getDoc(groupDoc).then((QuerySnapshot) => {
+        setLikesArray(QuerySnapshot.data().likesArray);
+        setLikes(QuerySnapshot.data().likes);
+      });
+    } else {
+      const currDoc = doc(db, "users", route.params.item.uid, "Scrapbooks", id);
+      await getDoc(currDoc).then((QuerySnapshot) => {
+        setLikesArray(QuerySnapshot.data().likesArray);
+        setLikes(QuerySnapshot.data().likes);
+      });
+    }
   };
 
   const likePost = async () => {
     // get the scrapbook id of the current scrapbook
     const id = route.params.item.docId;
-    const currDoc = doc(db, "users", route.params.item.uid, "Scrapbooks", id);
-    await getDoc(currDoc).then(async (QuerySnapshot) => {
-      if (QuerySnapshot.data().likesArray.includes(auth.currentUser.uid)) {
-        setLikePressed(false);
-        setLikes(likes);
-        await updateDoc(currDoc, {
-          likesArray: arrayRemove(auth.currentUser.uid),
-          likes: increment(-1),
-        });
-        removeLikeNotification();
-      } else {
-        setLikes(likes);
-        setLikePressed(true);
-        await updateDoc(currDoc, {
-          likesArray: arrayUnion(auth.currentUser.uid),
-          likes: increment(1),
-        });
-        sendLikeNotification();
-      }
-    });
+    if (route.params.item.groupId) {
+      const groupDoc = doc(
+        db,
+        "users",
+        route.params.item.uid,
+        "Groups",
+        route.params.item.groupId,
+        "Scrapbooks",
+        route.params.item.docId
+      );
+      await getDoc(groupDoc).then(async (QuerySnapshot) => {
+        if (QuerySnapshot.data().likesArray.includes(auth.currentUser.uid)) {
+          setLikePressed(false);
+          setLikes(likes);
+          await updateDoc(groupDoc, {
+            likesArray: arrayRemove(auth.currentUser.uid),
+            likes: increment(-1),
+          });
+          removeLikeNotification();
+        } else {
+          setLikes(likes);
+          setLikePressed(true);
+          await updateDoc(groupDoc, {
+            likesArray: arrayUnion(auth.currentUser.uid),
+            likes: increment(1),
+          });
+          sendLikeNotification();
+        }
+      });
+    } else {
+      const currDoc = doc(db, "users", route.params.item.uid, "Scrapbooks", id);
+      await getDoc(currDoc).then(async (QuerySnapshot) => {
+        if (QuerySnapshot.data().likesArray.includes(auth.currentUser.uid)) {
+          setLikePressed(false);
+          setLikes(likes);
+          await updateDoc(currDoc, {
+            likesArray: arrayRemove(auth.currentUser.uid),
+            likes: increment(-1),
+          });
+          removeLikeNotification();
+        } else {
+          setLikes(likes);
+          setLikePressed(true);
+          await updateDoc(currDoc, {
+            likesArray: arrayUnion(auth.currentUser.uid),
+            likes: increment(1),
+          });
+          sendLikeNotification();
+        }
+      });
+    }
   };
 
   const likeStatus = async () => {
     const id = route.params.item.docId;
-    const currDoc = doc(db, "users", route.params.item.uid, "Scrapbooks", id);
-    await getDoc(currDoc).then(async (QuerySnapshot) => {
-      if (QuerySnapshot.data().likesArray.includes(auth.currentUser.uid)) {
-        setLikePressed(true);
-      } else {
-        setLikePressed(false);
-      }
-    });
+    if (route.params.item.groupId) {
+      const groupDoc = doc(
+        db,
+        "users",
+        route.params.item.uid,
+        "Groups",
+        route.params.item.groupId,
+        "Scrapbooks",
+        route.params.item.docId
+      );
+      await getDoc(groupDoc).then(async (QuerySnapshot) => {
+        if (QuerySnapshot.data().likesArray.includes(auth.currentUser.uid)) {
+          setLikePressed(true);
+        } else {
+          setLikePressed(false);
+        }
+      });
+    } else {
+      const currDoc = doc(db, "users", route.params.item.uid, "Scrapbooks", id);
+      await getDoc(currDoc).then(async (QuerySnapshot) => {
+        if (QuerySnapshot.data().likesArray.includes(auth.currentUser.uid)) {
+          setLikePressed(true);
+        } else {
+          setLikePressed(false);
+        }
+      });
+    }
   };
 
   const setActiveIndex = (index) => {
@@ -258,25 +324,53 @@ const Post = ({ navigation, route }) => {
                     <Text style={styles.cardTitle}>
                       {route.params.item.title}
                     </Text>
-                    <Avatar.Image
-                      source={{ uri: route.params.item.profilepic }}
-                      size={25}
-                      style={{
-                        marginRight: 5,
-                        marginTop: 20,
-                      }}
-                    />
-                    <Text
-                      style={{
-                        color: "white",
-                        zIndex: 1,
-                        position: "absolute",
-                        left: 35,
-                        top: 23,
-                      }}
-                    >
-                      {route.params.item.username}
-                    </Text>
+
+                    <View style={{flexDirection:"row", marginTop:5}}>
+                      {route.params.item.profilepic ? (
+                        <Avatar.Image
+                          source={{ uri: route.params.item.profilepic }}
+                          size={25}
+                          style={{
+                            marginRight: 5,
+                            marginTop: 20,
+                          }}
+                        />
+                      ) : (
+                        <Avatar.Image
+                          source={{ uri: route.params.item.groupIcon }}
+                          size={25}
+                          style={{
+                            marginRight: 5,
+                            marginTop: 20,
+                          }}
+                        />
+                      )}
+                      {route.params.item.username ? (
+                        <Text
+                          style={{
+                            color: "white",
+                            zIndex: 1,
+                            position: "absolute",
+                            left: 35,
+                            top: 23,
+                          }}
+                        >
+                          {route.params.item.username}
+                        </Text>
+                      ) : (
+                        <Text
+                          style={{
+                            color: "white",
+                            zIndex: 1,
+                            position: "absolute",
+                            left: 35,
+                            top: 23,
+                          }}
+                        >
+                          {route.params.item.groupname}
+                        </Text>
+                      )}
+                    </View>
                   </View>
                 </View>
 
@@ -315,7 +409,7 @@ const Post = ({ navigation, route }) => {
                         left: 40,
                         top: 82,
                         color: "white",
-                        fontWeight: "600"
+                        fontWeight: "600",
                       }}
                     >
                       {likes}
@@ -414,7 +508,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "300",
     position: "absolute",
-    
   },
   likeContainer: {
     position: "relative",

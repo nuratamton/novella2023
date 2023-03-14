@@ -6400,6 +6400,13 @@ react-native-dynamic-vector-icons@^1.2.0:
   resolved "https://registry.yarnpkg.com/react-native-dynamic-vector-icons/-/react-native-dynamic-vector-icons-1.2.0.tgz#193ce1784929340eaa634ebacd99e4e32970667b"
   integrity sha512-5UT+BGA9GPXe5UljAaGO5fbFfxxZKluuD84qkWvl/PHqJciqYZdhxsJ4pE8jVbdlCsgoYTclIar0owWGUnH0Fg==
 
+react-native-element-dropdown@^2.8.1:
+  version "2.8.1"
+  resolved "https://registry.yarnpkg.com/react-native-element-dropdown/-/react-native-element-dropdown-2.8.1.tgz#cc12b1f5757be3dac03bfa33c900d6dbf7a9ff86"
+  integrity sha512-MeiFZQE6owRcC3/ZgfecIm9YwgXxVvg7PYN0WSbyAJhsL+SgqGYqn6w/LVkY4bj9O1LqbcggycBtD5WT2Lewuw==
+  dependencies:
+    lodash "^4.17.21"
+
 react-native-elements@^3.4.3:
   version "3.4.3"
   resolved "https://registry.npmjs.org/react-native-elements/-/react-native-elements-3.4.3.tgz"

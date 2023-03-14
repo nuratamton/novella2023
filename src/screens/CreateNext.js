@@ -27,9 +27,9 @@ import {
 import { auth } from "../firebase";
 import * as ImagePicker from "expo-image-picker";
 import Apploader from "../components/Apploader";
-
+import { AntDesign } from "@expo/vector-icons";
 import { IconButton } from 'react-native-paper'
-
+import { Camera, CameraType } from 'expo-camera';
 
 const CreateNext = ({ navigation, route }) => {
   const [Url, setUrl] = useState(null);
@@ -38,11 +38,11 @@ const CreateNext = ({ navigation, route }) => {
   const [LoadingUp, setLoadingUp] = useState(false);
   const [hasPerm, setPerm] = useState(null);
   const [disable, setDisable] = useState(false);
+
   const storage = getStorage();
 
   const scrollx = useRef(new Animated.Value(0)).current;
   const { width, height } = Dimensions.get("screen");
-
   const widthCard = width * 0.7;
   const heightCard = widthCard * 1.54;
 
@@ -71,7 +71,40 @@ const CreateNext = ({ navigation, route }) => {
   useEffect(() => {
     console.warn(selectedImages);
   }, [selectedImages]);
-
+  const askPermissionsAsync = async () => {
+    await Camera.getCameraPermissionsAsync();
+    await ImagePicker.requestCameraPermissionsAsync()
+    
+    };
+    const takeImage = async () => {
+      await askPermissionsAsync()
+      let result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.1,
+        maxHeight: 600,
+        maxWidth: 800,
+        minCompressSize: 900,
+        compressQuality: 70,
+      });
+      if (!result.canceled) {
+        const name = result.assets[0].uri.substring(
+          result.assets[0].uri.lastIndexOf("/") + 1
+        );
+        const storageRef = ref(storage, "images/Scrapbook images/" + name);
+        await fetch(result.assets[0].uri).then(async (res) => {
+          await res.blob().then(async (byt) => {
+            await uploadBytesResumable(storageRef, byt).then((snapshot) => {
+              getDownloadURL(snapshot.ref).then((downloadURL) => {
+                setSelectedImages((oldArray) => [...oldArray, downloadURL]);
+              });
+            });
+          });
+        });
+      }
+      setLoading(false)
+    };
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -212,6 +245,11 @@ const CreateNext = ({ navigation, route }) => {
           pickImage();
         }}
       />
+      <View>
+          <TouchableOpacity onPress= {takeImage}>
+            <AntDesign name="camera" size={24} color="black" />
+          </TouchableOpacity>
+      </View>
         {/* <IconButton onPress={() => pickImage()} /> */}
         {/* <Button onPress={() => pickImage()} /> */}
 

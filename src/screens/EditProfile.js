@@ -16,6 +16,7 @@ import { addDoc, collection, setDoc, doc, updateDoc, getDoc } from "firebase/fir
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import InputBox from "../components/InputBox";
 import Button from "../components/Button";
+import { Dropdown } from 'react-native-element-dropdown';
 import {
   getStorage,
   ref,
@@ -27,6 +28,7 @@ import { Feather } from "@expo/vector-icons";
 import { Button as ButtonDate } from "react-native-paper";
 import Apploader from "../components/Apploader";
 import { IconButton } from "react-native-paper";
+import { AntDesign } from "@expo/vector-icons";
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 
@@ -35,17 +37,23 @@ const EditProfile = ({ navigation, route }) => {
    const [existingUsername, setExistingUsername] = useState("");
   const [name, setName] = useState("");
   // const [birthDate, setBirthDate] = useState("Date Of Birth");
-  const [accountType, setAccountType] = useState("");
+  const [value, setValue] = useState(null);
   const [bio, setBio] = useState("");
   const [profilePic, setprofilePic] = useState("");
   const [Loading , setLoading] = useState(false);
   const [hasPerm, setPerm] = useState(null);
+  const [isFocus, setIsFocus] = useState(false);
   // const [Url, setUrl] = useState(
   //   "https://blogifs.azureedge.net/wp-content/uploads/2019/03/Guest_Blogger_v1.png"
   // );
   // const [Loading, setLoading] = useState(false);
   const storage = getStorage();
   const uid = auth.currentUser.uid;
+  const data = [
+    { label: 'Public', value: 'Public' },
+    { label: 'Private', value: 'Private' },
+
+  ]
 
   const storageRef = ref(storage, "/images/Profile Picture/" + uid);
 
@@ -85,6 +93,16 @@ const EditProfile = ({ navigation, route }) => {
     return <Text> No access to Internal Storage </Text>;
   }
 
+  const renderLabel = () => {
+    if (value || isFocus) {
+      return (
+        <Text style={[styles.label, isFocus && { color: 'blue' }]}>
+          Dropdown label
+        </Text>
+      );
+    }
+    return null;
+  };
   const HandleInfo = async () => {
     setLoading(true);
     if (profilePic) {
@@ -120,7 +138,7 @@ const EditProfile = ({ navigation, route }) => {
     }
     if (accountType !== ""){
       await updateDoc(doc(db, "users", auth.currentUser.uid), {
-        accountType: accountType,
+        accountType: value,
       }, )
         .then(() => {})
         .catch((error) => {
@@ -166,12 +184,39 @@ const EditProfile = ({ navigation, route }) => {
                 secure={false}
               />
               <InputBox value={name} setValue={setName} placeholder="Name" />
-              <InputBox
-                value={accountType}
-                setValue={setAccountType}
-                placeholder="AccountType"
-              />
               <InputBox value={bio} setValue={setBio} placeholder="Bio" />
+              <View style={styles.droppy}>
+        {renderLabel()}
+        <Dropdown
+          style={[styles.dropdown, isFocus && { borderColor: 'blue' }]}
+          placeholderStyle={styles.placeholderStyle}
+          selectedTextStyle={styles.selectedTextStyle}
+          inputSearchStyle={styles.inputSearchStyle}
+          iconStyle={styles.iconStyle}
+          data={data}
+          search
+          maxHeight={300}
+          labelField="label"
+          valueField="value"
+          placeholder={!isFocus ? 'Select item' : '...'}
+          searchPlaceholder="Search..."
+          value={value}
+          onFocus={() => setIsFocus(true)}
+          onBlur={() => setIsFocus(false)}
+          onChange={item => {
+            setValue(item.value);
+            setIsFocus(false);
+          }}
+          renderLeftIcon={() => (
+            <AntDesign
+              style={styles.icon}
+              color={isFocus ? 'blue' : 'black'}
+              name="Safety"
+              size={20}
+            />
+          )}
+        />
+      </View>
 
               <Button onPress={HandleInfo} text="Update" />
             </View>
@@ -225,5 +270,9 @@ const styles = StyleSheet.create({
     margin: 10,
     display: "flex",
     alignItems: "flex-start",
+  },
+  droppy: {
+    top:10,
+    right:110,
   },
 });

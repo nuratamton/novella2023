@@ -19,7 +19,6 @@ import {
   Timestamp,
   serverTimestamp,
   setDoc,
-
 } from "firebase/firestore";
 import uuid from "react-native-uuid";
 
@@ -29,109 +28,163 @@ const Comments = ({ navigation, route }) => {
   const [profilePic, setPic] = useState("");
   const [username, setUsername] = useState("");
   const [changed, setChanged] = useState(false);
-  const [commentArray, setCommentArray] = useState([])
-  
+  const [commentArray, setCommentArray] = useState([]);
+
   useEffect(() => {
     const comments = route.params.item.comments;
-    setCommentArray(comments)
+    setCommentArray(comments);
     fetch();
   }, []);
 
-  useEffect(()=>{
-    fetchCommentsArray()
-  }, [changed])
+  useEffect(() => {
+    fetchCommentsArray();
+  }, [changed]);
 
-  useEffect(()=>{
-    console.log(commentArray)
-  },[commentArray])
+  useEffect(() => {
+    console.log(commentArray);
+  }, [commentArray]);
 
   const fetch = async () => {
     const docRef = doc(db, "users", auth.currentUser.uid);
     await getDoc(docRef).then((QuerySnapshot) => {
-      setUsername(QuerySnapshot.data().username)
-      setPic(QuerySnapshot.data().profilePicsrc)
+      setUsername(QuerySnapshot.data().username);
+      setPic(QuerySnapshot.data().profilePicsrc);
     });
   };
 
-  const fetchCommentsArray = async ()=>{
-    const currDoc = doc(db, "users", route.params.item.uid, "Scrapbooks", route.params.item.docId);
-    await getDoc(currDoc).then((QuerySnapshot)=> {
-        setCommentArray(QuerySnapshot.data().comments)
-    })
-    setChanged(false)
-  }
+  const fetchCommentsArray = async () => {
+    if (route.params.item.groupId) {
+      const groupDoc = doc(
+        db,
+        "users",
+        route.params.item.uid,
+        "Groups",
+        route.params.item.groupId,
+        "Scrapbooks",
+        route.params.item.docId
+      );
+      await getDoc(groupDoc).then((QuerySnapshot) => {
+        setCommentArray(QuerySnapshot.data().comments);
+      });
+    } else {
+      const currDoc = doc(
+        db,
+        "users",
+        route.params.item.uid,
+        "Scrapbooks",
+        route.params.item.docId
+      );
+      await getDoc(currDoc).then((QuerySnapshot) => {
+        setCommentArray(QuerySnapshot.data().comments);
+      });
+    }
+
+    setChanged(false);
+  };
 
   const postComment = async () => {
-    const currDoc = doc(db, "users", route.params.item.uid, "Scrapbooks", route.params.item.docId);
-    await updateDoc(currDoc, {
-      comments: arrayUnion({
-        comment: comment,
-        uid: auth.currentUser.uid,
-        docId: route.params.item.docId,
-        timestamp: Timestamp.now(),
-        profilePic: profilePic,
-        username: username,
-      }),
-    });
-    sendCommentNotification()
-    setChanged(true)
+    if (route.params.item.groupId) {
+      const groupDoc = doc(
+        db,
+        "users",
+        route.params.item.uid,
+        "Groups",
+        route.params.item.groupId,
+        "Scrapbooks",
+        route.params.item.docId
+      );
+
+      await updateDoc(groupDoc, {
+        comments: arrayUnion({
+          comment: comment,
+          uid: auth.currentUser.uid,
+          docId: route.params.item.docId,
+          timestamp: Timestamp.now(),
+          profilePic: profilePic,
+          username: username,
+        }),
+      });
+    } else {
+      const currDoc = doc(
+        db,
+        "users",
+        route.params.item.uid,
+        "Scrapbooks",
+        route.params.item.docId
+      );
+      await updateDoc(currDoc, {
+        comments: arrayUnion({
+          comment: comment,
+          uid: auth.currentUser.uid,
+          docId: route.params.item.docId,
+          timestamp: Timestamp.now(),
+          profilePic: profilePic,
+          username: username,
+        }),
+      });
+    }
+
+    sendCommentNotification();
+    setChanged(true);
   };
 
   const sendCommentNotification = async () => {
-    const currDoc = doc(db,"users", auth.currentUser.uid);
-    const receiver = doc(db,"users",route.params.item.uid,"Notifications",UUID)
+    const currDoc = doc(db, "users", auth.currentUser.uid);
+    const receiver = doc(
+      db,
+      "users",
+      route.params.item.uid,
+      "Notifications",
+      UUID
+    );
     await getDoc(currDoc).then(async (QuerySnapshot) => {
-      await setDoc(receiver , {
-          id:UUID,
-          message: `${QuerySnapshot.data().username} has commented on your scrapbook ${route.params.item.title}`,
-          From: auth.currentUser.uid,
-          profilePic: QuerySnapshot.data().profilePicsrc,
-          scrapbookID: route.params.item.docId,
-          timestamp: serverTimestamp()
-        
-      })
-    })
-  }
+      await setDoc(receiver, {
+        id: UUID,
+        message: `${
+          QuerySnapshot.data().username
+        } has commented on your scrapbook ${route.params.item.title}`,
+        From: auth.currentUser.uid,
+        profilePic: QuerySnapshot.data().profilePicsrc,
+        scrapbookID: route.params.item.docId,
+        timestamp: serverTimestamp(),
+      });
+    });
+  };
 
   renderPost = (post) => {
     return (
       <View style={[styles.notifications]}>
-       
-          <View style={styles.notificationBox}>
-            <View style={styles.picture}>
-              <Avatar.Image
-                source={{ uri: post.profilePic }}
-                size={40}
-                style={{ marginRight: 12 }}
-              />
-            </View>
-            <View>
-              <Text style={{ fontSize: 25, fontWeight: "100" }}>
-                {post.username}
-              </Text>
-              <Text
-                style={{
-                  fontSize: 15,
-                  fontWeight: "300",
-                  alignContent: "center",
-                  padding: 5,
-                  marginRight: 100,
-                }}
-              >
-                {post.comment}
-              </Text>
-              
-            </View>
+        <View style={styles.notificationBox}>
+          <View style={styles.picture}>
+            <Avatar.Image
+              source={{ uri: post.profilePic }}
+              size={40}
+              style={{ marginRight: 12 }}
+            />
           </View>
-        
+          <View style={{width:"100%"}}>
+            <Text style={{ fontSize: 20, fontWeight: "100" }}>
+              {post.username}
+            </Text>
+            <Text
+              style={{
+                fontSize: 15,
+                fontWeight: "300",
+                alignContent: "center",
+                padding: 5,
+                marginRight: 100,
+              }}
+            >
+              {post.comment}
+            </Text>
+          </View>
+        </View>
       </View>
     );
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* <BlurView tint="light" intensity={100} style={StyleSheet.absoluteFill} /> */}
-
       <View style={styles.header}>
         <Text
           style={{
@@ -151,7 +204,6 @@ const Comments = ({ navigation, route }) => {
         style={styles.feed}
         data={commentArray}
         renderItem={({ item, index }) => renderPost(item)}
-        keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
       />
 
@@ -171,7 +223,7 @@ const Comments = ({ navigation, route }) => {
           name="send"
           size={24}
           color="black"
-          style={{ position: "absolute", right: "10%", bottom: 50 }}
+          style={{ position: "absolute", left: "37%", bottom: 20 }}
         />
       </TouchableOpacity>
 
@@ -203,7 +255,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderBottomColor: "#f2f2f2",
     backgroundColor: "#e6e6fa",
-
+    width:"100%",
     shadowColor: "#fff",
     // shadowOffset: {
     //   width: 0,
@@ -215,6 +267,7 @@ const styles = StyleSheet.create({
   picture: {
     width: "15%",
     height: "100%",
+    margin:7
   },
   container: {
     width: "100%",

@@ -6,13 +6,14 @@ import {
   TouchableOpacity,
   Image,
 } from "react-native";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect , useRef } from "react";
 import { Feather } from "@expo/vector-icons";
 import { IconButton, Title } from "react-native-paper";
 import { popFromStack } from "../components/NavigationMethod";
 import InputBox from "../components/InputBox";
 import Button from "../components/Button";
 import * as ImagePicker from "expo-image-picker";
+import * as Permissions from 'expo-permissions';
 import { db } from "../firebase";
 import { getStorage } from "firebase/storage";
 import { getDocs, collection, doc, setDoc, getDoc } from "firebase/firestore";
@@ -27,18 +28,21 @@ const CreateScrapbook = ({ navigation, route }) => {
   const [scrapbookCover, setScrapbookCover] = useState(null);
   const [hasPerm, setPerm] = useState(null);
   const [Username, setUser] = useState("");
+  const [groupId, setGroupId] = useState("")
   const [Url, setUrl] = useState(null);
   const [Loading, setLoading] = useState(false);
   const UUID = uuid.v4();
-  const storage = getStorage();
-  const [hasCam,setCam] = useState(null)
+  const storage = getStorage()
+  const [hasCameraPerm , setCameraPerm] = useState(null);
+  const camRef = useRef(null);
+  const [tagsarray , setTagsArray] = useState([])
+  const [tag , setTag] = useState('');
 
   useEffect(() => {
     async () => {
       const gallery = await ImagePicker.requestMediaLibraryPermissionsAsync();
       setPerm(gallery.status === "granted");
-      const cameraStatus = await Camera.requestPermissionsAsync();
-      setCam(cameraStatus.status === 'granted');
+      // const camera = await ImagePickerrequest
     };
     getUD();
   }, []);
@@ -57,6 +61,16 @@ const CreateScrapbook = ({ navigation, route }) => {
     }
   }, [title]);
 
+  const handleChange = event => {
+    const result = event.target.value.replace(/[^a-z]/gi, '');
+
+    setMessage(result);
+  };
+  const askPermissionsAsync = async () => {
+    await Camera.getCameraPermissionsAsync();
+    await ImagePicker.requestCameraPermissionsAsync()
+    
+    };
   const getUD = async () => {
     let ref;
     {
@@ -71,6 +85,7 @@ const CreateScrapbook = ({ navigation, route }) => {
         await getDoc(ref).then((item) => {
           setUser(item.data().groupname);
           setUrl(item.data().groupIcon);
+          setGroupId(item.data().groupId);
         });
 
       } else {
@@ -82,8 +97,29 @@ const CreateScrapbook = ({ navigation, route }) => {
       }
     }
 
+
    
   };
+  const takeImage = async () => {
+    await askPermissionsAsync()
+    let result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 0.1,
+      maxHeight: 600,
+      maxWidth: 800,
+      minCompressSize: 900,
+      compressQuality: 70,
+    });
+
+    if (!result.canceled) {
+      setScrapbookCover(result.assets[0].uri);
+    }
+  };
+  if (hasCameraPerm === false) {
+    return <Text> No access to Internal Storage </Text>;
+  }
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -116,6 +152,7 @@ const CreateScrapbook = ({ navigation, route }) => {
         uid: auth.currentUser.uid,
         groupname: Username,
         groupIcon: Url,
+        groupId: groupId,
         docId: UUID,
       })
     
@@ -164,6 +201,11 @@ const CreateScrapbook = ({ navigation, route }) => {
       /> */}
       <View style={styles.textCont}>
         <Text style={styles.heading}> Select the Scrapbook Cover Image : </Text>
+        <View>
+          <TouchableOpacity onPress= {takeImage}>
+          <AntDesign name="camera" size={24} color="black" />
+          </TouchableOpacity>
+        </View>
       </View>
       <View style={styles.coverContainer}>
         <TouchableOpacity style={styles.plusButton} onPress={pickImage}>
@@ -236,4 +278,8 @@ const styles = StyleSheet.create({
   bottomTxt: {
     fontWeight: "600",
   },
+  camera: {
+    flex: 1, 
+    borderRadius: 20,
+  }
 });

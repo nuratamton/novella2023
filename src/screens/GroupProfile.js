@@ -5,6 +5,7 @@ import {
   FlatList,
   Dimensions,
   TouchableOpacity,
+  Button as Btn,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { Card, Avatar, IconButton } from "react-native-paper";
@@ -42,7 +43,6 @@ const GroupProfile = ({ navigation, route }) => {
   const [admin, setAdmin] = useState("");
 
   const [groupId, setGroupId] = useState("");
-
 
   const getGroupDetails = async () => {
     const Uref = doc(
@@ -89,6 +89,7 @@ const GroupProfile = ({ navigation, route }) => {
   useEffect(() => {
     getGroupDetails();
     Scrapbooks();
+    getStatus();
   }, []);
 
   renderPost = (post) => {
@@ -106,6 +107,25 @@ const GroupProfile = ({ navigation, route }) => {
           subtitleStyle={styles.cardSubTitle}
           leftStyle={styles.groupIcon}
         />
+        {members.includes(auth.currentUser.uid)?
+           <Card.Actions>
+           <Btn
+             title="Edit"
+             style={styles.buttonTxt}
+             onPress={() =>
+               navigation.navigate("EditScrapbook", {
+                 item: post,
+                 item3: groupId,
+                 group:true,
+               })
+             }
+           >
+             {" "}
+             Edit{" "}
+           </Btn>
+         </Card.Actions>
+        :""           
+  }
       </Card>
     );
   };
@@ -120,6 +140,8 @@ const GroupProfile = ({ navigation, route }) => {
     );
     await getDoc(currDoc).then(async (querySnapshot) => {
       if (querySnapshot.data().members.includes(auth.currentUser.uid)) {
+        setOnClick(!onClick);
+        setMemberCount(memberCount-1);
         await updateDoc(
           doc(db, "users", route.params.uid, "Groups", route.params.item),
           {
@@ -127,10 +149,14 @@ const GroupProfile = ({ navigation, route }) => {
             members: arrayRemove(auth.currentUser.uid),
           }
         );
-        await deleteDoc
-          doc((db, "users", auth.currentUser.uid, "Groups", route.params.item))
-        ;
-      }else{
+        await updateDoc(doc(db, "users", auth.currentUser.uid), {
+          groups: arrayRemove(
+            doc(db, "users", route.params.uid, "Groups", route.params.item)
+          ),
+        });
+      } else {
+        setOnClick(!onClick);
+        setMemberCount(memberCount+1);
         await updateDoc(
           doc(db, "users", route.params.uid, "Groups", route.params.item),
           {
@@ -138,18 +164,28 @@ const GroupProfile = ({ navigation, route }) => {
             members: arrayUnion(auth.currentUser.uid),
           }
         );
-        
-        await setDoc(doc(db, "users", auth.currentUser.uid, "Groups", route.params.item), {
-          //PASSS GROUP DATA HERE
-          accountType: accType,
-          admin: admin,
-          description: desc,
-          groupId: groupId,
-          groupname: groupname,
-          memberCount: memberCount,
-          members: members,
-          groupIcon: groupIcon,
-        })
+        await updateDoc(doc(db, "users", auth.currentUser.uid), {
+          groups: arrayUnion(
+            doc(db, "users", route.params.uid, "Groups", route.params.item)
+          ),
+        });
+      }
+    });
+  };
+
+  const getStatus = async () => {
+    const currDoc = doc(
+      db,
+      "users",
+      route.params.uid,
+      "Groups",
+      route.params.item
+    );
+    await getDoc(currDoc).then(async (querySnapshot) => {
+      if (querySnapshot.data().members.includes(auth.currentUser.uid)) {
+        setOnClick(true);
+      } else {
+        setOnClick(false);
       }
     });
   };
@@ -198,7 +234,15 @@ const GroupProfile = ({ navigation, route }) => {
             )}
           </View>
           <View style={styles.infoContainer}>
-            <TouchableOpacity style={styles.followerCount} onPress={()=>navigation.navigate("DisplayMembers", {uid: route.params.uid, item: route.params.item})}>
+            <TouchableOpacity
+              style={styles.followerCount}
+              onPress={() =>
+                navigation.navigate("DisplayMembers", {
+                  uid: route.params.uid,
+                  item: route.params.item,
+                })
+              }
+            >
               <Text>{memberCount} </Text>
               <Text> Members </Text>
             </TouchableOpacity>
@@ -206,12 +250,16 @@ const GroupProfile = ({ navigation, route }) => {
 
           <Text> {desc} </Text>
 
-          <Button
-            type="TERITARY"
-            text_type="TERTIARY"
-            text={onClick ? "Join" : "Member"}
-            onPress={()=>joinGroup()}
-          />
+          {admin === auth.currentUser.uid ? (
+            <Button type="TERITARY" text_type="TERTIARY" text="Admin" />
+          ) : (
+            <Button
+              type="TERITARY"
+              text_type="TERTIARY"
+              text={onClick ? "Leave Group" :"Join Group"}
+              onPress={() => joinGroup()}
+            />
+          )}
 
           <FlatList
             style={styles.feed}
