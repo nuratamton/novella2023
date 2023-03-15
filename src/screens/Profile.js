@@ -15,6 +15,8 @@ import { IconButton } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Card, Avatar } from "react-native-paper";
 import { ScrollView } from "react-native-virtualized-view";
+import { AntDesign } from "@expo/vector-icons";
+
 import {
   getDocs,
   getDoc,
@@ -52,6 +54,11 @@ const Profile = ({ navigation, route }) => {
   const [image, setimage] = useState(
     "https://blogifs.azureedge.net/wp-content/uploads/2019/03/Guest_Blogger_v1.png"
   );
+  const [followers, setFollowers] = useState([]);
+  const [following, setFollowing] = useState([]);
+
+  const [accountType, setAccountType] = useState("");
+
   const UUID = uuid.v4();
 
   const getUserDetails = async () => {
@@ -67,6 +74,12 @@ const Profile = ({ navigation, route }) => {
 
     setFollowersCount(userDoc.data().followerCount);
     setFollowingCount(userDoc.data().followingCount);
+
+    setFollowers(userDoc.data().followers);
+    setFollowing(userDoc.data().following);
+
+    setAccountType(userDoc.data().accountType);
+
     getFollowStatus();
   };
 
@@ -124,17 +137,17 @@ const Profile = ({ navigation, route }) => {
   };
 
   const Groups = async () => {
-    let temp=[]
+    let temp = [];
     const ref = collection(db, "users", route.params.item, "Groups");
-    const newref = doc(db, "users", route.params.item)
-    await getDoc(newref).then((querySnapshot)=>{
-      querySnapshot.data().groups.forEach(async(item)=>{
-        await getDoc(item).then((oogabooga)=>{
+    const newref = doc(db, "users", route.params.item);
+    await getDoc(newref).then((querySnapshot) => {
+      querySnapshot.data().groups.forEach(async (item) => {
+        await getDoc(item).then((oogabooga) => {
           temp.push(oogabooga.data());
-        })
-      })
-      getGroups(temp)
-    })
+        });
+      });
+      getGroups(temp);
+    });
 
     await getDocs(ref)
       .then((querySnapshot) => {
@@ -159,30 +172,54 @@ const Profile = ({ navigation, route }) => {
   // }, [FollowersCount, FollowingCount]);
 
   renderPost = (post) => {
-    const selectPost = () => {
-      setId(post.id);
-    };
-
-    return (
-      <Card style={[styles.post, { width: windowWidth / 2 - 15 }]}>
-        <TouchableOpacity
-          onPress={() => navigation.navigate("Post", { item: post })}
+    if (
+      !followers.includes(auth.currentUser.uid) || accountType === "Private"
+      
+    ) {
+      return (
+        <View
+          style={{
+            flex: 1,
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "flex-start",
+            width: 100,
+            padding: 50,
+          }}
         >
-          <Card.Cover source={{ uri: post.CoverImg }} resizeMode="cover" />
-        </TouchableOpacity>
-        <Card.Title
-          style={styles.postHeader}
-          title={post.title}
-          titleStyle={styles.cardTitle}
-          subtitleStyle={styles.cardSubTitle}
-          leftStyle={styles.profilePicture}
-        />
-      </Card>
-    );
+          <AntDesign style={{}} name="lock1" size={90} color="black" />
+          <Text style={{ textAlign: "center", fontSize: 22 }}>
+            {" "}
+            Private Account
+          </Text>
+          <Text> </Text>
+          <Text style={{ textAlign: "center" }}>
+            {" "}
+            Follow this account to view their scrapbooks{" "}
+          </Text>
+        </View>
+      );
+    } else {
+      return (
+        <Card style={[styles.post, { width: windowWidth / 2 - 15 }]}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("Post", { item: post })}
+          >
+            <Card.Cover source={{ uri: post.CoverImg }} resizeMode="cover" />
+          </TouchableOpacity>
+          <Card.Title
+            style={styles.postHeader}
+            title={post.title}
+            titleStyle={styles.cardTitle}
+            subtitleStyle={styles.cardSubTitle}
+            leftStyle={styles.profilePicture}
+          />
+        </Card>
+      );
+    }
   };
 
   renderGroup = (group) => {
-    const selectPost = () => {};
     return (
       <View style={[styles.notifications]}>
         <TouchableOpacity
@@ -287,12 +324,26 @@ const Profile = ({ navigation, route }) => {
             <Avatar.Image source={{ uri: image }} size={100} />
           </View>
           <View style={styles.infoContainer}>
-            <TouchableOpacity style={styles.followerCount} onPress={() => navigation.navigate("DisplayFollowers", {uid: route.params.item})}>
+            <TouchableOpacity
+              style={styles.followerCount}
+              onPress={() =>
+                navigation.navigate("DisplayFollowers", {
+                  uid: route.params.item,
+                })
+              }
+            >
               {/* {currDoc = doc(db, "users", currentUserId)} */}
               <Text>{FollowersCount}</Text>
               <Text>Followers</Text>
-            </TouchableOpacity >
-            <TouchableOpacity  style={styles.followingCount} onPress={() => navigation.navigate("DisplayFollowing", {uid: route.params.item})}>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.followingCount}
+              onPress={() =>
+                navigation.navigate("DisplayFollowing", {
+                  uid: route.params.item,
+                })
+              }
+            >
               <Text>{FollowingCount}</Text>
               <Text>Following</Text>
             </TouchableOpacity>
@@ -306,9 +357,18 @@ const Profile = ({ navigation, route }) => {
           />
         </View>
 
-        <View style={{flexDirection: "row", justifyContent: "space-evenly"}}>
-          <Btn title="Scrapbooks" color="#841584"  onPress={() => setDisplayScrap(true)} />
-          <Btn style = {{backgroundColor: "black"}} color="#841584" title="Groups" onPress={() => setDisplayScrap(false)} />
+        <View style={{ flexDirection: "row", justifyContent: "space-evenly" }}>
+          <Btn
+            title="Scrapbooks"
+            color="#841584"
+            onPress={() => setDisplayScrap(true)}
+          />
+          <Btn
+            style={{ backgroundColor: "black" }}
+            color="#841584"
+            title="Groups"
+            onPress={() => setDisplayScrap(false)}
+          />
         </View>
 
         {displayScrap ? (

@@ -19,7 +19,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Card, Avatar } from "react-native-paper";
 import { ScrollView } from "react-native-virtualized-view";
-import { getDocs, getDoc, collection, doc } from "firebase/firestore";
+import { getDocs, getDoc, collection, doc, deleteDoc } from "firebase/firestore";
 import Apploader from "../components/Apploader";
 import { DrawerActions, useIsFocused } from "@react-navigation/native";
 import { Feather } from "@expo/vector-icons";
@@ -105,7 +105,6 @@ const UserProfile = ({ navigation, route }) => {
     getUserDetails();
     Scrapbooks();
     Groups();
-
     setDisplayScrap(true);
   }, [isFocused]);
 
@@ -116,11 +115,41 @@ const UserProfile = ({ navigation, route }) => {
   renderPost = (post) => {
     return (
       <Card style={[styles.post, { width: windowWidth / 2 - 15 }]}>
+        <Card.Actions>
+       
+          <TouchableOpacity
+            style={{ position: "absolute", left: "90%" }}
+            onPress={() =>
+              navigation.navigate("EditScrapbook", {
+                item: post,
+              })
+            }
+          >
+            <MaterialCommunityIcons name="circle-edit-outline" size={20} color="black" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{ position: "absolute", left: "90%", top:"10%" }}
+            onPress={()=> deleteDoc(doc(
+              db,
+              "users",
+              auth.currentUser.uid,
+              "Scrapbooks",
+              post.docId
+            ))}
+          >
+            <MaterialCommunityIcons name="delete-circle-outline" size={20} color="black" />
+          </TouchableOpacity>
+         
+
+        </Card.Actions>
         <TouchableOpacity
           style={{ zIndex: 1 }}
           onPress={() => navigation.navigate("Post", { item: post })}
         >
+          
+          
           <Card.Cover source={{ uri: post.CoverImg }} resizeMode="cover" />
+          
         </TouchableOpacity>
         <View style={{ flexDirection: "column" }}>
           <Card.Title
@@ -130,26 +159,7 @@ const UserProfile = ({ navigation, route }) => {
             subtitleStyle={styles.cardSubTitle}
             leftStyle={styles.profilePicture}
           />
-          <TouchableOpacity
-            style={{ position: "absolute", left: "80%" }}
-            onPress={() =>
-              navigation.navigate("EditScrapbook", {
-                item: post,
-              })
-            }
-          >
-            <Feather name="edit" size={20} color="black" />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={{ position: "absolute", left: "90%" }}
-            onPress={() =>
-              navigation.navigate("EditScrapbook", {
-                item: post,
-              })
-            }
-          >
-            <MaterialIcons name="delete" size={23} color="black" />
-          </TouchableOpacity>
+         
         </View>
 
         {/* <Card.Actions>
@@ -312,6 +322,7 @@ const UserProfile = ({ navigation, route }) => {
               renderItem={({ item }) => renderGroup(item)}
               // keyExtractor={(itemm) => itemm.id}
               showsVerticalScrollIndicator={false}
+              initialScrollIndex={groups.length + 1}
             />
           )}
         </SafeAreaView>
@@ -361,6 +372,7 @@ const styles = StyleSheet.create({
   },
   post: {
     margin: 7.5,
+    backgroundColor:"white"
     // flex: 1,
     // width: 300,
     // maxWidth: "100%", // 100% devided by the number of rows you want

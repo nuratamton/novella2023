@@ -8,15 +8,23 @@ import {
   TouchableOpacity,
   ScrollView,
   SafeAreaView,
+  Switch,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { auth } from "../firebase";
 import { db } from "../firebase";
-import { addDoc, collection, setDoc, doc, updateDoc, getDoc } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  setDoc,
+  doc,
+  updateDoc,
+  getDoc,
+} from "firebase/firestore";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import InputBox from "../components/InputBox";
 import Button from "../components/Button";
-import { Dropdown } from 'react-native-element-dropdown';
+import { Dropdown } from "react-native-element-dropdown";
 import {
   getStorage,
   ref,
@@ -33,48 +41,45 @@ const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 
 const EditProfile = ({ navigation, route }) => {
-   const [username, setUsername] = useState("");
-   const [existingUsername, setExistingUsername] = useState("");
+  const [username, setUsername] = useState("");
+  const [existingUsername, setExistingUsername] = useState("");
   const [name, setName] = useState("");
   // const [birthDate, setBirthDate] = useState("Date Of Birth");
   const [value, setValue] = useState(null);
   const [bio, setBio] = useState("");
   const [profilePic, setprofilePic] = useState("");
-  const [Loading , setLoading] = useState(false);
+  const [Loading, setLoading] = useState(false);
   const [hasPerm, setPerm] = useState(null);
   const [isFocus, setIsFocus] = useState(false);
+  const [isEnabled, setIsEnabled] = useState(false);
+  const toggleSwitch = () => setIsEnabled((previousState) => !previousState);
   // const [Url, setUrl] = useState(
   //   "https://blogifs.azureedge.net/wp-content/uploads/2019/03/Guest_Blogger_v1.png"
   // );
   // const [Loading, setLoading] = useState(false);
   const storage = getStorage();
   const uid = auth.currentUser.uid;
-  const data = [
-    { label: 'Public', value: 'Public' },
-    { label: 'Private', value: 'Private' },
 
-  ]
 
   const storageRef = ref(storage, "/images/Profile Picture/" + uid);
 
   useEffect(() => {
-    (async () => {
+    async () => {
       const gallery = await ImagePicker.requestMediaLibraryPermissionsAsync();
       setPerm(gallery.status === "granted");
-    })
+    };
     async () => {
       const Uref = doc(db, "users", uid);
       const userDoc = await getDoc(Uref);
 
-      setExistingUsername(userDoc.data().username)
+      setExistingUsername(userDoc.data().username);
 
       // setUsername(userDoc.data().username);
       // setBio(userDoc.data().bio);
       // setprofilePic(userDoc.data().profilePicsrc);
       // setName(userDoc.data().name);
       // setAccountType(userDoc.data().accountType);
-    }
-
+    };
   }, []);
 
   const pickImage = async () => {
@@ -93,16 +98,16 @@ const EditProfile = ({ navigation, route }) => {
     return <Text> No access to Internal Storage </Text>;
   }
 
-  const renderLabel = () => {
-    if (value || isFocus) {
-      return (
-        <Text style={[styles.label, isFocus && { color: 'blue' }]}>
-          Dropdown label
-        </Text>
-      );
-    }
-    return null;
-  };
+  // const renderLabel = () => {
+  //   if (value || isFocus) {
+  //     return (
+  //       <Text style={[styles.label, isFocus && { color: 'blue' }]}>
+  //         Dropdown label
+  //       </Text>
+  //     );
+  //   }
+  //   return null;
+  // };
   const HandleInfo = async () => {
     setLoading(true);
     if (profilePic) {
@@ -110,58 +115,73 @@ const EditProfile = ({ navigation, route }) => {
       const bytes = await imga.blob();
       await uploadBytesResumable(storageRef, bytes).then(async (snapshot) => {
         await getDownloadURL(snapshot.ref).then(async (downloadURL) => {
-          await setDoc(doc(db, "users", auth.currentUser.uid), {
-            profilePicsrc: downloadURL,
-          }, {merge:true})
+          await setDoc(
+            doc(db, "users", auth.currentUser.uid),
+            {
+              profilePicsrc: downloadURL,
+            },
+            { merge: true }
+          );
         });
       });
     }
 
-    if(username !== ""){
+    if (username !== "") {
       await updateDoc(doc(db, "users", auth.currentUser.uid), {
         username: username,
-      }, )
+      })
         .then(() => {})
         .catch((error) => {
           console.log(error);
         });
-
     }
-    if (name !== ""){
+    if (name !== "") {
       await updateDoc(doc(db, "users", auth.currentUser.uid), {
         name: name,
-      }, )
+      })
         .then(() => {})
         .catch((error) => {
           console.log(error);
         });
     }
-    if (accountType !== ""){
+    if (isEnabled) {
       await updateDoc(doc(db, "users", auth.currentUser.uid), {
-        accountType: value,
-      }, )
+        accountType: "Private",
+      })
         .then(() => {})
         .catch((error) => {
           console.log(error);
         });
     }
-    if (bio !== ""){
+    else{
+      await updateDoc(doc(db, "users", auth.currentUser.uid), {
+        accountType: "Public",
+      })
+        .then(() => {})
+        .catch((error) => {
+          console.log(error);
+        });
+    }
+    if (bio !== "") {
       await updateDoc(doc(db, "users", auth.currentUser.uid), {
         bio: bio,
-      }, )
+      })
         .then(() => {})
         .catch((error) => {
           console.log(error);
         });
     }
-    
+
     setLoading(false);
-    navigation.navigate("UserProfile" , {item: true});
+    navigation.navigate("UserProfile", { item: true });
   };
   return (
     <>
-      <KeyboardAvoidingView behavior="padding" style={{backgroundColor: "#ffffff"}}>
-        <ScrollView style = {{backgroundColor: "#ffffff", height: '100%'}}>
+      <KeyboardAvoidingView
+        behavior="padding"
+        style={{ backgroundColor: "#ffffff" }}
+      >
+        <ScrollView style={{ backgroundColor: "#ffffff", height: "100%" }}>
           <SafeAreaView>
             <IconButton
               icon="chevron-left"
@@ -185,38 +205,48 @@ const EditProfile = ({ navigation, route }) => {
               />
               <InputBox value={name} setValue={setName} placeholder="Name" />
               <InputBox value={bio} setValue={setBio} placeholder="Bio" />
-              <View style={styles.droppy}>
-        {renderLabel()}
-        <Dropdown
-          style={[styles.dropdown, isFocus && { borderColor: 'blue' }]}
-          placeholderStyle={styles.placeholderStyle}
-          selectedTextStyle={styles.selectedTextStyle}
-          inputSearchStyle={styles.inputSearchStyle}
-          iconStyle={styles.iconStyle}
-          data={data}
-          search
-          maxHeight={300}
-          labelField="label"
-          valueField="value"
-          placeholder={!isFocus ? 'Select item' : '...'}
-          searchPlaceholder="Search..."
-          value={value}
-          onFocus={() => setIsFocus(true)}
-          onBlur={() => setIsFocus(false)}
-          onChange={item => {
-            setValue(item.value);
-            setIsFocus(false);
-          }}
-          renderLeftIcon={() => (
-            <AntDesign
-              style={styles.icon}
-              color={isFocus ? 'blue' : 'black'}
-              name="Safety"
-              size={20}
-            />
-          )}
-        />
-      </View>
+              <View style={{justifyContent:"space-between", flexDirection:"row"}}>
+                <Text style={{top: '5%', right: '90%'}}> Private Account </Text>
+              <Switch
+                trackColor={{ false: "#767577", true: "green" }}
+                thumbColor={isEnabled ? "#f5dd4b" : "#f4f3f4"}
+                ios_backgroundColor="#3e3e3e"
+                onValueChange={toggleSwitch}
+                value={isEnabled}
+              />
+              </View>
+              {/* <View style={styles.droppy}>
+                {renderLabel()}
+                <Dropdown
+                  style={[styles.dropdown, isFocus && { borderColor: "blue" }]}
+                  placeholderStyle={styles.placeholderStyle}
+                  selectedTextStyle={styles.selectedTextStyle}
+                  inputSearchStyle={styles.inputSearchStyle}
+                  iconStyle={styles.iconStyle}
+                  data={data}
+                  search
+                  maxHeight={300}
+                  labelField="label"
+                  valueField="value"
+                  placeholder={!isFocus ? "Select item" : "..."}
+                  searchPlaceholder="Search..."
+                  value={value}
+                  onFocus={() => setIsFocus(true)}
+                  onBlur={() => setIsFocus(false)}
+                  onChange={(item) => {
+                    setValue(item.value);
+                    setIsFocus(false);
+                  }}
+                  renderLeftIcon={() => (
+                    <AntDesign
+                      style={styles.icon}
+                      color={isFocus ? "blue" : "black"}
+                      name="Safety"
+                      size={20}
+                    />
+                  )}
+                />
+              </View> */}
 
               <Button onPress={HandleInfo} text="Update" />
             </View>
@@ -272,7 +302,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
   },
   droppy: {
-    top:10,
-    right:110,
+    top: 10,
+    right: 110,
   },
 });

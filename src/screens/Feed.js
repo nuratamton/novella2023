@@ -34,8 +34,6 @@ import { IconButton } from "react-native-paper";
 import { auth, db } from "../firebase";
 import { async } from "@firebase/util";
 
-
-
 export const postID = () => {
   // console.warn(id)
   return { id };
@@ -74,22 +72,28 @@ const Feed = ({ navigation }) => {
     return (
       <>
         <Card style={[styles.post]}>
+          <TouchableOpacity style={{flexDirection:"row"}} onPress={()=>navigation.navigate("Profile", {item: post.uid})}>
+            <Card.Actions >
+              <Avatar.Image
+                source={{ uri: post.profilepic ? post.profilepic : "" }}
+                size={25}
+              />
+              <Text styles={styles.cardSubTitle}>{post.username}</Text>
+            </Card.Actions>
+          </TouchableOpacity>
           <TouchableOpacity
             onPress={() => navigation.navigate("Post", { item: post })}
           >
-          
-            <Card.Cover source={{ uri: post.CoverImg? post.CoverImg:"" }} resizeMode="cover" />
+            <Card.Cover
+              source={{ uri: post.CoverImg ? post.CoverImg : "" }}
+              resizeMode="cover"
+            />
           </TouchableOpacity>
           <Card.Title
             style={styles.postHeader}
             title={post.title}
             titleStyle={styles.cardTitle}
-            subtitle={post.username}
             subtitleStyle={styles.cardSubTitle}
-            left={(props) => ( 
-              <Avatar.Image source={{ uri: post.profilepic?  post.profilepic: ""}} size={25} />
-        
-            )}
             leftStyle={styles.profilePicture}
           />
         </Card>
@@ -171,6 +175,7 @@ const styles = StyleSheet.create({
     marginVertical: 8,
     // maxWidth: 500,
     // alignSelf:"center"
+    backgroundColor: "white",
   },
   postHeader: {
     position: "relative",
@@ -191,7 +196,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: "600",
     left: 0.5,
-    bottom: 0.4,
+    // bottom: 0.2,
     zIndex: 1,
   },
   profilePicture: {

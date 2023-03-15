@@ -186,7 +186,6 @@ const CreateScrapbook = ({ navigation, route }) => {
         console.log(error);
       });
     }
-    console.log(scrapbookCover);
     navigation.navigate("CreateNext", { item: UUID, item2: scrapbookCover, item3: route.params.item, group: route.params.group });
   };
   return (

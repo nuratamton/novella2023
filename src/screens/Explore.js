@@ -38,15 +38,9 @@ const Explore = ({ navigation }) => {
     fetchGroupData();
     // return () => {};
   }, []);
-  useEffect(() => {
-    console.log(userList)
-  }, [userList]);
-  useEffect(() => {
-    console.log(groupList)
-  }, [groupList]);
-  useEffect(() => {
-    console.log(data)
-  }, [data]);
+  useEffect(() => {}, [userList]);
+  useEffect(() => {}, [groupList]);
+  useEffect(() => {}, [data]);
 
   const fetchUserData = async () => {
     let unsubscribed = false;
@@ -78,7 +72,6 @@ const Explore = ({ navigation }) => {
         await getDocs(collection(db, "users", doc.data().uid, "Groups")).then(
           (data) => {
             data.forEach((group) => {
-       
               if (temp.includes(group)) {
               } else {
                 temp.push(group.data());
@@ -92,7 +85,7 @@ const Explore = ({ navigation }) => {
   };
 
   const searchFilter = (text) => {
-    setData(userList.concat(groupList))
+    setData(userList.concat(groupList));
     if (text) {
       const newData = data.filter((item) => {
         let itemData;
@@ -157,7 +150,9 @@ const Explore = ({ navigation }) => {
             name="close"
             size={24}
             color="black"
-            onPress={() => setFilteredData([])}
+            onPress={() => {
+              setFilteredData([]), setSearch("");
+            }}
           />
           <TouchableOpacity>
             <FlatList
