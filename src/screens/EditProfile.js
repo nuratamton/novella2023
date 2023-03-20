@@ -98,16 +98,7 @@ const EditProfile = ({ navigation, route }) => {
     return <Text> No access to Internal Storage </Text>;
   }
 
-  // const renderLabel = () => {
-  //   if (value || isFocus) {
-  //     return (
-  //       <Text style={[styles.label, isFocus && { color: 'blue' }]}>
-  //         Dropdown label
-  //       </Text>
-  //     );
-  //   }
-  //   return null;
-  // };
+
   const HandleInfo = async () => {
     setLoading(true);
     if (profilePic) {

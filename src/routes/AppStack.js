@@ -6,9 +6,7 @@ import {
   createNavigationContainerRef,
 } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import {
-  createDrawerNavigator,
-} from "@react-navigation/drawer";
+import { createDrawerNavigator } from "@react-navigation/drawer";
 
 import { BlurView } from "expo-blur";
 
@@ -39,7 +37,9 @@ import GroupProfile from "../screens/GroupProfile";
 import DisplayFollowers from "../screens/DisplayFollowers";
 import DisplayFollowing from "../screens/DisplayFollowing";
 import DisplayMembers from "../screens/DisplayMembers";
-import EditScrapbook from "../screens/EditScrapbook"
+import EditScrapbook from "../screens/EditScrapbook";
+import Feedback from "../screens/Feedback";
+
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -47,6 +47,7 @@ const Drawer = createDrawerNavigator();
 export const navRef = createNavigationContainerRef();
 
 const AppStack = () => {
+  
   CreateStack = () => {
     return (
       <Stack.Navigator>
@@ -69,7 +70,7 @@ const AppStack = () => {
     );
   };
 
-  FeedStack = () => {
+  const FeedStack = () => {
     return (
       <Stack.Navigator
         screenOptions={{
@@ -79,6 +80,28 @@ const AppStack = () => {
       >
         <Stack.Screen name="Feed" component={Feed} />
         {/* <Stack.Screen name = "Post" component={Post} options={{presentation: "modal"}}/> */}
+      </Stack.Navigator>
+    );
+  };
+
+  ReactionStack = () => {
+    return (
+      <Stack.Navigator screenOptions={{
+        headerShown: false,
+        // presentation: "modal"
+        
+      }}
+      initialRouteName="Comments"
+      >
+        <Stack.Screen
+          name="Comments"
+          component={Comments}
+          // options={{ presentation: "modal" }}
+        />
+        <Stack.Screen
+          name="Feedback"
+          component={Feedback}
+        />
       </Stack.Navigator>
     );
   };
@@ -208,18 +231,14 @@ const AppStack = () => {
         <Stack.Screen name="CreateGroup" component={CreateGroup} />
         <Stack.Screen name="Profile" component={Profile} />
         <Stack.Screen name="EditProfile" component={EditProfile} />
-        <Stack.Screen name="EditScrapbook" component={EditScrapbook}/>
-        <Stack.Screen
-          name="Comments"
-          component={Comments}
-          options={{ presentation: "modal" }}
-        />
+        <Stack.Screen name="EditScrapbook" component={EditScrapbook} />
+        <Stack.Screen name="ReactionStack" component={ReactionStack} />
         <Stack.Screen name="AddMembers" component={AddMembers} />
         <Stack.Screen name="GroupProfile" component={GroupProfile} />
         <Stack.Screen name="CreateNext" component={CreateNext} />
-        <Stack.Screen name="DisplayFollowers" component={DisplayFollowers}/>
-        <Stack.Screen name="DisplayFollowing" component={DisplayFollowing}/>
-        <Stack.Screen name="DisplayMembers" component={DisplayMembers}/>
+        <Stack.Screen name="DisplayFollowers" component={DisplayFollowers} />
+        <Stack.Screen name="DisplayFollowing" component={DisplayFollowing} />
+        <Stack.Screen name="DisplayMembers" component={DisplayMembers} />
       </Stack.Navigator>
     </NavigationContainer>
   );

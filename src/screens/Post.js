@@ -31,6 +31,7 @@ import {
   where,
   serverTimestamp,
 } from "firebase/firestore";
+
 import { FontAwesome } from "@expo/vector-icons";
 
 const Post = ({ navigation, route }) => {
@@ -291,6 +292,7 @@ const Post = ({ navigation, route }) => {
                 width,
                 justifyContent: "center",
                 alignItems: "center",
+
                 shadowColor: "#000",
                 shadowOpacity: 0.7,
                 shadowOffset: {
@@ -304,44 +306,49 @@ const Post = ({ navigation, route }) => {
                 style={{
                   flex: 1,
                   flexDirection: "row",
-                  justifyContent: "space-between",
+                  // justifyContent: "space-between",
                 }}
               >
                 <View
                   style={{
                     backgroundColor: "black",
                     height: "14%",
-                    width: "60%",
+                    width: "100%",
                     borderTopRadius: 10,
                     left: "6%",
-                    paddingRight: 385,
-                    paddingLeft: 100,
+                    alignItems: "flex-start",
+                    paddingRight: "100%",
+                    paddingLeft: "30%",
                   }}
                 >
                   <View
-                    style={{ flex: 1, flexDirection: "row", marginTop: 10 }}
+                    style={{
+                      flex: 1,
+                      flexDirection: "row",
+                      marginTop: 10,
+                      fontSize: 20,
+                      bottom: "30%",
+                    }}
                   >
-                    <Text style={styles.cardTitle}>
-                      {route.params.item.title}
-                    </Text>
-
-                    <View style={{flexDirection:"row", marginTop:5}}>
+                    <View style={{ flexDirection: "row", marginTop: 5 }}>
                       {route.params.item.profilepic ? (
                         <Avatar.Image
                           source={{ uri: route.params.item.profilepic }}
-                          size={25}
+                          size={35}
                           style={{
-                            marginRight: 5,
-                            marginTop: 20,
+                            //  marginRight: 3,
+                            //  marginTop: 20,
+                            right: "90%",
                           }}
                         />
                       ) : (
                         <Avatar.Image
                           source={{ uri: route.params.item.groupIcon }}
-                          size={25}
+                          size={35}
                           style={{
-                            marginRight: 5,
-                            marginTop: 20,
+                            //  marginRight: 3,
+                            //  marginTop: 20,
+                            right: "90%",
                           }}
                         />
                       )}
@@ -351,8 +358,9 @@ const Post = ({ navigation, route }) => {
                             color: "white",
                             zIndex: 1,
                             position: "absolute",
-                            left: 35,
-                            top: 23,
+                            //  left:'2%',
+                            top: "9%",
+                            left: -35,
                           }}
                         >
                           {route.params.item.username}
@@ -363,37 +371,36 @@ const Post = ({ navigation, route }) => {
                             color: "white",
                             zIndex: 1,
                             position: "absolute",
-                            left: 35,
-                            top: 23,
+                            //  left:'2%',
+                            top: "9%",
+                            left: -35,
                           }}
                         >
                           {route.params.item.groupname}
                         </Text>
+
+                       
                       )}
+                       <Text style={styles.cardTitle}>
+                        {route.params.item.title}
+                      </Text>
+
+                      
                     </View>
                   </View>
-                </View>
 
-                {/* View- aligned right */}
-                <View
-                  style={{
-                    flexDirection: "column",
-                    position: "absolute",
-                    right: 20,
-                    // backgroundColor: "red",
-                    height: "14%",
-                    width: "27%",
-                    bottom: 750,
-                  }}
-                >
-                  <View>
+                  <View
+                    style={{ position: "absolute", left: 310}}
+                  >
                     <IconButton
                       style={{
                         backgroundColor: "white",
                         borderRadius: 100,
                         width: 27,
                         height: 27,
-                        top: 70,
+                        top: 1,
+
+                        position: "absolute",
                       }}
                       icon={likePressed ? "heart" : "heart-outline"}
                       iconColor="purple"
@@ -405,9 +412,9 @@ const Post = ({ navigation, route }) => {
 
                     <Text
                       style={{
-                        position: "absolute",
+                        // position: "absolute",
                         left: 40,
-                        top: 82,
+                        top: 10,
                         color: "white",
                         fontWeight: "600",
                       }}
@@ -420,14 +427,16 @@ const Post = ({ navigation, route }) => {
                         borderRadius: 100,
                         width: 27,
                         height: 27,
-                        top: 70,
+                        top: 15,
+                        // position: "absolute",
                       }}
                       icon={"comment-multiple-outline"}
                       iconColor="black"
                       size={20}
                       onPress={() => {
-                        navigation.navigate("Comments", {
-                          item: route.params.item,
+                        navigation.navigate("ReactionStack", {
+                          screen: "Comments",
+                          params: { item: route.params.item },
                         });
                       }}
                     />
@@ -437,19 +446,33 @@ const Post = ({ navigation, route }) => {
                         borderRadius: 100,
                         width: 27,
                         height: 27,
-                        top: 70,
+                        top: 7,
+                        // position: "absolute",
                       }}
                       icon={"share-outline"}
                       iconColor="black"
                       size={20}
-                      onPress={() => {
-                        navigation.navigate("Comments", {
-                          item: route.params.item,
-                        });
-                      }}
+                      // onPress={() => {
+                      //   navigation.navigate("Comments", {
+                      //     item: route.params.item,
+                      //   });
+                      // }}
                     />
                   </View>
                 </View>
+
+                {/* View- aligned right */}
+                <View
+                  style={{
+                    flexDirection: "column",
+                    position: "absolute",
+                    right: 10,
+
+                    height: "14%",
+                    width: "30%",
+                    bottom: "86%",
+                  }}
+                ></View>
               </View>
 
               <Image
@@ -503,21 +526,29 @@ const Post = ({ navigation, route }) => {
 export default Post;
 
 const styles = StyleSheet.create({
+
   cardTitle: {
     color: "#ffffff",
-    fontSize: 20,
-    fontWeight: "300",
+    fontSize: 30,
+    fontWeight: "500",
     position: "absolute",
+    top: "50%",
+    // right: '2%'
+    // left: 45
+    // right: '1%',
+    top: "40%",
+    left: -35,
   },
   likeContainer: {
     position: "relative",
     backgroundColor: "#000100",
     borderRadius: 100,
-    height: "5%",
+    // height: "5%",
     width: 60,
-    top: "3%",
+    // paddingLeft: 3,
+    // top: "10%",
     zIndex: 1,
-    right: 100,
+    // right: 200,
   },
   likeButton: {
     position: "absolute",

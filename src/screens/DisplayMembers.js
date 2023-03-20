@@ -42,7 +42,7 @@ const DisplayMembers = ({ navigation, route }) => {
       <View style={[styles.notifications]}>
         <TouchableOpacity
           style={styles.notificationBox}
-          onPress={() => auth.currentUser ? navigation.navigate("UserProfile", { item: post.uid }) : navigation.navigate("Profile", { item: post.uid })}
+          // onPress={() => auth.currentUser ? navigation.navigate("UserProfile", { item: post.uid }) : navigation.navigate("Profile", { item: post.uid })}
         >
           <View style={styles.picture}>
             <Avatar.Image

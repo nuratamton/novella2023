@@ -7,11 +7,19 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
+  Switch,
 } from "react-native";
-import React, { useState, useEffect , useRef} from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { auth } from "../firebase";
 import { db } from "../firebase";
-import { addDoc, collection, setDoc, doc, serverTimestamp } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  setDoc,
+  updateDoc,
+  doc,
+  serverTimestamp,
+} from "firebase/firestore";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { useNavigation } from "@react-navigation/native";
 import InputBox from "../components/InputBox";
@@ -34,30 +42,41 @@ const UserInfo = () => {
   const [username, setUsername] = useState("");
   const [name, setName] = useState("");
   const [birthDate, setBirthDate] = useState("xoxoDOB");
-  const [accountType, setAccountType] = useState("");
+  const [accountType, setAccountType] = useState("Public");
   const [bio, setBio] = useState("");
-  const [profilePic, setprofilePic] = useState("");
+  const [profilePic, setprofilePic] = useState(
+    "https://blogifs.azureedge.net/wp-content/uploads/2019/03/Guest_Blogger_v1.png"
+  );
   const [hasPerm, setPerm] = useState(null);
   const [Url, setUrl] = useState(
     "https://blogifs.azureedge.net/wp-content/uploads/2019/03/Guest_Blogger_v1.png"
   );
+  const [isEnabled, setIsEnabled] = useState(false);
   const [Loading, setLoading] = useState(false);
   const storage = getStorage();
   const uid = auth.currentUser.uid;
   const storageRef = ref(storage, "/images/Profile Picture/" + uid);
 
+  const toggleSwitch = () => setIsEnabled((previousState) => !previousState);
+
   useEffect(() => {
-    (async () => {
+    async () => {
       const gallery = await ImagePicker.requestMediaLibraryPermissionsAsync();
       setPerm(gallery.status === "granted");
-    })();
+    };
   }, []);
 
   useEffect(() => {
     if (Url) {
-      console.log('');
+      console.log("");
     }
   }, [Url]);
+
+  useEffect(() => {
+    if (isEnabled) {
+      setAccountType("Private");
+    }
+  }, [isEnabled]);
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -68,6 +87,10 @@ const UserInfo = () => {
     });
     if (!result.canceled) {
       setprofilePic(result.assets[0].uri);
+    } else {
+      setprofilePic(
+        "https://blogifs.azureedge.net/wp-content/uploads/2019/03/Guest_Blogger_v1.png"
+      );
     }
   };
 
@@ -94,7 +117,7 @@ const UserInfo = () => {
 
   useEffect(() => {
     HandleInfo;
-  },[]);
+  }, []);
 
   const HandleInfo = async () => {
     setLoading(true);
@@ -105,23 +128,31 @@ const UserInfo = () => {
         await getDownloadURL(snapshot.ref).then(async (downloadURL) => {
           await setDoc(doc(db, "users", auth.currentUser.uid), {
             profilePicsrc: downloadURL,
-          })
+          });
         });
       });
     }
-    await setDoc(doc(db, "users", auth.currentUser.uid), {
-      username: username,
-      name: name,
-      Date: birthDate,
-      accountType: accountType,
-      bio: bio,
-      email: auth.currentUser.email,
-      followers: [],
-      following: [],
-      followingCount: 0,
-      followerCount: 0,
-      dateCreated: serverTimestamp(),
-    }, {merge: true})
+
+    await setDoc(
+      doc(db, "users", auth.currentUser.uid),
+      {
+        username: username,
+        name: name,
+        Date: birthDate,
+        accountType: accountType,
+        bio: bio,
+        email: auth.currentUser.email,
+        followers: [],
+        following: [],
+        followingCount: 0,
+        followerCount: 0,
+        timestamp: serverTimestamp(),
+        accountType: accountType,
+        groups: [],
+        requests: [],
+      },
+      { merge: true }
+    )
       .then(() => {})
       .catch((error) => {
         console.log(error);
@@ -158,7 +189,6 @@ const UserInfo = () => {
                   labelStyle={{ textAlign: "left" }}
                 >
                   <Text style={{ textAlign: "left", fontWeight: "normal" }}>
-                  
                     {birthDate.toString().substring(4, 15)}
                   </Text>
                 </ButtonDate>
@@ -172,12 +202,20 @@ const UserInfo = () => {
               />
             </View>
 
-            <InputBox
-              value={accountType}
-              setValue={setAccountType}
-              placeholder="AccountType"
-            />
             <InputBox value={bio} setValue={setBio} placeholder="Bio" />
+
+            <View
+              style={{ justifyContent: "space-between", flexDirection: "row" }}
+            >
+              <Text style={{ top: "5%", right: "90%" }}> Private Account </Text>
+              <Switch
+                trackColor={{ false: "#767577", true: "green" }}
+                thumbColor={isEnabled ? "#f5dd4b" : "#f4f3f4"}
+                ios_backgroundColor="#3e3e3e"
+                onValueChange={toggleSwitch}
+                value={isEnabled}
+              />
+            </View>
 
             <Button onPress={HandleInfo} text="Submit" />
             <Button

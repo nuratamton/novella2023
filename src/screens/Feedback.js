@@ -19,12 +19,10 @@ import {
   Timestamp,
   serverTimestamp,
   setDoc,
-  arrayRemove,
 } from "firebase/firestore";
 import uuid from "react-native-uuid";
-import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
 
-const Comments = ({ navigation, route }) => {
+const Feedback = ({ navigation, route }) => {
   const UUID = uuid.v4();
   const [comment, setComment] = useState("");
   const [profilePic, setPic] = useState("");
@@ -66,7 +64,7 @@ const Comments = ({ navigation, route }) => {
         route.params.item.docId
       );
       await getDoc(groupDoc).then((QuerySnapshot) => {
-        setCommentArray(QuerySnapshot.data().comments);
+        setCommentArray(QuerySnapshot.data().feedback);
       });
     } else {
       const currDoc = doc(
@@ -77,7 +75,7 @@ const Comments = ({ navigation, route }) => {
         route.params.item.docId
       );
       await getDoc(currDoc).then((QuerySnapshot) => {
-        setCommentArray(QuerySnapshot.data().comments);
+        setCommentArray(QuerySnapshot.data().feedback);
       });
     }
 
@@ -97,8 +95,8 @@ const Comments = ({ navigation, route }) => {
       );
 
       await updateDoc(groupDoc, {
-        comments: arrayUnion({
-          comment: comment,
+        feedback: arrayUnion({
+          feedback: comment,
           uid: auth.currentUser.uid,
           docId: route.params.item.docId,
           timestamp: Timestamp.now(),
@@ -115,8 +113,8 @@ const Comments = ({ navigation, route }) => {
         route.params.item.docId
       );
       await updateDoc(currDoc, {
-        comments: arrayUnion({
-          comment: comment,
+        feedback: arrayUnion({
+          feedback: comment,
           uid: auth.currentUser.uid,
           docId: route.params.item.docId,
           timestamp: Timestamp.now(),
@@ -144,7 +142,7 @@ const Comments = ({ navigation, route }) => {
         id: UUID,
         message: `${
           QuerySnapshot.data().username
-        } has commented on your scrapbook ${route.params.item.title}`,
+        } has left a feedback on your scrapbook ${route.params.item.title}`,
         From: auth.currentUser.uid,
         profilePic: QuerySnapshot.data().profilePicsrc,
         scrapbookID: route.params.item.docId,
@@ -153,104 +151,54 @@ const Comments = ({ navigation, route }) => {
     });
   };
 
-  const deleteComment = async (post) => {
-    if (route.params.item.groupId) {
-      const currDoc = doc(
-        db,
-        "users",
-        route.params.item.uid,
-        "Groups",
-        route.params.item.groupId,
-        "Scrapbooks",
-        route.params.item.docId
-      );
-      await updateDoc(currDoc, {
-        comments: arrayRemove(post),
-      });
-    } else {
-      const currDoc = doc(
-        db,
-        "users",
-        route.params.item.uid,
-        "Scrapbooks",
-        route.params.item.docId
-      );
-      await updateDoc(currDoc, {
-        comments: arrayRemove(post),
-      });
-    }
-  };
-
   renderPost = (post) => {
     return (
-      // <View style={[styles.notifications]}>
-      <View style={styles.notificationBox}>
-        <View style={styles.picture}>
-          <Avatar.Image
-            source={{ uri: post.profilePic }}
-            size={40}
-            style={{ marginRight: 12 }}
-          />
-        </View>
-        <View style={{ width: "90%" }}>
-          <Text style={{ fontSize: 20, fontWeight: "100" }}>
-            {post.username}
-          </Text>
-          <Text
-            style={{
-              fontSize: 15,
-              fontWeight: "300",
-              alignContent: "center",
-              padding: 5,
-              marginRight: 100,
-            }}
-          >
-            {post.comment}
-          </Text>
-          {auth.currentUser.uid === route.params.item.uid ? (
-            <TouchableOpacity
-              style={{ position: "absolute", right: "20%", top: "25%" }}
-              onPress={() => deleteComment(post)}
+      <View style={[styles.notifications]}>
+        <View style={styles.notificationBox}>
+          <View style={styles.picture}>
+            <Avatar.Image
+              source={{ uri: post.profilePic }}
+              size={40}
+              style={{ marginRight: 12 }}
+            />
+          </View>
+          <View style={{ width: "100%" }}>
+            <Text style={{ fontSize: 20, fontWeight: "100" }}>
+              {post.username}
+            </Text>
+            <Text
+              style={{
+                fontSize: 15,
+                fontWeight: "300",
+                alignContent: "center",
+                padding: 5,
+                marginRight: 100,
+              }}
             >
-              <MaterialCommunityIcons
-                name="delete-circle-outline"
-                size={20}
-                color="black"
-              />
-            </TouchableOpacity>
-          ) : (
-            ""
-          )}
+              {post.feedback}
+            </Text>
+          </View>
         </View>
       </View>
-      // </View>
     );
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* <View style={styles.header}> */}
-      <Text
-        style={{
-          fontSize: 30,
-          fontWeight: "500",
-          color: "#351c75",
-          textShadowColor: "black",
-          textShadowOffset: { width: 5, height: 5 },
-        }}
-      >
-        Comments
-      </Text>
-      {/* </View> */}
-
-      <TouchableOpacity
-        style={{ left: "45%", top: "35%", zIndex: 1 }}
-        onPress={() => {
-          navigation.navigate("Feedback", { item: route.params.item });
-        }}
-      >
-        <MaterialIcons name="navigate-next" size={64} color="grey" />
-      </TouchableOpacity>
+      <View style={styles.header}>
+        <Text
+          style={{
+            fontSize: 30,
+            fontWeight: "500",
+            color: "#351c75",
+            textShadowColor: "black",
+            textShadowOffset: { width: 5, height: 5 },
+          }}
+        >
+          {" "}
+          Feedbacks
+        </Text>
+      </View>
 
       <FlatList
         style={styles.feed}
@@ -286,7 +234,7 @@ const Comments = ({ navigation, route }) => {
   );
 };
 
-export default Comments;
+export default Feedback;
 
 const styles = StyleSheet.create({
   notifications: {
@@ -296,16 +244,14 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: "center",
-    margin: 0,
-    padding: 0,
-    // padding: 20,
+    padding: 20,
   },
   notificationBox: {
     // padding: 20,
     flex: 1,
     flexDirection: "row",
     alignContent: "center",
-    // margin: 2,
+    margin: 2,
     borderWidth: 1,
     borderColor: "#ffffff",
     borderRadius: 16,
@@ -330,15 +276,5 @@ const styles = StyleSheet.create({
     height: "100%",
     backgroundColor: "#ffffff",
     alignItems: "center",
-
-    // opacity: 0.9,
-
-    // shadowColor: '#000',
-    // shadowOffset: {
-    //   width: 0, height: 5
-    // },
-    // shadowOpacity: 0.3,
-    // shadowRadius: 10,
-    // marginBottom: 30
   },
 });

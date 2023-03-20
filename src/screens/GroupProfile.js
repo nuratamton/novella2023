@@ -107,25 +107,26 @@ const GroupProfile = ({ navigation, route }) => {
           subtitleStyle={styles.cardSubTitle}
           leftStyle={styles.groupIcon}
         />
-        {members.includes(auth.currentUser.uid)?
-           <Card.Actions>
-           <Btn
-             title="Edit"
-             style={styles.buttonTxt}
-             onPress={() =>
-               navigation.navigate("EditScrapbook", {
-                 item: post,
-                 item3: groupId,
-                 group:true,
-               })
-             }
-           >
-             {" "}
-             Edit{" "}
-           </Btn>
-         </Card.Actions>
-        :""           
-  }
+        {members.includes(auth.currentUser.uid) ? (
+          <Card.Actions>
+            <Btn
+              title="Edit"
+              style={styles.buttonTxt}
+              onPress={() =>
+                navigation.navigate("EditScrapbook", {
+                  item: post,
+                  item3: groupId,
+                  group: true,
+                })
+              }
+            >
+              {" "}
+              Edit{" "}
+            </Btn>
+          </Card.Actions>
+        ) : (
+          ""
+        )}
       </Card>
     );
   };
@@ -141,7 +142,7 @@ const GroupProfile = ({ navigation, route }) => {
     await getDoc(currDoc).then(async (querySnapshot) => {
       if (querySnapshot.data().members.includes(auth.currentUser.uid)) {
         setOnClick(!onClick);
-        setMemberCount(memberCount-1);
+        setMemberCount(memberCount - 1);
         await updateDoc(
           doc(db, "users", route.params.uid, "Groups", route.params.item),
           {
@@ -156,7 +157,7 @@ const GroupProfile = ({ navigation, route }) => {
         });
       } else {
         setOnClick(!onClick);
-        setMemberCount(memberCount+1);
+        setMemberCount(memberCount + 1);
         await updateDoc(
           doc(db, "users", route.params.uid, "Groups", route.params.item),
           {
@@ -203,17 +204,22 @@ const GroupProfile = ({ navigation, route }) => {
           <View
             style={{ flexDirection: "row", justifyContent: "space-between" }}
           >
-            <IconButton
-              icon="plus-circle"
-              size={24}
-              iconColor="purple"
-              onPress={() =>
-                navigation.navigate("CreateScrapbook", {
-                  item: route.params.item,
-                  group: true,
-                })
-              }
-            />
+            {members.includes(auth.currentUser.uid) ? (
+              <IconButton
+                icon="plus-circle"
+                size={24}
+                iconColor="purple"
+                onPress={() =>
+                  navigation.navigate("CreateScrapbook", {
+                    item: route.params.item,
+                    uid: route.params.uid,
+                    group: true,
+                  })
+                }
+              />
+            ) : (
+              ""
+            )}
             <IconButton
               icon="check"
               size={24}
@@ -256,7 +262,7 @@ const GroupProfile = ({ navigation, route }) => {
             <Button
               type="TERITARY"
               text_type="TERTIARY"
-              text={onClick ? "Leave Group" :"Join Group"}
+              text={onClick ? "Leave Group" : "Join Group"}
               onPress={() => joinGroup()}
             />
           )}

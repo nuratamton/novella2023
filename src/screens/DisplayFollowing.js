@@ -15,7 +15,7 @@ const DisplayFollowing = ({ navigation, route }) => {
     await getDoc(currDoc).then(async (querySnapshot) => {
       querySnapshot.data().following.forEach(async (following) => {
         await getDoc(doc(db, "users", following)).then((item) => {
-          setDoc((prev) => [...prev, item.data()]);
+          setDoc((prev) => [...prev, item]);
         });
       });
     });
@@ -28,10 +28,10 @@ const DisplayFollowing = ({ navigation, route }) => {
   renderPost = (post) => {
     return (
       <View style={[styles.notifications]}>
-        <TouchableOpacity style={styles.notificationBox} onPress={()=> navigation.navigate("Profile", {item: post.uid})}>
+        <TouchableOpacity style={styles.notificationBox}>
           <View style={styles.picture}>
             <Avatar.Image
-              source={{ uri: post.profilePicsrc }}
+              source={{ uri: post.data().profilePicsrc }}
               size={40}
               style={{ marginRight: 12 }}
             />
@@ -39,7 +39,7 @@ const DisplayFollowing = ({ navigation, route }) => {
       
           <View>
             <Text style={{ fontSize: 25, fontWeight: "100" }}>
-              {post.username}
+              {post.data().username}
             </Text>
           </View>
         </TouchableOpacity>

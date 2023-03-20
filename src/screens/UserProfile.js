@@ -7,6 +7,7 @@ import {
   Dimensions,
   FlatList,
   Button as Btn,
+  ViewBase,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import Button from "../components/Button";
@@ -19,7 +20,16 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Card, Avatar } from "react-native-paper";
 import { ScrollView } from "react-native-virtualized-view";
-import { getDocs, getDoc, collection, doc, deleteDoc } from "firebase/firestore";
+import {
+  getDocs,
+  getDoc,
+  collection,
+  doc,
+  deleteDoc,
+  where,
+  query,
+  onSnapshot,
+} from "firebase/firestore";
 import Apploader from "../components/Apploader";
 import { DrawerActions, useIsFocused } from "@react-navigation/native";
 import { Feather } from "@expo/vector-icons";
@@ -41,6 +51,7 @@ const UserProfile = ({ navigation, route }) => {
   const [following, setFollowing] = useState([]);
   const [displayScrap, setDisplayScrap] = useState(true);
   const [Loading, setLoading] = useState(false);
+  const [groupExist, setGroupExist] = useState(false);
   const isFocused = useIsFocused();
 
   const getUserDetails = async () => {
@@ -59,7 +70,7 @@ const UserProfile = ({ navigation, route }) => {
   const Scrapbooks = async () => {
     let temp = [];
     const ref = collection(db, "users", auth.currentUser.uid, "Scrapbooks");
-    await getDocs(ref)
+    await getDocs(query(ref, where("hide", "!=", true)))
       .then((querySnapshot) => {
         querySnapshot.forEach((item) => {
           temp.push(item.data());
@@ -72,6 +83,13 @@ const UserProfile = ({ navigation, route }) => {
     setLoading(false);
   };
 
+  const groupExists = async () => {
+    if (collection(db, "users", auth.currentUser.uid, "Groups")) {
+      console.log("hellofhfhjkfkgyjgkj");
+      return true;
+    }
+  };
+
   const Groups = async () => {
     temp = [];
     const ref = collection(db, "users", auth.currentUser.uid, "Groups");
@@ -79,10 +97,11 @@ const UserProfile = ({ navigation, route }) => {
     await getDoc(newref).then((querySnapshot) => {
       querySnapshot.data().groups.forEach(async (item) => {
         await getDoc(item).then((oogabooga) => {
-          temp.push(oogabooga.data());
+          if (oogabooga.data() !== undefined) {
+            temp.push(oogabooga.data());
+          }
         });
       });
-      getGroups(temp);
     });
 
     await getDocs(ref)
@@ -102,6 +121,10 @@ const UserProfile = ({ navigation, route }) => {
   }, []);
 
   useEffect(() => {
+    // console.log(groupExist);
+  }, [groupExist]);
+
+  useEffect(() => {
     getUserDetails();
     Scrapbooks();
     Groups();
@@ -109,14 +132,35 @@ const UserProfile = ({ navigation, route }) => {
   }, [isFocused]);
 
   useEffect(() => {
+    // console.log(displayScrap);
+  }, [displayScrap]);
+
+  useEffect(() => {
     getUserDetails();
   }, [FollowersCount, FollowingCount]);
+
+  useEffect(() => {
+    console.log(groups);
+  }, [groups]);
 
   renderPost = (post) => {
     return (
       <Card style={[styles.post, { width: windowWidth / 2 - 15 }]}>
-        <Card.Actions>
-       
+        <Card.Actions style={{ flexDirection: "row" }}>
+
+          <Text
+            style={{
+              position: "absolute",
+              backgroundColor: "purple",
+              bottom: -10,
+              // right:40,
+              color: "white",
+            }}
+          >
+            {post.type}
+          </Text>
+
+
           <TouchableOpacity
             style={{ position: "absolute", left: "90%" }}
             onPress={() =>
@@ -125,31 +169,32 @@ const UserProfile = ({ navigation, route }) => {
               })
             }
           >
-            <MaterialCommunityIcons name="circle-edit-outline" size={20} color="black" />
+            <MaterialCommunityIcons
+              name="circle-edit-outline"
+              size={20}
+              color="black"
+            />
           </TouchableOpacity>
           <TouchableOpacity
-            style={{ position: "absolute", left: "90%", top:"10%" }}
-            onPress={()=> deleteDoc(doc(
-              db,
-              "users",
-              auth.currentUser.uid,
-              "Scrapbooks",
-              post.docId
-            ))}
+            style={{ position: "absolute", left: "90%", top: "10%" }}
+            onPress={() =>
+              deleteDoc(
+                doc(db, "users", auth.currentUser.uid, "Scrapbooks", post.docId)
+              )
+            }
           >
-            <MaterialCommunityIcons name="delete-circle-outline" size={20} color="black" />
+            <MaterialCommunityIcons
+              name="delete-circle-outline"
+              size={20}
+              color="black"
+            />
           </TouchableOpacity>
-         
-
         </Card.Actions>
         <TouchableOpacity
           style={{ zIndex: 1 }}
           onPress={() => navigation.navigate("Post", { item: post })}
         >
-          
-          
           <Card.Cover source={{ uri: post.CoverImg }} resizeMode="cover" />
-          
         </TouchableOpacity>
         <View style={{ flexDirection: "column" }}>
           <Card.Title
@@ -157,77 +202,52 @@ const UserProfile = ({ navigation, route }) => {
             title={post.title}
             titleStyle={styles.cardTitle}
             subtitleStyle={styles.cardSubTitle}
-            leftStyle={styles.profilePicture}
+            // right={() => }
           />
-         
         </View>
-
-        {/* <Card.Actions>
-          <Btn
-            title="Edit"
-            style={styles.buttonTxt}
-            onPress={() =>
-              navigation.navigate("EditScrapbook", {
-                item: post,
-              })
-            }
-          >
-            {" "}
-            Edit{" "}
-          </Btn>
-          <Btn
-            title="Delete"
-            style={styles.buttonTxt}
-            onPress={() =>
-              navigation.navigate("EditScrapbook", {
-                item: post,
-              })
-            }
-          >
-            {" "}
-            Delete{" "}
-          </Btn>
-        </Card.Actions> */}
       </Card>
     );
   };
 
   renderGroup = (group) => {
-    return (
-      <View style={[styles.notifications]}>
-        <TouchableOpacity
-          onPress={() => {
-            navigation.navigate("GroupProfile", {
-              item: group.groupId,
-              uid: group.admin,
-            });
-          }}
-        >
-          <View style={styles.groupBox}>
-            <View style={styles.picture}>
-              <Avatar.Image
-                source={{ uri: group.groupIcon }}
-                size={40}
-                style={{ marginRight: 12 }}
-              />
+    {
+      return (
+        <View style={[styles.notifications]}>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate("GroupProfile", {
+                item: group.groupId,
+                uid: group.admin,
+                group: true,
+              });
+            }}
+          >
+            <View style={styles.groupBox}>
+              <View style={styles.picture}>
+                <Avatar.Image
+                  source={{ uri: group.groupIcon }}
+                  size={40}
+                  style={{ marginRight: 12 }}
+                />
+              </View>
+              <View styles={styles.textFollowButton}>
+                <Text
+                  style={{
+                    fontSize: 15,
+                    fontWeight: "300",
+                    alignContent: "center",
+                    padding: 5,
+                    marginRight: 10,
+                  }}
+                >
+                  {group.groupname}
+                </Text>
+              </View>
             </View>
-            <View styles={styles.textFollowButton}>
-              <Text
-                style={{
-                  fontSize: 15,
-                  fontWeight: "300",
-                  alignContent: "center",
-                  padding: 5,
-                  marginRight: 10,
-                }}
-              >
-                {group.groupname}
-              </Text>
-            </View>
-          </View>
-        </TouchableOpacity>
-      </View>
-    );
+          </TouchableOpacity>
+        </View>
+      );
+    }
   };
 
   return (
@@ -372,7 +392,7 @@ const styles = StyleSheet.create({
   },
   post: {
     margin: 7.5,
-    backgroundColor:"white"
+    backgroundColor: "white",
     // flex: 1,
     // width: 300,
     // maxWidth: "100%", // 100% devided by the number of rows you want

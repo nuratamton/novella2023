@@ -11,7 +11,7 @@ import {
 import React, { useState, useEffect, useRef } from "react";
 import { auth } from "../firebase";
 import { db } from "../firebase";
-import { addDoc, collection, setDoc, doc } from "firebase/firestore";
+import { addDoc, collection, setDoc, doc , serverTimestamp} from "firebase/firestore";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { useNavigation } from "@react-navigation/native";
 import InputBox from "../components/InputBox";
@@ -69,7 +69,8 @@ const CreateGroup = ({ navigation }) => {
       description: desc,
       accountType: accountType,
       members: [auth.currentUser.uid],
-      memberCount: 1
+      memberCount: 1,
+      timestamp: serverTimestamp()
     }, {merge: true}).then(() => {})
     .catch((error) => {
       console.log(error)

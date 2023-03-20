@@ -30,7 +30,7 @@ import Apploader from "../components/Apploader";
 import { AntDesign } from "@expo/vector-icons";
 import { IconButton } from 'react-native-paper'
 import { Camera, CameraType } from 'expo-camera';
-
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 const CreateNext = ({ navigation, route }) => {
   const [Url, setUrl] = useState(null);
   const [Loading, setLoading] = useState(false)
@@ -167,7 +167,7 @@ const CreateNext = ({ navigation, route }) => {
 
     if (route.params.group) {
       await setDoc(
-        doc(db, "users", auth.currentUser.uid, "Groups", route.params.item3, "Scrapbooks", route.params.item),
+        doc(db, "users", route.params.item3, "Groups", route.params.group, "Scrapbooks", route.params.item),
         {
           timestamp: serverTimestamp(),
           CoverImg: Url,
@@ -185,7 +185,7 @@ const CreateNext = ({ navigation, route }) => {
 
     else{
     await setDoc(
-      doc(db, "users", auth.currentUser.uid, "Scrapbooks", route.params.item),
+      doc(db, "users", route.params.item3, "Scrapbooks", route.params.item),
       {
         timestamp: serverTimestamp(),
         CoverImg: Url,

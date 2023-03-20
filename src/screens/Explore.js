@@ -8,7 +8,7 @@ import {
   Image,
 } from "react-native";
 import React, { useEffect, useState } from "react";
-import MapView from "react-native-maps";
+import MapView, { Marker } from "react-native-maps";
 import {
   getDocs,
   collection,
@@ -21,27 +21,46 @@ import { db, auth } from "../firebase";
 import { Avatar } from "react-native-paper";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { EvilIcons } from "@expo/vector-icons";
-
+import Apploader from "../components/Apploader";
 const Explore = ({ navigation }) => {
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [search, setSearch] = useState("");
-  const [groups, setGroups] = useState([]);
-  const [item, setItem] = useState();
-  const [element, setElement] = useState();
-  const [userList, setUser] = useState();
-  const [groupList, setGroup] = useState();
+  const [userList, setUser] = useState([]);
+  const [groupList, setGroup] = useState([]);
+  const [scrapbooks, setScrapbooks] = useState([]);
   // setSearch(value)
-
+  const [Loading, setLoading] = useState(true);
+  const colors = ["red" , "#003f5d" , "#065535" , "#62156c" , "black" , "white" , "#ff1493" , "orange" , "aquamarine"]
   useEffect(() => {
     fetchUserData();
     fetchGroupData();
+    fetchScrapbook();
     // return () => {};
   }, []);
   useEffect(() => {}, [userList]);
-  useEffect(() => {}, [groupList]);
+  useEffect(() => {
+    setLoading(false);
+  }, [groupList, userList]);
   useEffect(() => {}, [data]);
+  
+  useEffect(() => {
+    console.log(scrapbooks)
+  }, [scrapbooks]);
 
+  const fetchScrapbook = async () => {
+    const ref = collection(db,"users")
+    await getDocs(ref).then((item)=>{
+      item.forEach(async (userDoc) => {
+        const scrapRef = collection(db,"users",userDoc.id,"Scrapbooks")
+        await getDocs(query(scrapRef,where("locationEnabled", "==", true))).then((doc)=>{
+          doc.forEach((scrapbook) => {
+            setScrapbooks((prev)=> [...prev, scrapbook.data()])
+          })
+        })
+      })
+    })
+  }
   const fetchUserData = async () => {
     let unsubscribed = false;
     // goes to users collection
@@ -69,20 +88,33 @@ const Explore = ({ navigation }) => {
     let temp = [];
     await getDocs(collection(db, "users")).then((item) => {
       item.forEach(async (doc) => {
-        await getDocs(collection(db, "users", doc.data().uid, "Groups")).then(
+        await getDocs(collection(db, "users", doc.id, "Groups")).then(
           (data) => {
             data.forEach((group) => {
-              if (temp.includes(group)) {
-              } else {
-                temp.push(group.data());
-              }
+              
+              temp.push(group.data());
+              // console.log(group.data());
+              // console.log("BLEHHHH");
             });
           }
         );
       });
     });
     setGroup(temp);
+    // console.log(temp);
   };
+
+  // const Placemarker = ({item}) => {
+  //   const randomColor = ;
+  //   console.log(item)
+  //   // return (
+  //   //   <Marker 
+  //   //   
+  //   //   pinColor= {colors[randomColor]}
+  //   //   onPress={navigation.navigate("Post" , {item: item})} 
+  //   //   />
+  //   // )
+  // }
 
   const searchFilter = (text) => {
     setData(userList.concat(groupList));
@@ -164,9 +196,28 @@ const Explore = ({ navigation }) => {
             />
           </TouchableOpacity>
 
-          <MapView style={{ height: "100%", width: "100%" }} />
+          <MapView style={{ height: "100%", width: "100%" }} >
+          {/* <FlatList
+              style={styles.feed}
+              data={scrapbooks}
+              renderItem={({ item }) => Placemarker(item)}
+              showsVerticalScrollIndicator={false}
+              initialScrollIndex={scrapbooks.length + 1}
+            /> */}
+            {scrapbooks.map((val) => {
+              return(
+              <Marker
+              pinColor={colors[Math.floor(Math.random() * colors.length)]}
+              coordinate={{latitude: val.location.coords.latitude, longitude: val.location.coords.longitude}}
+              title = {val.title}
+              onPress={()=>navigation.navigate("Post", {item:val})}
+              />)
+            })}
+            
+          </MapView>
         </View>
       </View>
+      {Loading ? <Apploader /> : null}
     </SafeAreaView>
   );
 };

@@ -25,6 +25,7 @@ import {
   arrayUnion,
   arrayRemove,
   increment,
+  where,
 } from "firebase/firestore";
 
 import { AntDesign } from "@expo/vector-icons";
@@ -42,20 +43,16 @@ export const postID = () => {
 const Feed = ({ navigation }) => {
   const windowWidth = Dimensions.get("window").width;
   const windowHeight = Dimensions.get("window").height;
-  const [likeCounter, setlikeCounter] = useState(0);
   const [scrapbooks, getScrapbooks] = useState([]);
-  const [Loading, setLoading] = useState(false);
-  const [likePressed, setLikePressed] = useState(false);
 
-  const [id, setId] = useState(1);
   useEffect(() => {}, [scrapbooks]);
 
-  const FollowerListtttt = async () => {
+  const fetchScrapbook = async () => {
     const currDoc = doc(db, "users", auth.currentUser.uid);
     await getDoc(currDoc).then(async (QuerySnapshot) => {
       QuerySnapshot.data().following.forEach(async (element) => {
         const ref = collection(db, "users", element, "Scrapbooks");
-        await getDocs(ref).then((data) => {
+        await getDocs(query(ref, where("hide", "!=", true))).then((data) => {
           data.forEach((item) => {
             getScrapbooks((prev) => [...prev, item.data()]);
           });
@@ -63,9 +60,10 @@ const Feed = ({ navigation }) => {
       });
     });
   };
+  
 
   useEffect(() => {
-    FollowerListtttt();
+    fetchScrapbook();
   }, []);
 
   renderPost = (post) => {
@@ -96,6 +94,23 @@ const Feed = ({ navigation }) => {
             subtitleStyle={styles.cardSubTitle}
             leftStyle={styles.profilePicture}
           />
+           <Text
+            style={{
+              // position: "absolute",
+              // backgroundColor: "black",
+              color: "black",
+              // justifyContent:"center",
+              textAlign:"right",
+              fontSize: 15,
+              fontWeight: '600',
+              marginRight: 10,
+              marginBottom:10,
+              bottom: 37
+              
+            }}
+          >
+            {post.type}
+          </Text>
         </Card>
       </>
     );

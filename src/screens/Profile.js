@@ -43,6 +43,7 @@ const Profile = ({ navigation, route }) => {
   const [scrapbooks, getScrapbooks] = useState([]);
   const [groups, getGroups] = useState([]);
   const [onFollowClick, setOnFollowClick] = useState(false);
+  const [request, setRequest] = useState(false);
   const [username, setusername] = useState("Default");
   const [name, setName] = useState("Name");
   const [FollowersCount, setFollowersCount] = useState(0);
@@ -60,6 +61,7 @@ const Profile = ({ navigation, route }) => {
   const [accountType, setAccountType] = useState("");
 
   const UUID = uuid.v4();
+  const UUID2 = uuid.v4();
 
   const getUserDetails = async () => {
     const Uref = doc(db, "users", route.params.item);
@@ -82,7 +84,11 @@ const Profile = ({ navigation, route }) => {
 
     getFollowStatus();
   };
-
+  const groupExists = async () => {
+    if (collection(db, "users", auth.currentUser.uid, "Groups")) {
+      return true
+    }
+  }
   const sendFollowNotification = async () => {
     let followBack = false;
     const currDoc = doc(db, "users", auth.currentUser.uid);
@@ -128,14 +134,61 @@ const Profile = ({ navigation, route }) => {
     });
   };
 
+  const sendRequestNotification = async () => {
+    const currDoc = doc(db, "users", auth.currentUser.uid);
+    const receiverDoc = doc(db, "users", route.params.item);
+    const receiver = doc(db, "users", route.params.item, "Notifications", UUID);
+    await getDoc(receiverDoc).then(async (Snap) => {
+      const request = Snap.data().requests.includes(auth.currentUser.uid)
+        ? true
+        : false;
+      await getDoc(currDoc).then(async (QuerySnapshot) => {
+        await setDoc(
+          receiver,
+          {
+            id: UUID,
+            message: `${QuerySnapshot.data().username} requested to follow you`,
+            From: auth.currentUser.uid,
+            profilePic: QuerySnapshot.data().profilePicsrc,
+            request: request,
+            timestamp: serverTimestamp(),
+            type: "Request",
+          },
+          { merge: true }
+        );
+      });
+    });
+  };
+  const removeRequestNotification = async () => {
+    const receiver = collection(
+      db,
+      "users",
+      route.params.item,
+      "Notifications"
+    );
+    const q = query(
+      receiver,
+      where("From", "==", auth.currentUser.uid),
+      where("type", "==", "Request")
+    );
+    await getDocs(q).then(async (QuerySnapshot) => {
+      QuerySnapshot.forEach(async (item) => {
+        await deleteDoc(
+          doc(db, "users", route.params.item, "Notifications", item.data().id)
+        );
+      });
+      //   await deleteDoc(doc(db,"users", route.params.item.uid,"Notifications",doc.data().id))
+    });
+  };
+
   const Scrapbooks = async () => {
     const ref = collection(db, "users", route.params.item, "Scrapbooks");
-    const data = await getDocs(ref);
+    const data = await getDocs(query(ref, where("hide", "!=", true)));
     data.forEach((item) => {
       getScrapbooks((prev) => [...prev, item.data()]);
     });
   };
-
+  
   const Groups = async () => {
     let temp = [];
     const ref = collection(db, "users", route.params.item, "Groups");
@@ -146,7 +199,6 @@ const Profile = ({ navigation, route }) => {
           temp.push(oogabooga.data());
         });
       });
-      getGroups(temp);
     });
 
     await getDocs(ref)
@@ -161,72 +213,52 @@ const Profile = ({ navigation, route }) => {
       });
   };
 
+  const isPrivate = () => {
+    if (
+      accountType === "Private" &&
+      !followers.includes(auth.currentUser.uid)
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
   useEffect(() => {
     getUserDetails();
     Scrapbooks();
     Groups();
   }, []);
 
-  // useEffect(() => {
-  //   getUserDetails();
-  // }, [FollowersCount, FollowingCount]);
-
   renderPost = (post) => {
-    if (
-      !followers.includes(auth.currentUser.uid) || accountType === "Private"
-      
-    ) {
-      return (
-        <View
-          style={{
-            flex: 1,
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "flex-start",
-            width: 100,
-            padding: 50,
-          }}
+    return (
+      <Card style={[styles.post, { width: windowWidth / 2 - 15 }]}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate("Post", { item: post })}
         >
-          <AntDesign style={{}} name="lock1" size={90} color="black" />
-          <Text style={{ textAlign: "center", fontSize: 22 }}>
-            {" "}
-            Private Account
-          </Text>
-          <Text> </Text>
-          <Text style={{ textAlign: "center" }}>
-            {" "}
-            Follow this account to view their scrapbooks{" "}
-          </Text>
-        </View>
-      );
-    } else {
-      return (
-        <Card style={[styles.post, { width: windowWidth / 2 - 15 }]}>
-          <TouchableOpacity
-            onPress={() => navigation.navigate("Post", { item: post })}
-          >
-            <Card.Cover source={{ uri: post.CoverImg }} resizeMode="cover" />
-          </TouchableOpacity>
-          <Card.Title
-            style={styles.postHeader}
-            title={post.title}
-            titleStyle={styles.cardTitle}
-            subtitleStyle={styles.cardSubTitle}
-            leftStyle={styles.profilePicture}
-          />
-        </Card>
-      );
-    }
+          <Card.Cover source={{ uri: post.CoverImg }} resizeMode="cover" />
+        </TouchableOpacity>
+        <Card.Title
+          style={styles.postHeader}
+          title={post.title}
+          titleStyle={styles.cardTitle}
+          subtitleStyle={styles.cardSubTitle}
+          leftStyle={styles.profilePicture}
+        />
+      </Card>
+    );
   };
 
   renderGroup = (group) => {
+    if(groupExists()){
     return (
       <View style={[styles.notifications]}>
         <TouchableOpacity
           onPress={() => {
             navigation.navigate("GroupProfile", {
               item: group.groupId,
-              uid: route.params.item,
+              uid: group.admin,
+              group: true,
             });
           }}
         >
@@ -256,42 +288,86 @@ const Profile = ({ navigation, route }) => {
       </View>
     );
   };
+}
 
   const followUser = async () => {
     //  our id:  currentUserId
     // follow person id:   uid
 
     const currDoc = doc(db, "users", currentUserId);
-    await getDoc(currDoc).then(async (QuerySnapshot) => {
-      if (QuerySnapshot.data().following.includes(uid)) {
-        setFollowersCount(FollowersCount - 1);
-        // setFollowingCount(FollowingCount - 1);
-        await updateDoc(doc(db, "users", uid), {
-          followers: arrayRemove(currentUserId),
-          followerCount: increment(-1),
+    if (accountType === "Private") {
+      removeRequestNotification();
+      const receiver = doc(
+        db,
+        "users",
+        route.params.item,
+        "Notifications",
+        UUID
+      );
+      await getDoc(doc(db, "users", uid)).then(async (QuerySnapshot) => {
+        if (QuerySnapshot.data().requests.includes(currentUserId)) {
+          await updateDoc(doc(db, "users", uid), {
+            requests: arrayRemove(currentUserId),
+          });
+          await updateDoc(receiver, {
+            request: false,
+          });
+        } else {
+          sendRequestNotification();
+          await updateDoc(doc(db, "users", uid), {
+            requests: arrayUnion(currentUserId),
+          });
+        }
+
+        await getDoc(currDoc).then(async (QuerySnapshot) => {
+          if (QuerySnapshot.data().following.includes(uid)) {
+            setFollowersCount(FollowersCount - 1);
+            // setFollowingCount(FollowingCount - 1);
+            await updateDoc(doc(db, "users", uid), {
+              followers: arrayRemove(currentUserId),
+              followerCount: increment(-1),
+            });
+            await updateDoc(currDoc, {
+              following: arrayRemove(uid),
+              followingCount: increment(-1),
+            });
+            setOnFollowClick(false);
+            removeFollowNotification();
+          }
         });
-        await updateDoc(currDoc, {
-          following: arrayRemove(uid),
-          followingCount: increment(-1),
-        });
-        setOnFollowClick(false);
-        removeFollowNotification();
-      } else {
-        setFollowersCount(FollowersCount + 1);
-        // setFollowersArray("")
-        // setFollowingCount(FollowingCount + 1);
-        await updateDoc(doc(db, "users", uid), {
-          followers: arrayUnion(currentUserId),
-          followerCount: increment(1),
-        });
-        await updateDoc(currDoc, {
-          following: arrayUnion(uid),
-          followingCount: increment(1),
-        });
-        setOnFollowClick(true);
-        sendFollowNotification();
-      }
-    });
+      });
+    } else {
+      await getDoc(currDoc).then(async (QuerySnapshot) => {
+        if (QuerySnapshot.data().following.includes(uid)) {
+          setFollowersCount(FollowersCount - 1);
+          // setFollowingCount(FollowingCount - 1);
+          await updateDoc(doc(db, "users", uid), {
+            followers: arrayRemove(currentUserId),
+            followerCount: increment(-1),
+          });
+          await updateDoc(currDoc, {
+            following: arrayRemove(uid),
+            followingCount: increment(-1),
+          });
+          setOnFollowClick(false);
+          removeFollowNotification();
+        } else {
+          setFollowersCount(FollowersCount + 1);
+          // setFollowersArray("")
+          // setFollowingCount(FollowingCount + 1);
+          await updateDoc(doc(db, "users", uid), {
+            followers: arrayUnion(currentUserId),
+            followerCount: increment(1),
+          });
+          await updateDoc(currDoc, {
+            following: arrayUnion(uid),
+            followingCount: increment(1),
+          });
+          setOnFollowClick(true);
+          sendFollowNotification();
+        }
+      });
+    }
   };
 
   const getFollowStatus = async () => {
@@ -302,6 +378,13 @@ const Profile = ({ navigation, route }) => {
         setOnFollowClick(true);
       } else {
         setOnFollowClick(false);
+      }
+    });
+    await getDoc(doc(db, "users", uid)).then((querySnapshot) => {
+      if (querySnapshot.data().requests.includes(currentUserId)) {
+        setRequest(true);
+      } else {
+        setRequest(false);
       }
     });
   };
@@ -350,13 +433,20 @@ const Profile = ({ navigation, route }) => {
           </View>
           <Text> {name} </Text>
           <Text> {bio} </Text>
-          <Button
-            onPress={() => followUser()}
-            text={onFollowClick ? "Unfollow" : "Follow"}
-            type="TERITARY"
-          />
+          {request ? (
+            <Button
+              onPress={() => followUser()}
+              text="Requested"
+              type="TERITARY"
+            />
+          ) : (
+            <Button
+              onPress={() => followUser()}
+              text={onFollowClick ? "Unfollow" : "Follow"}
+              type="TERITARY"
+            />
+          )}
         </View>
-
         <View style={{ flexDirection: "row", justifyContent: "space-evenly" }}>
           <Btn
             title="Scrapbooks"
@@ -371,7 +461,26 @@ const Profile = ({ navigation, route }) => {
           />
         </View>
 
-        {displayScrap ? (
+        {isPrivate() === true ? (
+          <View
+            style={{
+              //   flex: 1,
+              flexDirection: "column",
+              alignItems: "center",
+              //   justifyContent: "flex-start",
+              //   width: 100,
+              padding: 50,
+            }}
+          >
+            <AntDesign name="lock1" size={90} color="black" />
+            <Text style={{ textAlign: "center", fontSize: 22 }}>
+              Private Account
+            </Text>
+            <Text style={{ textAlign: "center" }}>
+              Follow this account to view their scrapbooks
+            </Text>
+          </View>
+        ) : displayScrap ? (
           <FlatList
             style={styles.feed}
             data={scrapbooks.sort(function (a, b) {
@@ -392,7 +501,7 @@ const Profile = ({ navigation, route }) => {
             // keyExtractor={(itemm) => itemm.id}
             showsVerticalScrollIndicator={false}
           />
-        )}
+        ) }
       </ScrollView>
     </SafeAreaView>
     // </ScrollView>
