@@ -23,46 +23,27 @@ import {
   increment,
   deleteDoc,
   DocumentReference,
+  serverTimestamp,
 } from "firebase/firestore";
 import { db, auth } from "../firebase";
 import { Button as Btn } from "react-native";
 import { uuidv4 } from "@firebase/util";
 import Button from "../components/Button";
 import { Avatar } from "react-native-paper";
+import uuid from "react-native-uuid";
 
-const AddMembers = ({ navigation, route }) => {
+const Share = ({ navigation, route }) => {
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState(data);
   const [search, setSearch] = useState("");
+  const UUID = uuid.v4();
 
-  const [accType, setAccountType] = useState("");
-  const [admin, setAdmin] = useState("");
-  const [desc, setDesc] = useState("");
-  const [groupId, setGroupId] = useState("");
-  const [groupname, setGroupname] = useState("");
-  const [memberCount, setMemberCount] = useState(0);
-  const [members, setMembers] = useState([]);
-  const [groupIcon, setGroupIcon] = useState("");
+
 
   useEffect(() => {
     fetchData();
-    fetchGroupData();
+    // fetchGroupData();
   }, []);
-
-  const fetchGroupData = async () => {
-    await getDoc(
-      doc(db, "users", auth.currentUser.uid, "Groups", route.params.docId)
-    ).then((item) => {
-      setAccountType(item.data().accountType);
-      setAdmin(item.data().admin);
-      setDesc(item.data().description);
-      setGroupId(item.data().groupId);
-      setGroupname(item.data().groupname);
-      setMemberCount(item.data().memberCount);
-      setMembers(item.data().members);
-      setGroupIcon(item.data().groupIcon);
-    });
-  };
 
   const fetchData = () => {
     let unsubscribed = false;
@@ -107,48 +88,44 @@ const AddMembers = ({ navigation, route }) => {
     }
   };
 
-  const addToGroup = async (uid) => {
-    // create a new doc for the group
-    const groupDoc = doc(
-      db,
-      "users",
-      auth.currentUser.uid,
-      "Groups",
-      route.params.docId
-    );
-    await getDoc(groupDoc).then(async (QuerySnapshot) => {
-      if (QuerySnapshot.data().members.includes(uid)) {
-        await updateDoc(groupDoc, {
-          members: arrayRemove(uid),
-          memberCount: increment(-1),
-        }).then(async () => {});
-        setMemberCount(memberCount);
-        setMembers(members);
-        // await deleteDoc(doc(db, "users", uid, "Groups", route.params.docId));
-      } else {
-        await updateDoc(groupDoc, {
-          members: arrayUnion(uid),
-          memberCount: increment(1),
-        }).then(async () => {});
-        setMemberCount(memberCount);
-        setMembers(members);
-        await updateDoc(doc(db, "users", uid),{
-          groups: arrayUnion(groupDoc),
-        })
-      }
+//   receiver -> doc of person you wanna share to 
+  const sendShareNotification = async (shareTo) => {
+    const currDoc = doc(db, "users", auth.currentUser.uid);
+    // receiver doc must be the person you are sharing 
+    const receiverDoc = doc(db, "users", shareTo);
+    const receiver = doc(db, "users", shareTo, "Notifications", UUID);
+    await getDoc(receiverDoc).then(async (Snap) => {
+      await getDoc(currDoc).then(async (QuerySnapshot) => {
+        await setDoc(
+          receiver,
+          {
+            id: UUID,
+            message: `${QuerySnapshot.data().username} shared a post with you`,
+            From: auth.currentUser.uid,
+            profilePic: QuerySnapshot.data().profilePicsrc,
+            timestamp: serverTimestamp(),
+            type: "Share",
+            post: route.params.post
+          },
+          { merge: true }
+        );
+      });
     });
   };
 
   const ItemView = ({ item }) => {
     return (
       <View style={styles.user}>
-        <Avatar.Image style={styles.avatar} source={{ uri: item.profilePicsrc }} />
+        <Avatar.Image
+          style={styles.avatar}
+          source={{ uri: item.profilePicsrc }}
+        />
         <Text style={styles.username}> {item.username}</Text>
         <TouchableOpacity
           style={styles.addbtn}
-          onPress={() => addToGroup(item.id)}
+          onPress={() => sendShareNotification(item.id)}
         >
-          <Text style={styles.buttonText}> Add </Text>
+          <Text style={styles.buttonText}> Share </Text>
         </TouchableOpacity>
       </View>
     );
@@ -165,7 +142,7 @@ const AddMembers = ({ navigation, route }) => {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.container}>
-        <Text> Add Members to your group</Text>
+        <Text style={{fontSize: 22, fontWeight:"400" ,padding:20}}>  Share post with... </Text>
         <TextInput
           style={styles.searchBox}
           placeholder="Search"
@@ -178,25 +155,17 @@ const AddMembers = ({ navigation, route }) => {
           ItemSeparatorComponent={ItemSeparatorView}
           renderItem={ItemView}
         />
-        <Button
-          text="Next"
-          onPress={() =>
-            navigation.navigate("GroupProfile", {
-              item: route.params.docId,
-              uid: auth.currentUser.uid,
-            })
-          }
-        />
       </View>
     </SafeAreaView>
   );
 };
 
-export default AddMembers;
+export default Share;
 
 const styles = StyleSheet.create({
   username: {
     marginTop: 10,
+    marginLeft: 50
   },
   user: {
     // position: "relative",
@@ -215,7 +184,7 @@ const styles = StyleSheet.create({
   },
   searchBox: {
     marginTop: 5,
-    marginBottom: 5,
+    marginBottom: 20,
     borderRadius: 50,
     padding: 15,
     borderColor: "#FFFFFF",
@@ -236,5 +205,4 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     fontSize: 12,
   },
-  
 });

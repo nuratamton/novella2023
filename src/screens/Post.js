@@ -48,6 +48,7 @@ const Post = ({ navigation, route }) => {
   const [likePressed, setLikePressed] = useState(false);
   const [likesArray, setLikesArray] = useState([]);
 
+
   useEffect(() => {
     retrieveLikes();
     likeStatus();
@@ -80,6 +81,8 @@ const Post = ({ navigation, route }) => {
       });
     });
   };
+
+
 
   const removeLikeNotification = async () => {
     const receiver = collection(
@@ -378,20 +381,14 @@ const Post = ({ navigation, route }) => {
                         >
                           {route.params.item.groupname}
                         </Text>
-
-                       
                       )}
-                       <Text style={styles.cardTitle}>
+                      <Text style={styles.cardTitle}>
                         {route.params.item.title}
                       </Text>
-
-                      
                     </View>
                   </View>
 
-                  <View
-                    style={{ position: "absolute", left: 310}}
-                  >
+                  <View style={{ position: "absolute", left: 310 }}>
                     <IconButton
                       style={{
                         backgroundColor: "white",
@@ -452,11 +449,7 @@ const Post = ({ navigation, route }) => {
                       icon={"share-outline"}
                       iconColor="black"
                       size={20}
-                      // onPress={() => {
-                      //   navigation.navigate("Comments", {
-                      //     item: route.params.item,
-                      //   });
-                      // }}
+                      onPress={()=>navigation.navigate("Share", {post: route.params.item})}
                     />
                   </View>
                 </View>
@@ -526,7 +519,6 @@ const Post = ({ navigation, route }) => {
 export default Post;
 
 const styles = StyleSheet.create({
-
   cardTitle: {
     color: "#ffffff",
     fontSize: 30,

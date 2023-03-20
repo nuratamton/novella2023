@@ -28,7 +28,7 @@ import {
 import moment from "moment";
 import { useIsFocused } from "@react-navigation/native";
 
-const Notifications = () => {
+const Notifications = ({navigation, route}) => {
   const [notifications, setNotifications] = useState([]);
   const [status, setStatus] = useState(true);
   const isFocused = useIsFocused();
@@ -135,8 +135,10 @@ const Notifications = () => {
 
             {post.type === "Request" && post.request ? (
               <TouchableOpacity
-              disabled={!status}
-                onPress={() => {acceptRequest(post) , setStatus(false)}}
+                disabled={!status}
+                onPress={() => {
+                  acceptRequest(post), setStatus(false);
+                }}
                 style={{
                   backgroundColor: "purple",
                   marginTop: 10,
@@ -146,7 +148,31 @@ const Notifications = () => {
                   alignItems: "center",
                 }}
               >
-                <Text style={styles.buttonText}> {status? "Accept" : "Accepted"} </Text>
+                <Text style={styles.buttonText}>
+                  {" "}
+                  {status ? "Accept" : "Accepted"}{" "}
+                </Text>
+              </TouchableOpacity>
+            ) : null}
+
+            {post.type === "Share" ? (
+              <TouchableOpacity
+                disabled={!status}
+                onPress={() => {
+                  navigation.navigate("Post", {item: post.post})
+                }}
+                style={{
+                  backgroundColor: "purple",
+                  marginTop: 10,
+                  paddingVertical: 4,
+                  borderRadius: 25,
+                  width: "25%",
+                  alignItems: "center",
+                }}
+              >
+                <Text style={styles.buttonText}>
+                  View
+                </Text>
               </TouchableOpacity>
             ) : null}
           </View>

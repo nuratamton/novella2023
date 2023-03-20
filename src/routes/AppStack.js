@@ -39,6 +39,7 @@ import DisplayFollowing from "../screens/DisplayFollowing";
 import DisplayMembers from "../screens/DisplayMembers";
 import EditScrapbook from "../screens/EditScrapbook";
 import Feedback from "../screens/Feedback";
+import Share from "../screens/Share";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -47,7 +48,6 @@ const Drawer = createDrawerNavigator();
 export const navRef = createNavigationContainerRef();
 
 const AppStack = () => {
-  
   CreateStack = () => {
     return (
       <Stack.Navigator>
@@ -86,22 +86,19 @@ const AppStack = () => {
 
   ReactionStack = () => {
     return (
-      <Stack.Navigator screenOptions={{
-        headerShown: false,
-        // presentation: "modal"
-        
-      }}
-      initialRouteName="Comments"
+      <Stack.Navigator
+        screenOptions={{
+          headerShown: false,
+          // presentation: "modal"
+        }}
+        initialRouteName="Comments"
       >
         <Stack.Screen
           name="Comments"
           component={Comments}
           // options={{ presentation: "modal" }}
         />
-        <Stack.Screen
-          name="Feedback"
-          component={Feedback}
-        />
+        <Stack.Screen name="Feedback" component={Feedback} />
       </Stack.Navigator>
     );
   };
@@ -239,6 +236,11 @@ const AppStack = () => {
         <Stack.Screen name="DisplayFollowers" component={DisplayFollowers} />
         <Stack.Screen name="DisplayFollowing" component={DisplayFollowing} />
         <Stack.Screen name="DisplayMembers" component={DisplayMembers} />
+        <Stack.Screen
+          name="Share"
+          component={Share}
+          options={{ presentation: "modal", headerMode: "float" }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

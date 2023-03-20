@@ -185,7 +185,7 @@ const CreateNext = ({ navigation, route }) => {
 
     else{
     await setDoc(
-      doc(db, "users", route.params.item3, "Scrapbooks", route.params.item),
+      doc(db, "users", auth.currentUser.uid, "Scrapbooks", route.params.item),
       {
         timestamp: serverTimestamp(),
         CoverImg: Url,
