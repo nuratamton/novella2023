@@ -7,6 +7,7 @@ import {
   Dimensions,
   FlatList,
   Button as Btn,
+  Alert,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import Button from "../components/Button";
@@ -63,6 +64,50 @@ const Profile = ({ navigation, route }) => {
   const UUID = uuid.v4();
   const UUID2 = uuid.v4();
 
+  const hiddenAlert = (location) => {
+    Alert.alert(
+      "You have come across a hidden scrapbook!",
+      "To view the contents of this scrapbook and interact with it, please find it on the map",
+      [
+        {
+          text: "Give me hints",
+          onPress: () => {
+            hintAlert(location);
+          },
+        },
+        {
+          text: "View on map",
+          onPress: () => {
+            navigation.navigate("Explore");
+          },
+        },
+        { text: "OK", onPress: () => console.log("OK Pressed") },
+      ],
+      { cancelable: false }
+    );
+  };
+
+  const hintAlert = (location) => {
+    const hello = "hello";
+    Alert.alert(
+      "Here is your hint!",
+      "Latitude: " +
+        `${location.coords.latitude}` +
+        "\nLongitude: " +
+        `${location.coords.longitude}`,
+      [
+        {
+          text: "View on map",
+          onPress: () => {
+            navigation.navigate("Explore");
+          },
+        },
+        { text: "OK", onPress: () => console.log("OK Pressed") },
+      ],
+      { cancelable: false }
+    );
+  };
+
   const getUserDetails = async () => {
     const Uref = doc(db, "users", route.params.item);
     const userDoc = await getDoc(Uref);
@@ -86,9 +131,9 @@ const Profile = ({ navigation, route }) => {
   };
   const groupExists = async () => {
     if (collection(db, "users", auth.currentUser.uid, "Groups")) {
-      return true
+      return true;
     }
-  }
+  };
   const sendFollowNotification = async () => {
     let followBack = false;
     const currDoc = doc(db, "users", auth.currentUser.uid);
@@ -183,12 +228,12 @@ const Profile = ({ navigation, route }) => {
 
   const Scrapbooks = async () => {
     const ref = collection(db, "users", route.params.item, "Scrapbooks");
-    const data = await getDocs(query(ref, where("hide", "!=", true)));
+    const data = await getDocs(ref);
     data.forEach((item) => {
       getScrapbooks((prev) => [...prev, item.data()]);
     });
   };
-  
+
   const Groups = async () => {
     let temp = [];
     const ref = collection(db, "users", route.params.item, "Groups");
@@ -233,11 +278,23 @@ const Profile = ({ navigation, route }) => {
   renderPost = (post) => {
     return (
       <Card style={[styles.post, { width: windowWidth / 2 - 15 }]}>
-        <TouchableOpacity
-          onPress={() => navigation.navigate("Post", { item: post })}
-        >
-          <Card.Cover source={{ uri: post.CoverImg }} resizeMode="cover" />
-        </TouchableOpacity>
+        {post.hide != true ? (
+          <TouchableOpacity
+            onPress={() => navigation.navigate("Post", { item: post })}
+          >
+            <Card.Cover
+              source={{ uri: post.CoverImg ? post.CoverImg : "" }}
+              resizeMode="cover"
+            />
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity onPress={() => hiddenAlert(post.location)}>
+            <Card.Cover
+              source={{ uri: post.CoverImg ? post.CoverImg : "" }}
+              resizeMode="cover"
+            />
+          </TouchableOpacity>
+        )}
         <Card.Title
           style={styles.postHeader}
           title={post.title}
@@ -245,50 +302,66 @@ const Profile = ({ navigation, route }) => {
           subtitleStyle={styles.cardSubTitle}
           leftStyle={styles.profilePicture}
         />
+        <Text
+          style={{
+            // position: "absolute",
+            // backgroundColor: "black",
+            color: "black",
+            // justifyContent:"center",
+            textAlign: "right",
+            fontSize: 15,
+            fontWeight: "600",
+            marginRight: 10,
+            marginBottom: 10,
+            bottom: 37,
+          }}
+        >
+          {post.type}
+        </Text>
       </Card>
     );
   };
 
   renderGroup = (group) => {
-    if(groupExists()){
-    return (
-      <View style={[styles.notifications]}>
-        <TouchableOpacity
-          onPress={() => {
-            navigation.navigate("GroupProfile", {
-              item: group.groupId,
-              uid: group.admin,
-              group: true,
-            });
-          }}
-        >
-          <View style={styles.groupBox}>
-            <View style={styles.picture}>
-              <Avatar.Image
-                source={{ uri: group.groupIcon }}
-                size={40}
-                style={{ marginRight: 12 }}
-              />
+    if (groupExists()) {
+      return (
+        <View style={[styles.notifications]}>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate("GroupProfile", {
+                item: group.groupId,
+                uid: group.admin,
+                group: true,
+              });
+            }}
+          >
+            <View style={styles.groupBox}>
+              <View style={styles.picture}>
+                <Avatar.Image
+                  source={{ uri: group.groupIcon }}
+                  size={40}
+                  style={{ marginRight: 12 }}
+                />
+              </View>
+              <View styles={styles.textFollowButton}>
+                <Text
+                  style={{
+                    fontSize: 15,
+                    fontWeight: "300",
+                    alignContent: "center",
+                    padding: 5,
+                    marginRight: 10,
+                  }}
+                >
+                  {group.groupname}
+                </Text>
+              </View>
             </View>
-            <View styles={styles.textFollowButton}>
-              <Text
-                style={{
-                  fontSize: 15,
-                  fontWeight: "300",
-                  alignContent: "center",
-                  padding: 5,
-                  marginRight: 10,
-                }}
-              >
-                {group.groupname}
-              </Text>
-            </View>
-          </View>
-        </TouchableOpacity>
-      </View>
-    );
+          </TouchableOpacity>
+        </View>
+      );
+    }
   };
-}
 
   const followUser = async () => {
     //  our id:  currentUserId
@@ -501,7 +574,7 @@ const Profile = ({ navigation, route }) => {
             // keyExtractor={(itemm) => itemm.id}
             showsVerticalScrollIndicator={false}
           />
-        ) }
+        )}
       </ScrollView>
     </SafeAreaView>
     // </ScrollView>
@@ -538,6 +611,7 @@ const styles = StyleSheet.create({
   },
   post: {
     margin: 7.5,
+    backgroundColor: "white",
   },
   infoContainer: {
     // padding: 10,

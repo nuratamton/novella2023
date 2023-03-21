@@ -341,6 +341,7 @@ const styles = StyleSheet.create({
   },
   post: {
     margin: 7.5,
+    backgroundColor:"white"
   },
   infoContainer: {
     padding: 10,

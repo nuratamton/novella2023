@@ -70,7 +70,7 @@ const UserProfile = ({ navigation, route }) => {
   const Scrapbooks = async () => {
     let temp = [];
     const ref = collection(db, "users", auth.currentUser.uid, "Scrapbooks");
-    await getDocs(query(ref, where("hide", "!=", true)))
+    await getDocs(ref)
       .then((querySnapshot) => {
         querySnapshot.forEach((item) => {
           temp.push(item.data());
@@ -154,8 +154,7 @@ const UserProfile = ({ navigation, route }) => {
     return (
       <Card style={[styles.post, { width: windowWidth / 2 - 15 }]}>
         <Card.Actions style={{ flexDirection: "row" }}>
-
-          <Text
+          {/* <Text
             style={{
               position: "absolute",
               backgroundColor: "purple",
@@ -165,8 +164,7 @@ const UserProfile = ({ navigation, route }) => {
             }}
           >
             {post.type}
-          </Text>
-
+          </Text> */}
 
           <TouchableOpacity
             style={{ position: "absolute", left: "90%" }}
@@ -211,6 +209,22 @@ const UserProfile = ({ navigation, route }) => {
             subtitleStyle={styles.cardSubTitle}
             // right={() => }
           />
+          <Text
+          style={{
+            // position: "absolute",
+            // backgroundColor: "black",
+            color: "black",
+            // justifyContent:"center",
+            textAlign: "right",
+            fontSize: 15,
+            fontWeight: "600",
+            marginRight: 10,
+            marginBottom: 10,
+            bottom: 37,
+          }}
+        >
+          {post.type}
+        </Text>
         </View>
       </Card>
     );

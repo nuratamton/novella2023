@@ -8,6 +8,7 @@ import {
   Image,
   FlatList,
   Button,
+  Alert
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import Logo from "../../assets/images/novella.png";
@@ -52,7 +53,7 @@ const Feed = ({ navigation }) => {
     await getDoc(currDoc).then(async (QuerySnapshot) => {
       QuerySnapshot.data().following.forEach(async (element) => {
         const ref = collection(db, "users", element, "Scrapbooks");
-        await getDocs(query(ref, where("hide", "!=", true))).then((data) => {
+        await getDocs(ref).then((data) => {
           data.forEach((item) => {
             getScrapbooks((prev) => [...prev, item.data()]);
           });
@@ -60,18 +61,58 @@ const Feed = ({ navigation }) => {
       });
     });
   };
-  
 
   useEffect(() => {
     fetchScrapbook();
   }, []);
 
+  const hiddenAlert = (location) => {
+    
+    Alert.alert(
+      "You have come across a hidden scrapbook!",
+      "To view the contents of this scrapbook and interact with it, please find it on the map",
+      [
+        {
+          text: "Give me hints",
+          onPress: () => {hintAlert(location)}
+        },
+        {
+          text: "View on map",
+          onPress: () => {navigation.navigate("Explore")}
+        },
+        { text: "OK", onPress: () => console.log("OK Pressed") }
+      ],
+      { cancelable: false }
+    )
+  }
+
+  const hintAlert = (location) => {
+    const hello = "hello"
+    Alert.alert(
+      "Here is your hint!",
+      "Latitude: " + `${location.coords.latitude}` +
+      "\nLongitude: " + `${location.coords.longitude}`,
+      [
+        {
+          text: "View on map",
+          onPress: () => {navigation.navigate("Explore")}
+        },
+        { text: "OK", onPress: () => console.log("OK Pressed") }
+      ],
+      { cancelable: false }
+    )
+
+  }
+
   renderPost = (post) => {
     return (
       <>
         <Card style={[styles.post]}>
-          <TouchableOpacity style={{flexDirection:"row"}} onPress={()=>navigation.navigate("Profile", {item: post.uid})}>
-            <Card.Actions >
+          <TouchableOpacity
+            style={{ flexDirection: "row" }}
+            onPress={() => navigation.navigate("Profile", { item: post.uid })}
+          >
+            <Card.Actions>
               <Avatar.Image
                 source={{ uri: post.profilepic ? post.profilepic : "" }}
                 size={25}
@@ -79,14 +120,26 @@ const Feed = ({ navigation }) => {
               <Text styles={styles.cardSubTitle}>{post.username}</Text>
             </Card.Actions>
           </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => navigation.navigate("Post", { item: post })}
+          {post.hide != true ? (
+            <TouchableOpacity
+              onPress={() => navigation.navigate("Post", { item: post })}
+            >
+              <Card.Cover
+                source={{ uri: post.CoverImg ? post.CoverImg : "" }}
+                resizeMode="cover"
+              />
+            </TouchableOpacity>
+          ) : (
+            
+            <TouchableOpacity
+            onPress={() => hiddenAlert(post.location)}
           >
-            <Card.Cover
-              source={{ uri: post.CoverImg ? post.CoverImg : "" }}
-              resizeMode="cover"
-            />
-          </TouchableOpacity>
+              <Card.Cover
+                source={{ uri: post.CoverImg ? post.CoverImg : "" }}
+                resizeMode="cover"
+              />
+              </TouchableOpacity>
+          )}
           <Card.Title
             style={styles.postHeader}
             title={post.title}
@@ -94,19 +147,18 @@ const Feed = ({ navigation }) => {
             subtitleStyle={styles.cardSubTitle}
             leftStyle={styles.profilePicture}
           />
-           <Text
+          <Text
             style={{
               // position: "absolute",
               // backgroundColor: "black",
               color: "black",
               // justifyContent:"center",
-              textAlign:"right",
+              textAlign: "right",
               fontSize: 15,
-              fontWeight: '600',
+              fontWeight: "600",
               marginRight: 10,
-              marginBottom:10,
-              bottom: 37
-              
+              marginBottom: 10,
+              bottom: 37,
             }}
           >
             {post.type}
