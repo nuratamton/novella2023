@@ -180,7 +180,7 @@ const CreateNext = ({ navigation, route }) => {
         .catch((error) => {
           console.log(error);
         });
-      navigation.navigate("GroupProfile", {itemCheck: true});
+      navigation.navigate("GroupProfile", {item:route.params.group , uid:route.params.item3 , group:true});
     }
 
     else{

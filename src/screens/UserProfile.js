@@ -118,6 +118,13 @@ const UserProfile = ({ navigation, route }) => {
 
   useEffect(() => {
     setLoading(true);
+    // const unsub = onSnapshot(collection(db, "users", auth.currentUser.uid, "Groups"),(snapshot)=>{
+    //   snapshot.docChanges().forEach((change) => {
+    //     if(change.type === "added"){
+    //       Groups()
+    //     }
+    //   })
+    // })
   }, []);
 
   useEffect(() => {

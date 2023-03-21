@@ -22,10 +22,12 @@ import {
   arrayRemove,
   deleteDoc,
   arrayUnion,
+  onSnapshot,
   setDoc,
 } from "firebase/firestore";
 import { auth, db } from "../firebase";
 import { async } from "@firebase/util";
+import { useIsFocused } from "@react-navigation/native";
 
 const GroupProfile = ({ navigation, route }) => {
   const windowWidth = Dimensions.get("window").width;
@@ -43,6 +45,7 @@ const GroupProfile = ({ navigation, route }) => {
   const [admin, setAdmin] = useState("");
 
   const [groupId, setGroupId] = useState("");
+  const isFocused = useIsFocused();
 
   const getGroupDetails = async () => {
     const Uref = doc(
@@ -73,7 +76,6 @@ const GroupProfile = ({ navigation, route }) => {
       route.params.item,
       "Scrapbooks"
     );
-    console.log(ref);
     await getDocs(ref)
       .then((querySnapshot) => {
         querySnapshot.forEach((item) => {
@@ -86,11 +88,35 @@ const GroupProfile = ({ navigation, route }) => {
       });
   };
 
+
   useEffect(() => {
     getGroupDetails();
     Scrapbooks();
     getStatus();
+    const unsub = onSnapshot(collection(db,"users",route.params.uid,"Groups",route.params.item,"Scrapbooks"),(snapshot)=>{
+      snapshot.docChanges().forEach((change) => {
+        if(change.type === "removed"){
+          Scrapbooks()
+        }
+        if(change.type === "added"){
+          Scrapbooks()
+          
+        }
+      })
+    })
   }, []);
+
+
+  useEffect(()=> {
+    getGroupDetails();
+    Scrapbooks();
+    getStatus();
+  },[isFocused])
+
+  useEffect(()=> {
+    getGroupDetails();
+    Scrapbooks();
+  },[db])
 
   renderPost = (post) => {
     return (

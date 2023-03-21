@@ -6,6 +6,7 @@ import {
   FlatList,
   TouchableOpacity,
   Button,
+  Alert
 } from "react-native";
 import { Avatar } from "react-native-paper";
 import React, { useEffect, useState, useRef } from "react";
@@ -29,7 +30,25 @@ import { useIsFocused } from "@react-navigation/native";
 const Notifications = ({navigation, route}) => {
   const [notifications, setNotifications] = useState([]);
   const [status, setStatus] = useState(true);
+  const [followers , setFollowers] = useState();
+  const [following, setFollowing] = useState();
   const isFocused = useIsFocused();
+  const [accountType, setAccountType] = useState()
+  const [docs, setDoc] = useState()
+
+  const otherDetails = async () => {
+    const ref = doc(db,"users",auth.currentUser.uid)
+    await getDoc(ref).then((querySnapshot) => {
+      setFollowers(querySnapshot.data().followers)
+      setFollowing(querySnapshot.data().following)
+      setAccountType(querySnapshot.data().type)
+      setDoc(querySnapshot)
+    })
+
+  }
+  
+  useEffect(() => {
+  }, [followers,following,accountType,doc]);
 
   const fetch = async () => {
     let temp = [];
@@ -45,6 +64,7 @@ const Notifications = ({navigation, route}) => {
     console.log(status);
   }, [status]);
   useEffect(() => {
+    otherDetails();
     fetch();
     const unsub = onSnapshot(collection(db,"users",auth.currentUser.uid,"Notifications"),(snapshot)=>{
       snapshot.docChanges().forEach((change) => {
@@ -53,26 +73,40 @@ const Notifications = ({navigation, route}) => {
         }
         if(change.type === "added"){
           fetch()
+          otherDetails()
+        }
+        if(change.type === "modified"){
+          fetch()
+          otherDetails()
         }
       })
     })
   }, []);
 
   useEffect(() => {
+    otherDetails();
     fetch();
   }, [isFocused]);
 
-
+  const followBack = async (post) => {
+    const noti = doc(db,"users",auth.currentUser.uid,"Notifications",post.id)
+    const currDoc = doc(db,"users",auth.currentUser.uid )
+    const otherGuy = doc(db,"users",post.From)
+    await updateDoc(otherGuy, {
+      followers: arrayUnion(auth.currentUser.uid),
+      followerCount: increment(1)
+    })
+    await updateDoc(currDoc,{
+      following:arrayUnion(auth.currentUser.uid),
+      followingCount: increment(1)
+    })
+    await updateDoc(noti,{
+      followBack:true
+    })
+  }
+ 
   const acceptRequest = async (post) => {
     const currDoc = doc(db, "users", auth.currentUser.uid);
-    const uid = doc(
-      db,
-      "users",
-      auth.currentUser.uid,
-      "Notifications",
-      post.id
-    );
-    await getDoc(currDoc).then(async (QuerySnapshot) => {
       await updateDoc(doc(db, "users", post.From), {
         following: arrayUnion(auth.currentUser.uid),
         followingCount: increment(1),
@@ -82,7 +116,9 @@ const Notifications = ({navigation, route}) => {
         requests: arrayRemove(post.From),
         followerCount: increment(1),
       });
-    });
+      await updateDoc(doc(db,"users",auth.currentUser.uid,"Notifications",post.id),{
+        request:true
+      })
   };
 
   renderPost = (post) => {
@@ -114,20 +150,19 @@ const Notifications = ({navigation, route}) => {
             </Text>
 
             {post.type === "Follow" ? (
-              !post.followBack && status ? (
+              !post.followBack? (
                 <TouchableOpacity
-                  disabled={!status}
-                  onPress={() => setStatus(false)}
+                  disabled={false}
+                  onPress={() => {followBack(post)}}
                   style={styles.button}
                 >
                   <Text style={styles.buttonText}> Follow </Text>
                 </TouchableOpacity>
               ) : (
                 <TouchableOpacity
-                  disabled={!status}
-                  onPress={() => setStatus(false)}
+                  disabled={true}
                   style={{
-                    backgroundColor: "purple",
+                    backgroundColor: "grey",
                     marginTop: 10,
                     paddingVertical: 4,
                     borderRadius: 25,
@@ -135,18 +170,18 @@ const Notifications = ({navigation, route}) => {
                     alignItems: "center",
                   }}
                 >
-                  <Text style={styles.buttonText}> Following </Text>
+                  <Text style={styles.buttonText}> {post.followBack?"Following" : "Follow"}  </Text>
                 </TouchableOpacity>
               )
             ) : (
               ""
             )}
 
-            {post.type === "Request" && post.request ? (
+            {/* {post.type === "Request" && !post.request ? (
               <TouchableOpacity
-                disabled={!status}
+                disabled={false}
                 onPress={() => {
-                  acceptRequest(post), setStatus(false);
+                  acceptRequest(post)
                 }}
                 style={{
                   backgroundColor: "purple",
@@ -162,13 +197,56 @@ const Notifications = ({navigation, route}) => {
                   {status ? "Accept" : "Accepted"}{" "}
                 </Text>
               </TouchableOpacity>
-            ) : null}
+            ) : null} */}
+             {post.type === "Request" ? (
+              !post.request? (
+                <TouchableOpacity
+                  disabled={false}
+                  onPress={() => {acceptRequest(post)}}
+                  style={styles.button}
+                >
+                  <Text style={styles.buttonText}> Accept </Text>
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  disabled={true}
+                  style={{
+                    backgroundColor: "grey",
+                    marginTop: 10,
+                    paddingVertical: 4,
+                    borderRadius: 25,
+                    width: "35%",
+                    alignItems: "center",
+                  }}
+                >
+                  <Text style={styles.buttonText}> {post.request?"Accept" : "Accepted"}  </Text>
+                </TouchableOpacity>
+              )
+            ) : (
+              ""
+            )}
 
             {post.type === "Share" ? (
-              <TouchableOpacity
-                disabled={!status}
+              accountType ==="Public"?(
+                <TouchableOpacity
+                onPress={() => {navigation.navigate("Post", {item: post.post})}}
+                style={{
+                  backgroundColor: "purple",
+                  marginTop: 10,
+                  paddingVertical: 4,
+                  borderRadius: 25,
+                  width: "25%",
+                  alignItems: "center",
+                }}
+              >
+                <Text style={styles.buttonText}> View Post </Text>
+              </TouchableOpacity>
+              ):(
+                <TouchableOpacity
                 onPress={() => {
-                  navigation.navigate("Post", {item: post.post})
+                  Alert.alert("You do follow this private account,"+
+                  "please follow this account"+
+                  " to view the Scrapbook ")
                 }}
                 style={{
                   backgroundColor: "purple",
@@ -179,11 +257,10 @@ const Notifications = ({navigation, route}) => {
                   alignItems: "center",
                 }}
               >
-                <Text style={styles.buttonText}>
-                  View
-                </Text>
+                <Text style={styles.buttonText}> View Post </Text>
               </TouchableOpacity>
-            ) : null}
+              )
+            ) : ""}
           </View>
         </View>
       </View>
