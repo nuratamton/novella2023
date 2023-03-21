@@ -40,6 +40,7 @@ import DisplayMembers from "../screens/DisplayMembers";
 import EditScrapbook from "../screens/EditScrapbook";
 import Feedback from "../screens/Feedback";
 import Share from "../screens/Share";
+import TagUsers from "../screens/TagUsers"
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -236,11 +237,9 @@ const AppStack = () => {
         <Stack.Screen name="DisplayFollowers" component={DisplayFollowers} />
         <Stack.Screen name="DisplayFollowing" component={DisplayFollowing} />
         <Stack.Screen name="DisplayMembers" component={DisplayMembers} />
-        <Stack.Screen
-          name="Share"
-          component={Share}
-          options={{ presentation: "modal", headerMode: "float" }}
-        />
+        <Stack.Screen name="Share" component={Share} options={{ presentation: "modal", headerMode: "float" }}/>
+        <Stack.Screen name="TagUsers" component={TagUsers} options={{ presentation: "modal", headerMode: "float" }}/>
+        
       </Stack.Navigator>
     </NavigationContainer>
   );

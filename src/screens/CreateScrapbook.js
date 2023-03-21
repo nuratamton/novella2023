@@ -121,6 +121,9 @@ const CreateScrapbook = ({ navigation, route }) => {
 
   //   setMessage(result);
   // };
+  const locationPermission = async () => {
+    await Location.requestForegroundPermissionsAsync()
+  }
   const askPermissionsAsync = async () => {
     await Camera.getCameraPermissionsAsync();
     await ImagePicker.requestCameraPermissionsAsync();
@@ -386,7 +389,10 @@ const CreateScrapbook = ({ navigation, route }) => {
               icon="map-marker-star-outline"
               color="green"
               size={24}
-              onPress={addLoc}
+              onPress={async () => {
+                await locationPermission()
+                addLoc()
+              }}
             />
           ) : (
             <IconButton

@@ -198,7 +198,7 @@ const CreateNext = ({ navigation, route }) => {
       .catch((error) => {
         console.log(error);
       });
-    navigation.navigate("UserStack", {screen: 'UserProfile'} , {itemCheck: true});
+    navigation.navigate("TagUsers", {doc:route.params.item})
   };
 }
   return (

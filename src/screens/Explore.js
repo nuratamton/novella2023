@@ -45,7 +45,7 @@ const Explore = ({ navigation }) => {
   useEffect(() => {}, [data]);
   
   useEffect(() => {
-    console.log(scrapbooks)
+    // console.log(scrapbooks)
   }, [scrapbooks]);
 
   const fetchScrapbook = async () => {
@@ -205,10 +205,14 @@ const Explore = ({ navigation }) => {
               initialScrollIndex={scrapbooks.length + 1}
             /> */}
             {scrapbooks.map((val) => {
+              const latlong = val.location.coords.latitude &&
+               val.location.coords.longitude?
+               {latitude:parseFloat(val.location.coords.latitude),longitude: parseFloat(val.location.coords.longitude)} : {latitude:0,longitude:0}
               return(
               <Marker
+              key={val.id}
               pinColor={colors[Math.floor(Math.random() * colors.length)]}
-              coordinate={{latitude: val.location.coords.latitude, longitude: val.location.coords.longitude}}
+              coordinate={latlong}
               title = {val.title}
               onPress={()=>navigation.navigate("Post", {item:val})}
               />)

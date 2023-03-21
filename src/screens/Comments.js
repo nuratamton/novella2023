@@ -20,6 +20,7 @@ import {
   serverTimestamp,
   setDoc,
   arrayRemove,
+  onSnapshot
 } from "firebase/firestore";
 import uuid from "react-native-uuid";
 import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -35,7 +36,21 @@ const Comments = ({ navigation, route }) => {
   useEffect(() => {
     const comments = route.params.item.comments;
     setCommentArray(comments);
-    fetch();
+    const docu = route.params.item.groupId ? doc(db,
+        "users",
+        route.params.item.uid,
+        "Groups",
+        route.params.item.groupId,
+        "Scrapbooks",
+        route.params.item.docId):doc(db,
+          "users",
+          route.params.item.uid,
+          "Scrapbooks",
+          route.params.item.docId)
+    const unsub = onSnapshot(docu,(snapshot)=>{
+           fetchComments()
+           fetch()
+          })
   }, []);
 
   useEffect(() => {
@@ -46,6 +61,22 @@ const Comments = ({ navigation, route }) => {
     console.log(commentArray);
   }, [commentArray]);
 
+  const fetchComments = async () => {
+    const docu = route.params.item.groupId ? doc(db,
+      "users",
+      route.params.item.uid,
+      "Groups",
+      route.params.item.groupId,
+      "Scrapbooks",
+      route.params.item.docId):doc(db,
+        "users",
+        route.params.item.uid,
+        "Scrapbooks",
+        route.params.item.docId)
+    await getDoc(docu).then((item) => {
+      setCommentArray(item.data().comments)
+    })
+  }
   const fetch = async () => {
     const docRef = doc(db, "users", auth.currentUser.uid);
     await getDoc(docRef).then((QuerySnapshot) => {
@@ -277,7 +308,7 @@ const Comments = ({ navigation, route }) => {
           name="send"
           size={24}
           color="black"
-          style={{ position: "absolute", left: "37%", bottom: 20 }}
+          style={{ position: "absolute", left: "35%", bottom: 20 }}
         />
       </TouchableOpacity>
 
