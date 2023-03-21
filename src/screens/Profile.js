@@ -273,6 +273,21 @@ const Profile = ({ navigation, route }) => {
     getUserDetails();
     Scrapbooks();
     Groups();
+    const unsub = onSnapshot(collection(db,"users",),(snapshot)=>{
+      snapshot.docChanges().forEach((change) => {
+        if(change.type === "removed"){
+          fetch()
+        }
+        if(change.type === "added"){
+          fetch()
+          otherDetails()
+        }
+        if(change.type === "modified"){
+          fetch()
+          otherDetails()
+        }
+      })
+    })
   }, []);
 
   renderPost = (post) => {
@@ -382,13 +397,14 @@ const Profile = ({ navigation, route }) => {
           await updateDoc(doc(db, "users", uid), {
             requests: arrayRemove(currentUserId),
           });
-          await updateDoc(receiver, {
-            request: false,
-          });
+          // await updateDoc(receiver, {
+          //   request: false,
+          // });
         } else {
           sendRequestNotification();
           await updateDoc(doc(db, "users", uid), {
             requests: arrayUnion(currentUserId),
+            
           });
         }
 

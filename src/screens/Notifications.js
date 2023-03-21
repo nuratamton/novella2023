@@ -33,22 +33,25 @@ const Notifications = ({navigation, route}) => {
   const [followers , setFollowers] = useState();
   const [following, setFollowing] = useState();
   const isFocused = useIsFocused();
-  const [accountType, setAccountType] = useState()
-  const [docs, setDoc] = useState()
+  const [docs, setDoc] = useState();
+  const [followers2, setFollowers2] = useState([]);
 
   const otherDetails = async () => {
     const ref = doc(db,"users",auth.currentUser.uid)
+ 
     await getDoc(ref).then((querySnapshot) => {
       setFollowers(querySnapshot.data().followers)
       setFollowing(querySnapshot.data().following)
-      setAccountType(querySnapshot.data().type)
+      // setAccountType(querySnapshot.data().accountType)
       setDoc(querySnapshot)
     })
 
   }
+
   
   useEffect(() => {
-  }, [followers,following,accountType,doc]);
+    
+  }, [followers,following]);
 
   const fetch = async () => {
     let temp = [];
@@ -93,6 +96,7 @@ const Notifications = ({navigation, route}) => {
     const currDoc = doc(db,"users",auth.currentUser.uid )
     const otherGuy = doc(db,"users",post.From)
     await updateDoc(otherGuy, {
+
       followers: arrayUnion(auth.currentUser.uid),
       followerCount: increment(1)
     })
@@ -116,9 +120,9 @@ const Notifications = ({navigation, route}) => {
         requests: arrayRemove(post.From),
         followerCount: increment(1),
       });
-      await updateDoc(doc(db,"users",auth.currentUser.uid,"Notifications",post.id),{
-        request:true
-      })
+      // await updateDoc(doc(db,"users",auth.currentUser.uid,"Notifications",post.id),{
+      //   request:false
+      // })
   };
 
   renderPost = (post) => {
@@ -170,36 +174,14 @@ const Notifications = ({navigation, route}) => {
                     alignItems: "center",
                   }}
                 >
-                  <Text style={styles.buttonText}> {post.followBack?"Following" : "Follow"}  </Text>
+                  <Text style={styles.buttonText}> Following  </Text>
                 </TouchableOpacity>
               )
             ) : (
               ""
             )}
-
-            {/* {post.type === "Request" && !post.request ? (
-              <TouchableOpacity
-                disabled={false}
-                onPress={() => {
-                  acceptRequest(post)
-                }}
-                style={{
-                  backgroundColor: "purple",
-                  marginTop: 10,
-                  paddingVertical: 4,
-                  borderRadius: 25,
-                  width: "25%",
-                  alignItems: "center",
-                }}
-              >
-                <Text style={styles.buttonText}>
-                  {" "}
-                  {status ? "Accept" : "Accepted"}{" "}
-                </Text>
-              </TouchableOpacity>
-            ) : null} */}
              {post.type === "Request" ? (
-              !post.request? (
+              post.request? (
                 <TouchableOpacity
                   disabled={false}
                   onPress={() => {acceptRequest(post)}}
@@ -226,8 +208,11 @@ const Notifications = ({navigation, route}) => {
               ""
             )}
 
+            
             {post.type === "Share" ? (
-              accountType ==="Public"?(
+
+              post.postOwnerType === "Public" ?
+              (
                 <TouchableOpacity
                 onPress={() => {navigation.navigate("Post", {item: post.post})}}
                 style={{
@@ -288,7 +273,13 @@ const Notifications = ({navigation, route}) => {
 
       <FlatList
         style={styles.feed}
-        data={notifications}
+        data={notifications.sort(
+          function (a, b) {
+            if (a.timestamp > b.timestamp) return -1;
+            if (a.timestamp < b.timestamp) return 1;
+            return 0;
+          }
+        )}
         renderItem={({ item }) => renderPost(item)}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}

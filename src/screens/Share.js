@@ -94,7 +94,7 @@ const Share = ({ navigation, route }) => {
     // receiver doc must be the person you are sharing 
     const receiverDoc = doc(db, "users", shareTo);
     const receiver = doc(db, "users", shareTo, "Notifications", UUID);
-    await getDoc(receiverDoc).then(async (Snap) => {
+    await getDoc(doc(db,"users",route.params.post.uid)).then(async (item) => {
       await getDoc(currDoc).then(async (QuerySnapshot) => {
         await setDoc(
           receiver,
@@ -105,7 +105,8 @@ const Share = ({ navigation, route }) => {
             profilePic: QuerySnapshot.data().profilePicsrc,
             timestamp: serverTimestamp(),
             type: "Share",
-            post: route.params.post
+            post: route.params.post,
+            postOwnerType: item.data().accountType
           },
           { merge: true }
         );

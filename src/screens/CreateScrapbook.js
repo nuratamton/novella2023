@@ -76,7 +76,6 @@ const CreateScrapbook = ({ navigation, route }) => {
   useEffect(() => {
     console.log("hello");
     setLocationSet(true);
-    suplementary();
   }, [location]);
 
   useEffect(() => {
@@ -127,14 +126,6 @@ const CreateScrapbook = ({ navigation, route }) => {
   const askPermissionsAsync = async () => {
     await Camera.getCameraPermissionsAsync();
     await ImagePicker.requestCameraPermissionsAsync();
-  };
-  const suplementary = async () => {
-    setLocationName(
-      await Location.reverseGeocodeAsync({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-      })
-    );
   };
   // const AddTag = async () => {
 

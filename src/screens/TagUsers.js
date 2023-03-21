@@ -118,10 +118,11 @@ const TagUsers = ({ navigation, route }) => {
     // receiver doc must be the person you are sharing 
     temp.forEach(async (shareTo) => {
         users.push(shareTo)
-        const receiverDoc = doc(db, "users", shareTo.id);
+        const curr = doc(db, "users", auth.currentUser.uid);
         const receiver = doc(db, "users", shareTo.id, "Notifications", UUID);
         const scrapRef = doc(db,"users", auth.currentUser.uid,"Scrapbooks",scrapbook.id)
-        await getDoc(receiverDoc).then(async (Snap) => {
+        await getDoc(curr).then(async (Snap) => {
+          
             await getDoc(currDoc).then(async (QuerySnapshot) => {
               await setDoc(
                 receiver,
@@ -132,7 +133,8 @@ const TagUsers = ({ navigation, route }) => {
                   profilePic: QuerySnapshot.data().profilePicsrc,
                   timestamp: serverTimestamp(),
                   type: "Share",
-                  post: scrapbook.data()
+                  post: scrapbook.data(),
+                  accountType: Snap.data().accountType,
                 },
                 { merge: true }
               );

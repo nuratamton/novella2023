@@ -38,7 +38,6 @@ const GroupProfile = ({ navigation, route }) => {
   const [memberCount, setMemberCount] = useState(0);
   const [members, setMembers] = useState([]);
   const [scrapbooks, getScrapbooks] = useState([]);
-  const [memberPresent, setMemberPresent] = useState(false);
   const [onClick, setOnClick] = useState(false);
 
   const [accType, setAccountType] = useState("");
@@ -89,6 +88,7 @@ const GroupProfile = ({ navigation, route }) => {
   };
 
 
+
   useEffect(() => {
     getGroupDetails();
     Scrapbooks();
@@ -97,10 +97,19 @@ const GroupProfile = ({ navigation, route }) => {
       snapshot.docChanges().forEach((change) => {
         if(change.type === "removed"){
           Scrapbooks()
+          getGroupDetails();
+          getStatus();
         }
         if(change.type === "added"){
           Scrapbooks()
+          // getGroupDetails();
+          getStatus();
           
+        }
+        if(change.type === "modified"){
+          Scrapbooks()
+          getGroupDetails();
+          // getStatus();
         }
       })
     })
@@ -169,6 +178,7 @@ const GroupProfile = ({ navigation, route }) => {
       if (querySnapshot.data().members.includes(auth.currentUser.uid)) {
         setOnClick(!onClick);
         setMemberCount(memberCount - 1);
+        setMembers((item) => item.filter((user) => user !== auth.currentUser.uid))
         await updateDoc(
           doc(db, "users", route.params.uid, "Groups", route.params.item),
           {
@@ -184,6 +194,7 @@ const GroupProfile = ({ navigation, route }) => {
       } else {
         setOnClick(!onClick);
         setMemberCount(memberCount + 1);
+        setMembers((prev) => [...prev,auth.currentUser.uid])
         await updateDoc(
           doc(db, "users", route.params.uid, "Groups", route.params.item),
           {
