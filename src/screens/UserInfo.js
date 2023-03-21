@@ -150,6 +150,7 @@ const UserInfo = () => {
         accountType: accountType,
         groups: [],
         requests: [],
+        taggedScrapbooks:[],
       },
       { merge: true }
     )

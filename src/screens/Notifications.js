@@ -17,13 +17,11 @@ import {
   getDocs,
   updateDoc,
   arrayUnion,
-  Timestamp,
-  serverTimestamp,
-  setDoc,
   collection,
   getDoc,
   arrayRemove,
   increment,
+  onSnapshot,
 } from "firebase/firestore";
 import moment from "moment";
 import { useIsFocused } from "@react-navigation/native";
@@ -48,11 +46,22 @@ const Notifications = ({navigation, route}) => {
   }, [status]);
   useEffect(() => {
     fetch();
+    const unsub = onSnapshot(collection(db,"users",auth.currentUser.uid,"Notifications"),(snapshot)=>{
+      snapshot.docChanges().forEach((change) => {
+        if(change.type === "removed"){
+          fetch()
+        }
+        if(change.type === "added"){
+          fetch()
+        }
+      })
+    })
   }, []);
 
   useEffect(() => {
     fetch();
   }, [isFocused]);
+
 
   const acceptRequest = async (post) => {
     const currDoc = doc(db, "users", auth.currentUser.uid);
@@ -206,6 +215,7 @@ const Notifications = ({navigation, route}) => {
         renderItem={({ item }) => renderPost(item)}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
+        extraData={notifications}
       />
     </SafeAreaView>
   );
