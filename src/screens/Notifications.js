@@ -101,7 +101,7 @@ const Notifications = ({navigation, route}) => {
       followerCount: increment(1)
     })
     await updateDoc(currDoc,{
-      following:arrayUnion(auth.currentUser.uid),
+      following:arrayUnion(post.From),
       followingCount: increment(1)
     })
     await updateDoc(noti,{
@@ -204,7 +204,7 @@ const Notifications = ({navigation, route}) => {
                     alignItems: "center",
                   }}
                 >
-                  <Text style={styles.buttonText}> Accpeted </Text>
+                  <Text style={styles.buttonText}> Accepted </Text>
                 </TouchableOpacity>
               )
             ) : (

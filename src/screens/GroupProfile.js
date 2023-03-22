@@ -13,6 +13,11 @@ import Button from "../components/Button";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ScrollView } from "react-native-virtualized-view";
 import {
+  MaterialCommunityIcons,
+  MaterialIcons,
+  AntDesign,
+} from "@expo/vector-icons";
+import {
   doc,
   getDoc,
   collection,
@@ -87,49 +92,101 @@ const GroupProfile = ({ navigation, route }) => {
       });
   };
 
-
+  useEffect(() => {
+    getGroupDetails();
+    Scrapbooks();
+    getStatus();
+    const unsub = onSnapshot(
+      collection(
+        db,
+        "users",
+        route.params.uid,
+        "Groups",
+        route.params.item,
+        "Scrapbooks"
+      ),
+      (snapshot) => {
+        snapshot.docChanges().forEach((change) => {
+          if (change.type === "removed") {
+            Scrapbooks();
+            getGroupDetails();
+            getStatus();
+          }
+          if (change.type === "added") {
+            Scrapbooks();
+            // getGroupDetails();
+            getStatus();
+          }
+          if (change.type === "modified") {
+            Scrapbooks();
+            getGroupDetails();
+            // getStatus();
+          }
+        });
+      }
+    );
+  }, []);
 
   useEffect(() => {
     getGroupDetails();
     Scrapbooks();
     getStatus();
-    const unsub = onSnapshot(collection(db,"users",route.params.uid,"Groups",route.params.item,"Scrapbooks"),(snapshot)=>{
-      snapshot.docChanges().forEach((change) => {
-        if(change.type === "removed"){
-          Scrapbooks()
-          getGroupDetails();
-          getStatus();
-        }
-        if(change.type === "added"){
-          Scrapbooks()
-          // getGroupDetails();
-          getStatus();
-          
-        }
-        if(change.type === "modified"){
-          Scrapbooks()
-          getGroupDetails();
-          // getStatus();
-        }
-      })
-    })
-  }, []);
+  }, [isFocused]);
 
-
-  useEffect(()=> {
+  useEffect(() => {
     getGroupDetails();
     Scrapbooks();
-    getStatus();
-  },[isFocused])
-
-  useEffect(()=> {
-    getGroupDetails();
-    Scrapbooks();
-  },[db])
+  }, [db]);
 
   renderPost = (post) => {
     return (
       <Card style={[styles.post, { width: windowWidth / 2 - 15 }]}>
+        <Card.Actions style={{ flexDirection: "row" }}>
+          {members.includes(auth.currentUser.uid) ? (
+            <TouchableOpacity
+              style={{ position: "absolute", left: "90%" }}
+              onPress={() =>
+                navigation.navigate("EditScrapbook", {
+                  item: post,
+                  item3: groupId,
+                  group: true,
+                })
+              }
+            >
+              <MaterialCommunityIcons
+                name="circle-edit-outline"
+                size={20}
+                color="black"
+              />
+            </TouchableOpacity>
+          ) : (
+            ""
+          )}
+          {admin === auth.currentUser.uid ? (
+            <TouchableOpacity
+              style={{ position: "absolute", left: "90%", top: "10%" }}
+              onPress={() =>
+                deleteDoc(
+                  doc(
+                    db,
+                    "users",
+                    auth.currentUser.uid,
+                    "Groups",
+                    post.groupId, "Scrapbooks", post.docId
+                  )
+                )
+              }
+            >
+              <MaterialCommunityIcons
+                name="delete-circle-outline"
+                size={20}
+                color="black"
+              />
+            </TouchableOpacity>
+          ) : (
+            ""
+          )}
+        </Card.Actions>
         <TouchableOpacity
           onPress={() => navigation.navigate("Post", { item: post })}
         >
@@ -142,26 +199,7 @@ const GroupProfile = ({ navigation, route }) => {
           subtitleStyle={styles.cardSubTitle}
           leftStyle={styles.groupIcon}
         />
-        {members.includes(auth.currentUser.uid) ? (
-          <Card.Actions>
-            <Btn
-              title="Edit"
-              style={styles.buttonTxt}
-              onPress={() =>
-                navigation.navigate("EditScrapbook", {
-                  item: post,
-                  item3: groupId,
-                  group: true,
-                })
-              }
-            >
-              {" "}
-              Edit{" "}
-            </Btn>
-          </Card.Actions>
-        ) : (
-          ""
-        )}
+        
       </Card>
     );
   };
@@ -178,7 +216,9 @@ const GroupProfile = ({ navigation, route }) => {
       if (querySnapshot.data().members.includes(auth.currentUser.uid)) {
         setOnClick(!onClick);
         setMemberCount(memberCount - 1);
-        setMembers((item) => item.filter((user) => user !== auth.currentUser.uid))
+        setMembers((item) =>
+          item.filter((user) => user !== auth.currentUser.uid)
+        );
         await updateDoc(
           doc(db, "users", route.params.uid, "Groups", route.params.item),
           {
@@ -194,7 +234,7 @@ const GroupProfile = ({ navigation, route }) => {
       } else {
         setOnClick(!onClick);
         setMemberCount(memberCount + 1);
-        setMembers((prev) => [...prev,auth.currentUser.uid])
+        setMembers((prev) => [...prev, auth.currentUser.uid]);
         await updateDoc(
           doc(db, "users", route.params.uid, "Groups", route.params.item),
           {
@@ -352,7 +392,7 @@ const styles = StyleSheet.create({
   },
   post: {
     margin: 7.5,
-    backgroundColor:"white"
+    backgroundColor: "white",
   },
   infoContainer: {
     padding: 10,

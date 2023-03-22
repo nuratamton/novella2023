@@ -14,12 +14,12 @@ import { getAuth } from "firebase/auth";
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCLJ1P-cXaiUtJnPw0q55AkJMEdkowuYIo",
-  authDomain: "novellaplusultra.firebaseapp.com",
-  projectId: "novellaplusultra",
-  storageBucket: "novellaplusultra.appspot.com",
-  messagingSenderId: "582611680492",
-  appId: "1:582611680492:web:4b7aa5f71cce48517939c9"
+  apiKey: "AIzaSyCPgq2IE97GwGvPp-pjwik5y5n0Bl63FdQ",
+  authDomain: "novella-final-1.firebaseapp.com",
+  projectId: "novella-final-1",
+  storageBucket: "novella-final-1.appspot.com",
+  messagingSenderId: "443875417576",
+  appId: "1:443875417576:web:3d51a394f1efe91942985d"
 };
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);

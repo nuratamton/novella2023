@@ -6,9 +6,8 @@ import { BlurView } from "expo-blur";
 import { AntDesign } from "@expo/vector-icons";
 import { PushToStack } from "../components/NavigationMethod"
 
-const CreateModal = ({ navigation, route }) => {
+const CreateModal = () => {
   const [modalVisible, setModalVisible] = useState(false);
-  // const navigation = useNavigation();
   return (
     <>
       <Button

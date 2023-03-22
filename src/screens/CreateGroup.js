@@ -11,9 +11,7 @@ import {
 import React, { useState, useEffect, useRef } from "react";
 import { auth } from "../firebase";
 import { db } from "../firebase";
-import { addDoc, collection, setDoc, doc , serverTimestamp} from "firebase/firestore";
-import DateTimePickerModal from "react-native-modal-datetime-picker";
-import { useNavigation } from "@react-navigation/native";
+import { setDoc, doc , serverTimestamp} from "firebase/firestore";
 import InputBox from "../components/InputBox";
 import Button from "../components/Button";
 import {
@@ -25,8 +23,6 @@ import {
 import * as ImagePicker from "expo-image-picker";
 import { Feather } from "@expo/vector-icons";
 import Apploader from "../components/Apploader";
-import { async } from "@firebase/util";
-import { popFromStack } from "../components/NavigationMethod";
 import uuid from "react-native-uuid";
 
 const CreateGroup = ({ navigation }) => {
@@ -37,7 +33,7 @@ const CreateGroup = ({ navigation }) => {
   const [birthDate, setBirthDate] = useState("xoxoDOB");
   const [accountType, setAccountType] = useState("");
   const [bio, setBio] = useState("");
-  const [profilePic, setprofilePic] = useState("");
+  const [profilePic, setprofilePic] = useState("https://blogifs.azureedge.net/wp-content/uploads/2019/03/Guest_Blogger_v1.png");
   const [hasPerm, setPerm] = useState(null);
   const [Url, setUrl] = useState(
     "https://blogifs.azureedge.net/wp-content/uploads/2019/03/Guest_Blogger_v1.png"

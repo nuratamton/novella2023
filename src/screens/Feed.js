@@ -8,7 +8,8 @@ import {
   Image,
   FlatList,
   Button,
-  Alert
+  Alert,
+  LogBox
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import Logo from "../../assets/images/novella.png";
@@ -42,6 +43,7 @@ export const postID = () => {
 };
 
 const Feed = ({ navigation }) => {
+  LogBox.ignoreLogs(['Require cycle: src/routes/AppStack.js -> src/components/CreateModal.js -> src/components/NavigationMethod.js -> src/routes/AppStack.js']);
   const windowWidth = Dimensions.get("window").width;
   const windowHeight = Dimensions.get("window").height;
   const [scrapbooks, getScrapbooks] = useState([]);
@@ -49,13 +51,14 @@ const Feed = ({ navigation }) => {
   useEffect(() => {}, [scrapbooks]);
 
   const fetchScrapbook = async () => {
+    let temp = []
     const currDoc = doc(db, "users", auth.currentUser.uid);
     await getDoc(currDoc).then(async (QuerySnapshot) => {
       QuerySnapshot.data().following.forEach(async (element) => {
         const ref = collection(db, "users", element, "Scrapbooks");
         await getDocs(ref).then((data) => {
           data.forEach((item) => {
-            getScrapbooks((prev) => [...prev, item.data()]);
+            getScrapbooks((temp)=> [...temp,item.data()])
           });
         });
       });
@@ -65,6 +68,7 @@ const Feed = ({ navigation }) => {
   useEffect(() => {
     fetchScrapbook();
   }, []);
+  
 
   const hiddenAlert = (location) => {
     

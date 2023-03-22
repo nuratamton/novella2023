@@ -26,9 +26,6 @@ import {
   collection,
   doc,
   deleteDoc,
-  where,
-  query,
-  onSnapshot,
 } from "firebase/firestore";
 import Apploader from "../components/Apploader";
 import { DrawerActions, useIsFocused } from "@react-navigation/native";
@@ -154,18 +151,6 @@ const UserProfile = ({ navigation, route }) => {
     return (
       <Card style={[styles.post, { width: windowWidth / 2 - 15 }]}>
         <Card.Actions style={{ flexDirection: "row" }}>
-          {/* <Text
-            style={{
-              position: "absolute",
-              backgroundColor: "purple",
-              bottom: -10,
-              // right:40,
-              color: "white",
-            }}
-          >
-            {post.type}
-          </Text> */}
-
           <TouchableOpacity
             style={{ position: "absolute", left: "90%" }}
             onPress={() =>

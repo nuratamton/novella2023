@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import { StyleSheet , LogBox} from "react-native";
 import React from "react";
 
 import {
@@ -49,14 +49,10 @@ const Drawer = createDrawerNavigator();
 export const navRef = createNavigationContainerRef();
 
 const AppStack = () => {
+  LogBox.ignoreLogs(['Require cycle: src/routes/AppStack.js -> src/components/CreateModal.js -> src/components/NavigationMethod.js -> src/routes/AppStack.js']);
   CreateStack = () => {
     return (
       <Stack.Navigator>
-        {/* <Stack.Screen
-        // options={{ headerShown: false }}
-        name="CreateModal"
-        component={CreateModal}
-      /> */}
         <Stack.Screen
           options={{ headerShown: false }}
           name="CreateScrapbook"

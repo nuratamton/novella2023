@@ -17,6 +17,7 @@ import {
   getDoc,
   doc,
 } from "firebase/firestore";
+import { LogBox } from 'react-native';
 import { db, auth } from "../firebase";
 import { Avatar } from "react-native-paper";
 import { TouchableOpacity } from "react-native-gesture-handler";
@@ -29,6 +30,7 @@ const Explore = ({ navigation }) => {
   const [userList, setUser] = useState([]);
   const [groupList, setGroup] = useState([]);
   const [scrapbooks, setScrapbooks] = useState([]);
+  LogBox.ignoreLogs(['Each child in a list should have a unique "key" prop']);
   // setSearch(value)
   const [Loading, setLoading] = useState(true);
   const colors = ["red" , "#003f5d" , "#065535" , "#62156c" , "black" , "white" , "#ff1493" , "orange" , "aquamarine"]

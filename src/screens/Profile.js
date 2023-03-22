@@ -17,7 +17,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Card, Avatar } from "react-native-paper";
 import { ScrollView } from "react-native-virtualized-view";
 import { AntDesign } from "@expo/vector-icons";
-
+import { DrawerActions, useIsFocused } from "@react-navigation/native";
 import {
   getDocs,
   getDoc,
@@ -61,7 +61,7 @@ const Profile = ({ navigation, route }) => {
   const [following, setFollowing] = useState([]);
 
   const [accountType, setAccountType] = useState("");
-
+  const isFocused = useIsFocused();
   const UUID = uuid.v4();
   const UUID2 = uuid.v4();
 
@@ -188,6 +188,9 @@ const Profile = ({ navigation, route }) => {
       const request = Snap.data().following.includes(auth.currentUser.uid)
         ? true
         : false;
+      // const request = Snap.data().requests.includes(auth.currentUser.uid)
+      //   ? true
+      //   : false;
       await getDoc(currDoc).then(async (QuerySnapshot) => {
         await setDoc(
           receiver,
@@ -202,6 +205,9 @@ const Profile = ({ navigation, route }) => {
           },
           { merge: true }
         );
+        await updateDoc(receiverDoc,{
+          requests:arrayUnion(auth.currentUser.uid)
+        })
       });
     });
   };
@@ -242,7 +248,9 @@ const Profile = ({ navigation, route }) => {
     await getDoc(newref).then((querySnapshot) => {
       querySnapshot.data().groups.forEach(async (item) => {
         await getDoc(item).then((oogabooga) => {
-          temp.push(oogabooga.data());
+          if(oogabooga.data() !== undefined){
+            temp.push(oogabooga.data());
+          }
         });
       });
     });
@@ -271,28 +279,38 @@ const Profile = ({ navigation, route }) => {
   };
 
   useEffect(() => {
-    getUserDetails();
+    // const unsub = onSnapshot(collection(db,"users"),(snapshot)=>{
+    //   snapshot.docChanges().forEach((change) => {
+    //     if(change.type === "modified"){
+    //       getUserDetails()
+    //     }
+    //   })
+    // })
+    // const usub2 = onSnapshot(collection(db,"users",route.params.item,"Scrapbooks"),(snapshot)=>{
+    //   snapshot.docChanges().forEach((change)=>{
+    //     if(change.type === "added"){
+    //       Scrapbooks();
+    //     }
+    //   })
+    // })
+    // const usub3 = onSnapshot(collection(db,"users",route.params.item,"Groups"),(snapshot)=>{
+    //   snapshot.docChanges().forEach((change)=> {
+    //     if(change.type === "added"){
+    //       Groups()
+    //     }
+    //   })
+    // })
+  }, []);
+
+  useEffect(() => {
     Scrapbooks();
     Groups();
-    const unsub = onSnapshot(collection(db,"users",),(snapshot)=>{
-      snapshot.docChanges().forEach((change) => {
-        if(change.type === "removed"){
-          Scrapbooks();
-          Groups();
-        }
-        if(change.type === "added"){
-          Scrapbooks();
-          Groups();
-          getUserDetails()
-        }
-        if(change.type === "modified"){
-          Scrapbooks();
-          Groups();
-          getUserDetails()
-        }
-      })
-    })
-  }, []);
+    getUserDetails();
+    setDisplayScrap(true);
+  }, [isFocused]);
+  useEffect(() => {
+    getUserDetails();
+  }, [FollowersCount, FollowingCount]);
 
   renderPost = (post) => {
     return (

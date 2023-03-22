@@ -13,7 +13,6 @@ import Checkbox from "expo-checkbox";
 import React, { useState, useEffect, useRef } from "react";
 import { Feather } from "@expo/vector-icons";
 import { IconButton, Title } from "react-native-paper";
-import { popFromStack } from "../components/NavigationMethod";
 import InputBox from "../components/InputBox";
 import Button from "../components/Button";
 import * as ImagePicker from "expo-image-picker";
@@ -218,7 +217,7 @@ const CreateScrapbook = ({ navigation, route }) => {
           likes: 0,
           likesArray: [],
           comments: [],
-          uid: auth.currentUser.uid,
+          uid: route.params.uid,
           groupname: Username,
           groupIcon: Url,
           groupId: groupId,
