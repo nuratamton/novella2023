@@ -120,6 +120,9 @@ const Notifications = ({navigation, route}) => {
         requests: arrayRemove(post.From),
         followerCount: increment(1),
       });
+      await updateDoc(doc(db,"users",auth.currentUser.uid,"Notifications",post.id),{
+        request:true
+      })
       // await updateDoc(doc(db,"users",auth.currentUser.uid,"Notifications",post.id),{
       //   request:false
       // })
@@ -181,7 +184,7 @@ const Notifications = ({navigation, route}) => {
               ""
             )}
              {post.type === "Request" ? (
-              post.request? (
+              !post.request? (
                 <TouchableOpacity
                   disabled={false}
                   onPress={() => {acceptRequest(post)}}
@@ -201,7 +204,7 @@ const Notifications = ({navigation, route}) => {
                     alignItems: "center",
                   }}
                 >
-                  <Text style={styles.buttonText}> {post.request?"Accept" : "Accepted"}  </Text>
+                  <Text style={styles.buttonText}> Accpeted </Text>
                 </TouchableOpacity>
               )
             ) : (

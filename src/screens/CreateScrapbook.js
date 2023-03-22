@@ -74,7 +74,7 @@ const CreateScrapbook = ({ navigation, route }) => {
   }, []);
 
   useEffect(() => {
-    console.log("hello");
+    console.log(location)
     setLocationSet(true);
   }, [location]);
 
@@ -397,7 +397,7 @@ const CreateScrapbook = ({ navigation, route }) => {
         </View>
         
         <View style={styles.checkboxContainer}>
-        {locationName?
+        {location?
           <Checkbox
             value={hide}
             onValueChange={setHide}
