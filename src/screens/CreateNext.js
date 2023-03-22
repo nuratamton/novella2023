@@ -69,7 +69,6 @@ const CreateNext = ({ navigation, route }) => {
   };
 
   useEffect(() => {
-    console.warn(selectedImages);
   }, [selectedImages]);
   const askPermissionsAsync = async () => {
     await Camera.getCameraPermissionsAsync();

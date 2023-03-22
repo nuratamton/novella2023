@@ -32,6 +32,7 @@ import {
   query,
   where,
   orderBy,
+  onSnapshot,
   deleteDoc,
 } from "firebase/firestore";
 
@@ -184,7 +185,7 @@ const Profile = ({ navigation, route }) => {
     const receiverDoc = doc(db, "users", route.params.item);
     const receiver = doc(db, "users", route.params.item, "Notifications", UUID);
     await getDoc(receiverDoc).then(async (Snap) => {
-      const request = Snap.data().requests.includes(auth.currentUser.uid)
+      const request = Snap.data().following.includes(auth.currentUser.uid)
         ? true
         : false;
       await getDoc(currDoc).then(async (QuerySnapshot) => {
@@ -276,15 +277,18 @@ const Profile = ({ navigation, route }) => {
     const unsub = onSnapshot(collection(db,"users",),(snapshot)=>{
       snapshot.docChanges().forEach((change) => {
         if(change.type === "removed"){
-          fetch()
+          Scrapbooks();
+          Groups();
         }
         if(change.type === "added"){
-          fetch()
-          otherDetails()
+          Scrapbooks();
+          Groups();
+          getUserDetails()
         }
         if(change.type === "modified"){
-          fetch()
-          otherDetails()
+          Scrapbooks();
+          Groups();
+          getUserDetails()
         }
       })
     })
