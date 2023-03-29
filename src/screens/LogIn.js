@@ -1,5 +1,14 @@
-import { KeyboardAvoidingView, View, Text, Image, StyleSheet, Dimensions, TouchableOpacity, ScrollView } from "react-native";
-import React, { useState } from "react";
+import {
+  KeyboardAvoidingView,
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  Dimensions,
+  TouchableOpacity,
+  ScrollView,
+} from "react-native";
+import React, { useState, useEffect } from "react";
 import Logo from "../../assets/images/novella_logo.png";
 import InputBox from "../components/InputBox";
 import Button from "../components/Button";
@@ -7,30 +16,29 @@ import { auth } from "../firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useNavigation } from "@react-navigation/core";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import Apploader from '../components/Apploader';
+import Apploader from "../components/Apploader";
 const LogIn = () => {
   const windowWidth = Dimensions.get("window").width;
   const windowHeight = Dimensions.get("window").height;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [data, setData] = useState({
-    isSecureTextEntry: true,
-  });
-  const [Logging , setLogging] = useState(false);
+  const [data, setData] = useState(true);
+  const [Logging, setLogging] = useState(false);
 
   const navigation = useNavigation();
 
   const handleLogIn = async () => {
-    setLogging(true)
+    setLogging(true);
     await signInWithEmailAndPassword(auth, email, password)
       .then((userCredentials) => {
         const user = userCredentials.user;
         console.warn("Logged In: ", user.email);
       })
       .catch((error) => alert("Incorrect login details entered!"));
-      setLogging(false)
+    setLogging(false);
   };
 
+  useEffect(() => {}, [data]);
   return (
     <ScrollView>
       <KeyboardAvoidingView behavior="padding">
@@ -50,24 +58,40 @@ const LogIn = () => {
               value={password}
               setValue={setPassword}
               placeholder="Password"
-              secure={data.isSecureTextEntry ? true : false}
+              secure={data ? true : false}
               style={styles.passwordInput}
             />
-            <TouchableOpacity
-              onPress={() => {
-                setData({
-                  isSecureTextEntry: !data.isSecureTextEntry,
-                });
-              }}
-            >
+            {data ? (
               <MaterialCommunityIcons
-                name={data.isSecureTextEntry ? "eye-off" : "eye"}
+                style={{
+                  marginLeft: "75%",
+                  position: "absolute",
+                  marginBottom: "20%",
+                  left: '90%',
+                 
+                }}
+                name={"eye-off"}
                 color="gray"
                 size={25}
                 paddingHorizontal="12%"
-                style={styles.eyeicon}
+                onPress={() => setData(!data)}
               />
-            </TouchableOpacity>
+            ) : (
+              <MaterialCommunityIcons
+                style={{
+                  marginLeft: "75%",
+                  position: "absolute",
+                  marginBottom: "20%",
+                  left: '90%'
+
+                }}
+                name={"eye"}
+                color="gray"
+                size={25}
+                paddingHorizontal="12%"
+                onPress={() => setData(!data)}
+              />
+            )}
           </View>
 
           <TouchableOpacity onPress={() => navigation.replace("forgotPass")}>
@@ -81,7 +105,7 @@ const LogIn = () => {
             type="SECONDARY"
             text_type="SECONDARY"
           />
-          {Logging ? <Apploader/> : null }
+          {Logging ? <Apploader /> : null}
         </View>
       </KeyboardAvoidingView>
     </ScrollView>

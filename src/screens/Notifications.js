@@ -5,14 +5,9 @@ import {
   SafeAreaView,
   FlatList,
   TouchableOpacity,
-  Button,
-  Alert
+  Alert,
 } from "react-native";
-import { Avatar } from "react-native-paper";
-import React, { useEffect, useState, useRef } from "react";
-import InputBox from "../components/InputBox";
-import { Ionicons } from "@expo/vector-icons";
-import { auth, db } from "../firebase";
+
 import {
   doc,
   getDocs,
@@ -24,35 +19,35 @@ import {
   increment,
   onSnapshot,
 } from "firebase/firestore";
+
+import React, { useEffect, useState } from "react";
+import { Avatar } from "react-native-paper";
+import { auth, db } from "../firebase";
 import moment from "moment";
 import { useIsFocused } from "@react-navigation/native";
 
-const Notifications = ({navigation, route}) => {
+const Notifications = ({ navigation }) => {
   const [notifications, setNotifications] = useState([]);
-  const [status, setStatus] = useState(true);
-  const [followers , setFollowers] = useState();
+  const [followers, setFollowers] = useState();
   const [following, setFollowing] = useState();
+
   const isFocused = useIsFocused();
-  const [docs, setDoc] = useState();
-  const [followers2, setFollowers2] = useState([]);
 
+  // a function to retrieve current user's followers and follwoing
   const otherDetails = async () => {
-    const ref = doc(db,"users",auth.currentUser.uid)
- 
+    const ref = doc(db, "users", auth.currentUser.uid);
+    // await to ensure that this is done before moving forward in the code
     await getDoc(ref).then((querySnapshot) => {
-      setFollowers(querySnapshot.data().followers)
-      setFollowing(querySnapshot.data().following)
-      // setAccountType(querySnapshot.data().accountType)
-      setDoc(querySnapshot)
-    })
+      // setting followers and following using data from backend
+      setFollowers(querySnapshot.data().followers);
+      setFollowing(querySnapshot.data().following);
+    });
+  };
 
-  }
+  // use effect to return a promise when followers or following is set (or reset)
+  useEffect(() => {}, [followers, following]);
 
-  
-  useEffect(() => {
-    
-  }, [followers,following]);
-
+  // function to fetch all the notifications of the current user
   const fetch = async () => {
     let temp = [];
     const ref = collection(db, "users", auth.currentUser.uid, "Notifications");
@@ -63,69 +58,76 @@ const Notifications = ({navigation, route}) => {
     });
     setNotifications(temp);
   };
-  useEffect(() => {
-    console.log(status);
-  }, [status]);
+
   useEffect(() => {
     otherDetails();
     fetch();
-    const unsub = onSnapshot(collection(db,"users",auth.currentUser.uid,"Notifications"),(snapshot)=>{
-      snapshot.docChanges().forEach((change) => {
-        if(change.type === "removed"){
-          fetch()
-        }
-        if(change.type === "added"){
-          fetch()
-          otherDetails()
-        }
-        if(change.type === "modified"){
-          fetch()
-          otherDetails()
-        }
-      })
-    })
+    const unsub = onSnapshot(
+      collection(db, "users", auth.currentUser.uid, "Notifications"),
+      (snapshot) => {
+        snapshot.docChanges().forEach((change) => {
+          if (change.type === "removed") {
+            fetch();
+          }
+          if (change.type === "added") {
+            fetch();
+            otherDetails();
+          }
+          if (change.type === "modified") {
+            fetch();
+            otherDetails();
+          }
+        });
+      }
+    );
   }, []);
 
+  // whenever 
   useEffect(() => {
     otherDetails();
     fetch();
   }, [isFocused]);
 
   const followBack = async (post) => {
-    const noti = doc(db,"users",auth.currentUser.uid,"Notifications",post.id)
-    const currDoc = doc(db,"users",auth.currentUser.uid )
-    const otherGuy = doc(db,"users",post.From)
+    const noti = doc(
+      db,
+      "users",
+      auth.currentUser.uid,
+      "Notifications",
+      post.id
+    );
+    const currDoc = doc(db, "users", auth.currentUser.uid);
+    const otherGuy = doc(db, "users", post.From);
     await updateDoc(otherGuy, {
-
       followers: arrayUnion(auth.currentUser.uid),
-      followerCount: increment(1)
-    })
-    await updateDoc(currDoc,{
-      following:arrayUnion(post.From),
-      followingCount: increment(1)
-    })
-    await updateDoc(noti,{
-      followBack:true
-    })
-  }
- 
+      followerCount: increment(1),
+    });
+    await updateDoc(currDoc, {
+      following: arrayUnion(post.From),
+      followingCount: increment(1),
+    });
+    await updateDoc(noti, {
+      followBack: true,
+    });
+  };
+
   const acceptRequest = async (post) => {
     const currDoc = doc(db, "users", auth.currentUser.uid);
-      await updateDoc(doc(db, "users", post.From), {
-        following: arrayUnion(auth.currentUser.uid),
-        followingCount: increment(1),
-      });
-      await updateDoc(currDoc, {
-        followers: arrayUnion(post.From),
-        requests: arrayRemove(post.From),
-        followerCount: increment(1),
-      });
-      await updateDoc(doc(db,"users",auth.currentUser.uid,"Notifications",post.id),{
-        request:true
-      })
-      // await updateDoc(doc(db,"users",auth.currentUser.uid,"Notifications",post.id),{
-      //   request:false
-      // })
+    await updateDoc(doc(db, "users", post.From), {
+      following: arrayUnion(auth.currentUser.uid),
+      followingCount: increment(1),
+    });
+    await updateDoc(currDoc, {
+      followers: arrayUnion(post.From),
+      requests: arrayRemove(post.From),
+      followerCount: increment(1),
+    });
+    await updateDoc(
+      doc(db, "users", auth.currentUser.uid, "Notifications", post.id),
+      {
+        request: true,
+      }
+    );
   };
 
   renderPost = (post) => {
@@ -157,10 +159,12 @@ const Notifications = ({navigation, route}) => {
             </Text>
 
             {post.type === "Follow" ? (
-              !post.followBack? (
+              !post.followBack ? (
                 <TouchableOpacity
                   disabled={false}
-                  onPress={() => {followBack(post)}}
+                  onPress={() => {
+                    followBack(post);
+                  }}
                   style={styles.button}
                 >
                   <Text style={styles.buttonText}> Follow </Text>
@@ -177,17 +181,19 @@ const Notifications = ({navigation, route}) => {
                     alignItems: "center",
                   }}
                 >
-                  <Text style={styles.buttonText}> Following  </Text>
+                  <Text style={styles.buttonText}> Following </Text>
                 </TouchableOpacity>
               )
             ) : (
               ""
             )}
-             {post.type === "Request" ? (
-              !post.request? (
+            {post.type === "Request" ? (
+              !post.request ? (
                 <TouchableOpacity
                   disabled={false}
-                  onPress={() => {acceptRequest(post)}}
+                  onPress={() => {
+                    acceptRequest(post);
+                  }}
                   style={styles.button}
                 >
                   <Text style={styles.buttonText}> Accept </Text>
@@ -211,44 +217,47 @@ const Notifications = ({navigation, route}) => {
               ""
             )}
 
-            
             {post.type === "Share" ? (
-
-              post.postOwnerType === "Public" ?
-              (
+              post.postOwnerType === "Public" ? (
                 <TouchableOpacity
-                onPress={() => {navigation.navigate("Post", {item: post.post})}}
-                style={{
-                  backgroundColor: "purple",
-                  marginTop: 10,
-                  paddingVertical: 4,
-                  borderRadius: 25,
-                  width: "25%",
-                  alignItems: "center",
-                }}
-              >
-                <Text style={styles.buttonText}> View Post </Text>
-              </TouchableOpacity>
-              ):(
+                  onPress={() => {
+                    navigation.navigate("Post", { item: post.post });
+                  }}
+                  style={{
+                    backgroundColor: "purple",
+                    marginTop: 10,
+                    paddingVertical: 4,
+                    borderRadius: 25,
+                    width: "25%",
+                    alignItems: "center",
+                  }}
+                >
+                  <Text style={styles.buttonText}> View Post </Text>
+                </TouchableOpacity>
+              ) : (
                 <TouchableOpacity
-                onPress={() => {
-                  Alert.alert("You do follow this private account,"+
-                  "please follow this account"+
-                  " to view the Scrapbook ")
-                }}
-                style={{
-                  backgroundColor: "purple",
-                  marginTop: 10,
-                  paddingVertical: 4,
-                  borderRadius: 25,
-                  width: "25%",
-                  alignItems: "center",
-                }}
-              >
-                <Text style={styles.buttonText}> View Post </Text>
-              </TouchableOpacity>
+                  onPress={() => {
+                    Alert.alert(
+                      "You do follow this private account," +
+                        "please follow this account" +
+                        " to view the Scrapbook "
+                    );
+                  }}
+                  style={{
+                    backgroundColor: "purple",
+                    marginTop: 10,
+                    paddingVertical: 4,
+                    borderRadius: 25,
+                    width: "25%",
+                    alignItems: "center",
+                  }}
+                >
+                  <Text style={styles.buttonText}> View Post </Text>
+                </TouchableOpacity>
               )
-            ) : ""}
+            ) : (
+              ""
+            )}
           </View>
         </View>
       </View>
@@ -276,13 +285,11 @@ const Notifications = ({navigation, route}) => {
 
       <FlatList
         style={styles.feed}
-        data={notifications.sort(
-          function (a, b) {
-            if (a.timestamp > b.timestamp) return -1;
-            if (a.timestamp < b.timestamp) return 1;
-            return 0;
-          }
-        )}
+        data={notifications.sort(function (a, b) {
+          if (a.timestamp > b.timestamp) return -1;
+          if (a.timestamp < b.timestamp) return 1;
+          return 0;
+        })}
         renderItem={({ item }) => renderPost(item)}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
@@ -310,8 +317,6 @@ const styles = StyleSheet.create({
   },
   notifications: {
     width: "100%",
-
-    // backgroundColor: "#ffffff",
   },
   header: {
     alignItems: "center",
@@ -345,14 +350,5 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
     backgroundColor: "#ffffff",
-    // opacity: 0.9,
-
-    // shadowColor: '#000',
-    // shadowOffset: {
-    //   width: 0, height: 5
-    // },
-    // shadowOpacity: 0.3,
-    // shadowRadius: 10,
-    // marginBottom: 30
   },
 });

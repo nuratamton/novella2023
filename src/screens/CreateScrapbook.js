@@ -5,31 +5,24 @@ import {
   SafeAreaView,
   TouchableOpacity,
   Image,
-  TextInput,
-  KeyboardAvoidingView,
-  Button as But,
 } from "react-native";
 import Checkbox from "expo-checkbox";
 import React, { useState, useEffect, useRef } from "react";
-import { Feather } from "@expo/vector-icons";
-import { IconButton, Title } from "react-native-paper";
+import { IconButton } from "react-native-paper";
 import InputBox from "../components/InputBox";
 import Button from "../components/Button";
 import * as ImagePicker from "expo-image-picker";
-import * as Permissions from "expo-permissions";
 import { db } from "../firebase";
 import { getStorage } from "firebase/storage";
 import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import { auth } from "../firebase";
 import uuid from "react-native-uuid";
 import Apploader from "../components/Apploader";
-import { AntDesign } from "@expo/vector-icons";
-import { rotateX } from "react-native-flip-page/src/transform-utils";
-import { Camera, CameraType } from "expo-camera";
+import { Camera } from "expo-camera";
 import Tags from "react-native-tags";
 import { Dropdown } from "react-native-element-dropdown";
 import * as Location from "expo-location";
-import { MaterialIcons } from '@expo/vector-icons'; 
+import { MaterialIcons } from "@expo/vector-icons";
 
 const CreateScrapbook = ({ navigation, route }) => {
   const [title, setTitle] = useState("");
@@ -40,9 +33,7 @@ const CreateScrapbook = ({ navigation, route }) => {
   const [Url, setUrl] = useState(null);
   const [Loading, setLoading] = useState(false);
   const UUID = uuid.v4();
-  const storage = getStorage();
   const [hasCameraPerm, setCameraPerm] = useState(null);
-  const camRef = useRef(null);
   const [tagsarray, setTagsArray] = useState([]);
   const [value, setValue] = useState("");
   const [isFocus, setIsFocus] = useState(false);
@@ -72,31 +63,15 @@ const CreateScrapbook = ({ navigation, route }) => {
     getUD();
   }, []);
 
-  useEffect(() => {
-    console.log(location)
-    setLocationSet(true);
-  }, [location]);
+  // useeffects returning promise
 
-  useEffect(() => {
-    console.log(locationName);
-  }, [locationName]);
-
-  // useEffect(() => {
-  //   console.log(pos);
-  // }, [pos]);
-
-  useEffect(() => {
-    console.log(groupId);
-  }, [groupId]);
-  useEffect(() => {}, [Username]);
-
+  useEffect(() => {}, [locationName]);
+  useEffect(() => {}, [groupId]);
+  useEffect(() => {}, [Username,locationSet]);
   useEffect(() => {}, [tagsarray]);
-
   useEffect(() => {}, [Url]);
+  useEffect(() => {}, [hide]);
 
-  useEffect(() => {
-    console.log(hide);
-  }, [hide]);
 
   useEffect(() => {
     if (title.length == 16) {
@@ -114,21 +89,14 @@ const CreateScrapbook = ({ navigation, route }) => {
     console.log(value);
   }, [value]);
 
-  // const handleChange = event => {
-  //   const result = event.target.value.replace(/[^a-z]/gi,'');
-
-  //   setMessage(result);
-  // };
   const locationPermission = async () => {
-    await Location.requestForegroundPermissionsAsync()
-  }
+    await Location.requestForegroundPermissionsAsync();
+  };
   const askPermissionsAsync = async () => {
     await Camera.getCameraPermissionsAsync();
     await ImagePicker.requestCameraPermissionsAsync();
   };
-  // const AddTag = async () => {
 
-  // }
   const getUD = async () => {
     let ref;
     {
@@ -195,11 +163,14 @@ const CreateScrapbook = ({ navigation, route }) => {
     return <Text> No access to Internal Storage </Text>;
   }
   const addLoc = async () => {
+    setLocationSet(true)
     setLocation(await Location.getCurrentPositionAsync());
   };
 
+  // function that does scrapbook upload
   const handleUpload = async () => {
     setLoading(true);
+    // if its a group upload to group collections
     if (route.params.group) {
       await setDoc(
         doc(
@@ -235,6 +206,7 @@ const CreateScrapbook = ({ navigation, route }) => {
         .catch((error) => {
           console.log(error);
         });
+        // else upload to the individual collection
     } else {
       await setDoc(doc(db, "users", auth.currentUser.uid, "Scrapbooks", UUID), {
         title: title,
@@ -272,18 +244,9 @@ const CreateScrapbook = ({ navigation, route }) => {
   };
   return (
     <SafeAreaView style={styles.mainContainer}>
-      {/* <IconButton
-        icon="chevron-left"
-        size={24}
-        iconColor="black"
-        onPress={async () => {
-          popFromStack();
-        }}
-      /> */}
       <View style={styles.textCont}>
         <Text style={styles.heading}> Select the Scrapbook Cover Image : </Text>
-        <View>
-        </View>
+        <View></View>
       </View>
       <View style={styles.droppy}>
         {renderLabel()}
@@ -322,9 +285,9 @@ const CreateScrapbook = ({ navigation, route }) => {
           <Text> Add cover page </Text>
           <MaterialIcons name="add-photo-alternate" size={24} color="black" />
         </TouchableOpacity>
-        <TouchableOpacity onPress={takeImage} style={{bottom: 100, right: 1}}>
-        <MaterialIcons name="add-a-photo" size={22} color="black" />
-          </TouchableOpacity>
+        <TouchableOpacity onPress={takeImage} style={{ bottom: 100, right: 1 }}>
+          <MaterialIcons name="add-a-photo" size={22} color="black" />
+        </TouchableOpacity>
 
         {/* <View style={styles.bottomCont}> */}
         <Text style={styles.bottomTxt}> Enter a Scrapbook Title </Text>
@@ -380,8 +343,8 @@ const CreateScrapbook = ({ navigation, route }) => {
               color="green"
               size={24}
               onPress={async () => {
-                await locationPermission()
-                addLoc()
+                await locationPermission();
+                addLoc();
               }}
             />
           ) : (
@@ -394,18 +357,19 @@ const CreateScrapbook = ({ navigation, route }) => {
           )}
           <Text style={{ top: "4%", right: 10 }}>Add my location</Text>
         </View>
-        
+
         <View style={styles.checkboxContainer}>
-        {location?
-          <Checkbox
-            value={hide}
-            onValueChange={setHide}
-            style={styles.checkbox}
-          />:""
-        }
+          {location ? (
+            <Checkbox
+              value={hide}
+              onValueChange={setHide}
+              style={styles.checkbox}
+            />
+          ) : (
+            ""
+          )}
           <Text style={styles.label}> Hide this scrapbook </Text>
         </View>
-
 
         <Button text="Submit" onPress={handleUpload} />
       </View>

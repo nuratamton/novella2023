@@ -9,15 +9,6 @@ import {
   Button as Btn,
   Alert,
 } from "react-native";
-import React, { useEffect, useState } from "react";
-import Button from "../components/Button";
-import { db, auth } from "../firebase";
-import { IconButton } from "react-native-paper";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Card, Avatar } from "react-native-paper";
-import { ScrollView } from "react-native-virtualized-view";
-import { AntDesign } from "@expo/vector-icons";
-import { DrawerActions, useIsFocused } from "@react-navigation/native";
 import {
   getDocs,
   getDoc,
@@ -31,17 +22,22 @@ import {
   serverTimestamp,
   query,
   where,
-  orderBy,
-  onSnapshot,
   deleteDoc,
 } from "firebase/firestore";
-
+import Button from "../components/Button";
 import uuid from "react-native-uuid";
+import React, { useEffect, useState } from "react";
+import { db, auth } from "../firebase";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Card, Avatar, IconButton } from "react-native-paper";
+import { ScrollView } from "react-native-virtualized-view";
+import { AntDesign } from "@expo/vector-icons";
+import { useIsFocused } from "@react-navigation/native";
+
 const Profile = ({ navigation, route }) => {
   const currentUserId = auth.currentUser.uid;
   const uid = route.params.item;
   const windowWidth = Dimensions.get("window").width;
-  const windowHeight = Dimensions.get("window").height;
   const [scrapbooks, getScrapbooks] = useState([]);
   const [groups, getGroups] = useState([]);
   const [onFollowClick, setOnFollowClick] = useState(false);
@@ -49,9 +45,7 @@ const Profile = ({ navigation, route }) => {
   const [username, setusername] = useState("Default");
   const [name, setName] = useState("Name");
   const [FollowersCount, setFollowersCount] = useState(0);
-  // const [FollowersArray, setFollowersArray] = useState([]);
   const [FollowingCount, setFollowingCount] = useState(0);
-  // const [FollowingArray, setFollowingArray] = useState([]);
   const [bio, setbio] = useState("Bio");
   const [displayScrap, setDisplayScrap] = useState(true);
   const [image, setimage] = useState(
@@ -59,12 +53,11 @@ const Profile = ({ navigation, route }) => {
   );
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
-
   const [accountType, setAccountType] = useState("");
   const isFocused = useIsFocused();
   const UUID = uuid.v4();
-  const UUID2 = uuid.v4();
 
+  // an alert for hidden posts
   const hiddenAlert = (location) => {
     Alert.alert(
       "You have come across a hidden scrapbook!",
@@ -113,10 +106,8 @@ const Profile = ({ navigation, route }) => {
     const Uref = doc(db, "users", route.params.item);
     const userDoc = await getDoc(Uref);
 
-    const Iref = doc(db, "users", currentUserId);
-    const myDoc = await getDoc(Iref);
-
     setusername(userDoc.data().username);
+    setName(userDoc.data().name);
     setbio(userDoc.data().bio);
     setimage(userDoc.data().profilePicsrc);
 
@@ -130,11 +121,13 @@ const Profile = ({ navigation, route }) => {
 
     getFollowStatus();
   };
+
   const groupExists = async () => {
     if (collection(db, "users", auth.currentUser.uid, "Groups")) {
       return true;
     }
   };
+
   const sendFollowNotification = async () => {
     let followBack = false;
     const currDoc = doc(db, "users", auth.currentUser.uid);
@@ -176,7 +169,6 @@ const Profile = ({ navigation, route }) => {
           doc(db, "users", route.params.item, "Notifications", item.data().id)
         );
       });
-      //   await deleteDoc(doc(db,"users", route.params.item.uid,"Notifications",doc.data().id))
     });
   };
 
@@ -185,12 +177,9 @@ const Profile = ({ navigation, route }) => {
     const receiverDoc = doc(db, "users", route.params.item);
     const receiver = doc(db, "users", route.params.item, "Notifications", UUID);
     await getDoc(receiverDoc).then(async (Snap) => {
-      const request = Snap.data().following.includes(auth.currentUser.uid)
+      const request = Snap.data().followers.includes(auth.currentUser.uid)
         ? true
         : false;
-      // const request = Snap.data().requests.includes(auth.currentUser.uid)
-      //   ? true
-      //   : false;
       await getDoc(currDoc).then(async (QuerySnapshot) => {
         await setDoc(
           receiver,
@@ -205,9 +194,9 @@ const Profile = ({ navigation, route }) => {
           },
           { merge: true }
         );
-        await updateDoc(receiverDoc,{
-          requests:arrayUnion(auth.currentUser.uid)
-        })
+        await updateDoc(receiverDoc, {
+          requests: arrayUnion(auth.currentUser.uid),
+        });
       });
     });
   };
@@ -229,7 +218,6 @@ const Profile = ({ navigation, route }) => {
           doc(db, "users", route.params.item, "Notifications", item.data().id)
         );
       });
-      //   await deleteDoc(doc(db,"users", route.params.item.uid,"Notifications",doc.data().id))
     });
   };
 
@@ -248,7 +236,7 @@ const Profile = ({ navigation, route }) => {
     await getDoc(newref).then((querySnapshot) => {
       querySnapshot.data().groups.forEach(async (item) => {
         await getDoc(item).then((oogabooga) => {
-          if(oogabooga.data() !== undefined){
+          if (oogabooga.data() !== undefined) {
             temp.push(oogabooga.data());
           }
         });
@@ -278,29 +266,7 @@ const Profile = ({ navigation, route }) => {
     }
   };
 
-  useEffect(() => {
-    // const unsub = onSnapshot(collection(db,"users"),(snapshot)=>{
-    //   snapshot.docChanges().forEach((change) => {
-    //     if(change.type === "modified"){
-    //       getUserDetails()
-    //     }
-    //   })
-    // })
-    // const usub2 = onSnapshot(collection(db,"users",route.params.item,"Scrapbooks"),(snapshot)=>{
-    //   snapshot.docChanges().forEach((change)=>{
-    //     if(change.type === "added"){
-    //       Scrapbooks();
-    //     }
-    //   })
-    // })
-    // const usub3 = onSnapshot(collection(db,"users",route.params.item,"Groups"),(snapshot)=>{
-    //   snapshot.docChanges().forEach((change)=> {
-    //     if(change.type === "added"){
-    //       Groups()
-    //     }
-    //   })
-    // })
-  }, []);
+  useEffect(() => {}, []);
 
   useEffect(() => {
     Scrapbooks();
@@ -341,10 +307,7 @@ const Profile = ({ navigation, route }) => {
         />
         <Text
           style={{
-            // position: "absolute",
-            // backgroundColor: "black",
             color: "black",
-            // justifyContent:"center",
             textAlign: "right",
             fontSize: 15,
             fontWeight: "600",
@@ -407,33 +370,20 @@ const Profile = ({ navigation, route }) => {
     const currDoc = doc(db, "users", currentUserId);
     if (accountType === "Private") {
       removeRequestNotification();
-      const receiver = doc(
-        db,
-        "users",
-        route.params.item,
-        "Notifications",
-        UUID
-      );
       await getDoc(doc(db, "users", uid)).then(async (QuerySnapshot) => {
         if (QuerySnapshot.data().requests.includes(currentUserId)) {
           await updateDoc(doc(db, "users", uid), {
             requests: arrayRemove(currentUserId),
           });
-          // await updateDoc(receiver, {
-          //   request: false,
-          // });
         } else {
           sendRequestNotification();
           await updateDoc(doc(db, "users", uid), {
             requests: arrayUnion(currentUserId),
-            
           });
         }
-
         await getDoc(currDoc).then(async (QuerySnapshot) => {
           if (QuerySnapshot.data().following.includes(uid)) {
             setFollowersCount(FollowersCount - 1);
-            // setFollowingCount(FollowingCount - 1);
             await updateDoc(doc(db, "users", uid), {
               followers: arrayRemove(currentUserId),
               followerCount: increment(-1),
@@ -451,7 +401,6 @@ const Profile = ({ navigation, route }) => {
       await getDoc(currDoc).then(async (QuerySnapshot) => {
         if (QuerySnapshot.data().following.includes(uid)) {
           setFollowersCount(FollowersCount - 1);
-          // setFollowingCount(FollowingCount - 1);
           await updateDoc(doc(db, "users", uid), {
             followers: arrayRemove(currentUserId),
             followerCount: increment(-1),
@@ -464,8 +413,6 @@ const Profile = ({ navigation, route }) => {
           removeFollowNotification();
         } else {
           setFollowersCount(FollowersCount + 1);
-          // setFollowersArray("")
-          // setFollowingCount(FollowingCount + 1);
           await updateDoc(doc(db, "users", uid), {
             followers: arrayUnion(currentUserId),
             followerCount: increment(1),
@@ -482,7 +429,6 @@ const Profile = ({ navigation, route }) => {
   };
 
   const getFollowStatus = async () => {
-    let status = false;
     const currDoc = doc(db, "users", currentUserId);
     await getDoc(currDoc).then(async (QuerySnapshot) => {
       if (QuerySnapshot.data().following.includes(uid)) {
@@ -501,7 +447,6 @@ const Profile = ({ navigation, route }) => {
   };
 
   return (
-    // <ScrollView showsVerticalScrollIndicator={false}>
     <SafeAreaView style={styles.container}>
       <ScrollView>
         <IconButton
@@ -526,7 +471,6 @@ const Profile = ({ navigation, route }) => {
                 })
               }
             >
-              {/* {currDoc = doc(db, "users", currentUserId)} */}
               <Text>{FollowersCount}</Text>
               <Text>Followers</Text>
             </TouchableOpacity>
@@ -609,13 +553,11 @@ const Profile = ({ navigation, route }) => {
             style={styles.feed}
             data={groups}
             renderItem={({ item }) => renderGroup(item)}
-            // keyExtractor={(itemm) => itemm.id}
             showsVerticalScrollIndicator={false}
           />
         )}
       </ScrollView>
     </SafeAreaView>
-    // </ScrollView>
   );
 };
 
@@ -624,7 +566,6 @@ export default Profile;
 const styles = StyleSheet.create({
   container: {},
   header: {
-    // backgroundColor: '#b98ad4',
     backgroundColor: "#eacdf7",
     alignItems: "center",
     padding: 10,
@@ -636,8 +577,6 @@ const styles = StyleSheet.create({
   },
   avatarContainer: {
     borderRadius: 10,
-    // borderWidth: 1,
-    // marginBottom: 30,
     backgroundColor: "#f2f2f2",
     justifyContent: "center",
     alignItems: "center",
@@ -652,7 +591,6 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
   },
   infoContainer: {
-    // padding: 10,
     marginTop: 50,
     marginBottom: 30,
     position: "relative",

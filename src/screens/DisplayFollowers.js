@@ -1,15 +1,20 @@
-import { FlatList, StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import {
+  FlatList,
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+} from "react-native";
 import React, { useState, useEffect } from "react";
-import { getDocs, getDoc, collection, doc } from "firebase/firestore";
+import { getDoc, doc } from "firebase/firestore";
 import { db } from "../firebase";
-import { async } from "@firebase/util";
 import { Avatar } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const DisplayFollowers = ({ navigation, route }) => {
-  const [followers, setFollowers] = useState("");
+const DisplayFollowers = ({ route }) => {
   const [userDoc, setDoc] = useState([]);
 
+  // A function which gets the list of followers from firebase
   const followersList = async () => {
     const currDoc = doc(db, "users", route.params.uid);
     await getDoc(currDoc).then(async (querySnapshot) => {
@@ -20,16 +25,18 @@ const DisplayFollowers = ({ navigation, route }) => {
       });
     });
   };
-  // followers = [ewdewfceswfc, ecfcfesfc, fcdfcdsc]
 
+  // on load of the page call the function which renders followers from the backend
   useEffect(() => {
     followersList();
   }, []);
 
+  // the render method for the flatlist
   renderPost = (post) => {
+    // Each item in the flatlist should display the following
     return (
-      <View style={[styles.notifications]}>
-        <TouchableOpacity style={styles.notificationBox}>
+      <View>
+        <TouchableOpacity style={styles.item}>
           <View style={styles.picture}>
             <Avatar.Image
               source={{ uri: post.data().profilePicsrc }}
@@ -37,7 +44,7 @@ const DisplayFollowers = ({ navigation, route }) => {
               style={{ marginRight: 12 }}
             />
           </View>
-      
+
           <View>
             <Text style={{ fontSize: 25, fontWeight: "100" }}>
               {post.data().username}
@@ -45,10 +52,10 @@ const DisplayFollowers = ({ navigation, route }) => {
           </View>
         </TouchableOpacity>
       </View>
-      
     );
   };
 
+  // the content displayed when on this page
   return (
     <SafeAreaView>
       <View style={styles.header}>
@@ -65,6 +72,8 @@ const DisplayFollowers = ({ navigation, route }) => {
           Followers{" "}
         </Text>
       </View>
+
+      {/* flatlist to dynamically render data */}
       <FlatList
         style={styles.feed}
         data={userDoc}
@@ -78,8 +87,7 @@ const DisplayFollowers = ({ navigation, route }) => {
 export default DisplayFollowers;
 
 const styles = StyleSheet.create({
-  notificationBox: {
-    // padding: 20,
+  item: {
     flex: 1,
     flexDirection: "row",
     alignContent: "center",
@@ -89,15 +97,11 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderBottomColor: "#f2f2f2",
     backgroundColor: "#e6e6fa",
-
     shadowColor: "#fff",
-    // shadowOffset: {
-    //   width: 0,
-    //   height: 5,
-    // },
     shadowOpacity: 1,
     shadowRadius: 10,
   },
+
   header: {
     alignItems: "center",
     padding: 20,

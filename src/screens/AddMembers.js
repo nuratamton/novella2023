@@ -210,8 +210,6 @@ const styles = StyleSheet.create({
   },
   avatar: {
     position: "absolute",
-    // left: 20,
-    // Top: 20,
   },
   searchBox: {
     marginTop: 5,

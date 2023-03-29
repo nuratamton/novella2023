@@ -7,181 +7,177 @@ import {
   View,
   Image,
   FlatList,
-  Button,
   Alert,
-  LogBox
+  LogBox,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import Logo from "../../assets/images/novella.png";
-import { Ionicons } from "@expo/vector-icons";
-import { BlurView } from "expo-blur";
 import { Card, Avatar } from "react-native-paper";
-import {
-  getDocs,
-  getDoc,
-  updateDoc,
-  collection,
-  doc,
-  orderBy,
-  query,
-  arrayUnion,
-  arrayRemove,
-  increment,
-  where,
-} from "firebase/firestore";
-
-import { AntDesign } from "@expo/vector-icons";
-
-import { IconButton } from "react-native-paper";
-
+import { getDocs, getDoc, collection, doc } from "firebase/firestore";
 import { auth, db } from "../firebase";
-import { async } from "@firebase/util";
+import { cond } from "react-native-reanimated";
+import { useIsFocused } from "@react-navigation/native";
 
+// used somehwere because its exported
 export const postID = () => {
-  // console.warn(id)
   return { id };
 };
 
 const Feed = ({ navigation }) => {
-  LogBox.ignoreLogs(['Require cycle: src/routes/AppStack.js -> src/components/CreateModal.js -> src/components/NavigationMethod.js -> src/routes/AppStack.js']);
+  LogBox.ignoreLogs([
+    "Require cycle: src/routes/AppStack.js -> src/components/CreateModal.js -> src/components/NavigationMethod.js -> src/routes/AppStack.js",
+  ]);
+
   const windowWidth = Dimensions.get("window").width;
   const windowHeight = Dimensions.get("window").height;
+  const isFocused = useIsFocused();
   const [scrapbooks, getScrapbooks] = useState([]);
 
-  useEffect(() => {}, [scrapbooks]);
+  useEffect(() => {
+    console.log("HEREE",scrapbooks)
+  }, [scrapbooks]);
 
+  // a function retrieves all the scrapbooks of every user that the current user is following
   const fetchScrapbook = async () => {
-    let temp = []
+    let tempo = []
     const currDoc = doc(db, "users", auth.currentUser.uid);
-    await getDoc(currDoc).then(async (QuerySnapshot) => {
+    getDoc(currDoc).then(async (QuerySnapshot) => {
+      // getting the ref of each followng from the backend
       QuerySnapshot.data().following.forEach(async (element) => {
         const ref = collection(db, "users", element, "Scrapbooks");
-        await getDocs(ref).then((data) => {
+        getDocs(ref).then((data) => {
+          // for each user, get their scrapbooks and store it in scrapbooks array
           data.forEach((item) => {
-            getScrapbooks((temp)=> [...temp,item.data()])
+            tempo.push(item.data())
           });
+          getScrapbooks(tempo)
         });
       });
     });
+    
   };
 
+  // useEffect(() => {
+  //   fetchScrapbook();
+  // }, []);
+  
   useEffect(() => {
     fetchScrapbook();
-  }, []);
-  
+  }, [isFocused]);
 
   const hiddenAlert = (location) => {
-    
     Alert.alert(
       "You have come across a hidden scrapbook!",
       "To view the contents of this scrapbook and interact with it, please find it on the map",
       [
         {
           text: "Give me hints",
-          onPress: () => {hintAlert(location)}
+          onPress: () => {
+            hintAlert(location);
+          },
         },
         {
           text: "View on map",
-          onPress: () => {navigation.navigate("Explore")}
+          onPress: () => {
+            navigation.navigate("Explore");
+          },
         },
-        { text: "OK", onPress: () => console.log("OK Pressed") }
+        { text: "OK", onPress: () => console.log("OK Pressed") },
       ],
       { cancelable: false }
-    )
-  }
+    );
+  };
 
+  // allert to display the latitude and longitude as hints
   const hintAlert = (location) => {
-    const hello = "hello"
+    const hello = "hello";
     Alert.alert(
       "Here is your hint!",
-      "Latitude: " + `${location.coords.latitude}` +
-      "\nLongitude: " + `${location.coords.longitude}`,
+      "Latitude: " +
+        `${location.coords.latitude}` +
+        "\nLongitude: " +
+        `${location.coords.longitude}`,
       [
         {
           text: "View on map",
-          onPress: () => {navigation.navigate("Explore")}
+          onPress: () => {
+            navigation.navigate("Explore");
+          },
         },
-        { text: "OK", onPress: () => console.log("OK Pressed") }
+        { text: "OK", onPress: () => console.log("OK Pressed") },
       ],
       { cancelable: false }
-    )
-
-  }
-
+    );
+  };
+  // function to render each item in the flatlist
   renderPost = (post) => {
     return (
       <>
-        <Card style={[styles.post]}>
+      <Card style={[styles.post]}>
+        <TouchableOpacity
+          style={{ flexDirection: "row" }}
+          onPress={() => navigation.navigate("Profile", { item: post.uid })}
+        >
+          <Card.Actions>
+            {/* display profile picture of user thatn posted the scrapbook */}
+            <Avatar.Image
+              source={{ uri: post.profilepic ? post.profilepic : "" }}
+              size={25}
+            />
+            {/* display the username of the user who posted the scrapbook */}
+            <Text styles={styles.cardSubTitle}>{post.username}</Text>
+          </Card.Actions>
+        </TouchableOpacity>
+        {/* if hide is false navigate to post on click */}
+        {post.hide != true ? (
           <TouchableOpacity
-            style={{ flexDirection: "row" }}
-            onPress={() => navigation.navigate("Profile", { item: post.uid })}
+            onPress={() => navigation.navigate("Post", { item: post })}
           >
-            <Card.Actions>
-              <Avatar.Image
-                source={{ uri: post.profilepic ? post.profilepic : "" }}
-                size={25}
-              />
-              <Text styles={styles.cardSubTitle}>{post.username}</Text>
-            </Card.Actions>
+            <Card.Cover
+              source={{ uri: post.CoverImg ? post.CoverImg : "" }}
+              resizeMode="cover"
+            />
           </TouchableOpacity>
-          {post.hide != true ? (
-            <TouchableOpacity
-              onPress={() => navigation.navigate("Post", { item: post })}
-            >
-              <Card.Cover
-                source={{ uri: post.CoverImg ? post.CoverImg : "" }}
-                resizeMode="cover"
-              />
-            </TouchableOpacity>
-          ) : (
-            
-            <TouchableOpacity
-            onPress={() => hiddenAlert(post.location)}
-          >
-              <Card.Cover
-                source={{ uri: post.CoverImg ? post.CoverImg : "" }}
-                resizeMode="cover"
-              />
-              </TouchableOpacity>
-          )}
-          <Card.Title
-            style={styles.postHeader}
-            title={post.title}
-            titleStyle={styles.cardTitle}
-            subtitleStyle={styles.cardSubTitle}
-            leftStyle={styles.profilePicture}
-          />
-          <Text
-            style={{
-              // position: "absolute",
-              // backgroundColor: "black",
-              color: "black",
-              // justifyContent:"center",
-              textAlign: "right",
-              fontSize: 15,
-              fontWeight: "600",
-              marginRight: 10,
-              marginBottom: 10,
-              bottom: 37,
-            }}
-          >
-            {post.type}
-          </Text>
-        </Card>
+        ) : (
+          // else call the hiddenAlert function
+          <TouchableOpacity onPress={() => hiddenAlert(post.location)}>
+            <Card.Cover
+              source={{ uri: post.CoverImg ? post.CoverImg : "" }}
+              resizeMode="cover"
+            />
+          </TouchableOpacity>
+        )}
+        {/* Add scrapbook title */}
+        <Card.Title
+          style={styles.postHeader}
+          title={post.title}
+          titleStyle={styles.cardTitle}
+          subtitleStyle={styles.cardSubTitle}
+          leftStyle={styles.profilePicture}
+        />
+        <Text
+          style={{
+            color: "black",
+            textAlign: "right",
+            fontSize: 15,
+            fontWeight: "600",
+            marginRight: 10,
+            marginBottom: 10,
+            bottom: 37,
+          }}
+        >
+          {/* display post type (fac, fiction or opinion ) */}
+          {post.type}
+        </Text>
+      </Card>
       </>
     );
   };
 
+  // main return of the page
   return (
     <SafeAreaView style={styles.container}>
-      {/* <BlurView tint="light" intensity={100} style={StyleSheet.absoluteFill} /> */}
-      <View
-        style={[
-          styles.header,
-          // { height: windowHeight * 0.08 },
-          // { width: windowWidth},
-        ]}
-      >
+      <View style={styles.header}>
         <Image
           source={Logo}
           style={[
@@ -191,19 +187,18 @@ const Feed = ({ navigation }) => {
           ]}
           resizeMode="contain"
         />
-        <TouchableOpacity style={{ marginBottom: 5 }}>
-          <Ionicons name="chatbubble-outline" size={24} color="black" />
-        </TouchableOpacity>
       </View>
 
       <FlatList
         style={styles.feed}
+        //  getting data to be sorted according to time
         data={scrapbooks.sort(function (a, b) {
           if (a.timestamp > b.timestamp) return -1;
           if (a.timestamp < b.timestamp) return 1;
           return 0;
         })}
         renderItem={({ item }) => renderPost(item)}
+        // disable scroll
         showsVerticalScrollIndicator={false}
       />
     </SafeAreaView>
@@ -214,8 +209,7 @@ export default Feed;
 
 const styles = StyleSheet.create({
   container: {
-    // flex: 1,
-    padding: 100,
+    padding: 10,
     height: "100%",
     width: "100%",
     backgroundColor: "#FFFFFF",
@@ -225,7 +219,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     padding: 20,
     paddingBottom: 10,
-    // paddingVertical: 10,
     zIndex: 1,
     height: "10%",
   },
@@ -244,8 +237,6 @@ const styles = StyleSheet.create({
   },
   post: {
     marginVertical: 8,
-    // maxWidth: 500,
-    // alignSelf:"center"
     backgroundColor: "white",
   },
   postHeader: {
@@ -267,7 +258,6 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: "600",
     left: 0.5,
-    // bottom: 0.2,
     zIndex: 1,
   },
   profilePicture: {
