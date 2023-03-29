@@ -10,14 +10,16 @@
       "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff",
-    "pluggins": [
-      "expo-camera",{
-        "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera."
-      },
-      "expo-location",{
-        "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location."
-      }
-    ]
+      "pluggins": [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera."
+        },
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location."
+        }
+      ]
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -32,10 +34,16 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
-      }
+      },
+      "package": "com.novella2023"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "e79209a6-2a5d-46d1-b857-ff7de5c8ac8b"
+      }
     }
   }
 }
