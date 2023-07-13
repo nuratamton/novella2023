@@ -1,2 +1,2 @@
-# Novella2023
+# Novella
 
