@@ -12,6 +12,6 @@ This will add all the necessary packages needed to run the program. After that u
 
 > expo start
 
-This will start the metro bundler and if xcode or Android Studio is installed it will prompt it open.
+This will start the metro bundler and if Xcode or Android Studio is installed it will prompt it open.
 
 A QR code will also be present and you may open it in your phone with the Expo Go app installed.
