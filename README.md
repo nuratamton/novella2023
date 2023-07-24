@@ -2,7 +2,7 @@
 
 This is an AR scrapbooking platform where users can sign up and interact with their friends, share scrapbooks, and search for hidden scrapbooks.
 
-## Buildind and running the application
+## Building and running the application
 
 You can clone the repo and build the program typing the following command after switching to this project's directory.
 
